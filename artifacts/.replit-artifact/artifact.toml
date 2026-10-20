@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "Kaziranga NOW"
+version = "1.0.0"
+id = "artifacts/kaziranga-now"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 24627
+
+[services.development]
+run = "pnpm --filter @workspace/kaziranga-now run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/kaziranga-now", "run", "build" ]
+publicDir = "artifacts/kaziranga-now/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "24627"
+BASE_PATH = "/"

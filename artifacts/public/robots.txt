@@ -1,0 +1,28 @@
+# ── Standard crawlers ──────────────────────────────────────
+User-agent: *
+Allow: /
+
+# ── AI / LLM Crawlers (explicitly allowed) ─────────────────
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Amazonbot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+# ── Sitemap ────────────────────────────────────────────────
+Sitemap: https://kaziranga-house.vercel.app/sitemap.xml
