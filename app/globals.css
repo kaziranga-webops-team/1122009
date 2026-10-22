@@ -2080,18 +2080,69 @@ section {
 }
 .hero-dot { color: #d98a2b; }
 
-/* Curved photo frame: soft bottom wave on small screens, circle-arc on desktop.
-   The clip paths are defined inline in HeroSection.tsx. */
-.hero-media { clip-path: url(#hero-clip-mobile); }
-@media (min-width: 1024px) {
-  .hero-media { clip-path: url(#hero-clip); }
+/* Shared hero geometry (desktop): the photo is a circle centred at (--cx, --cy)
+   with radius --R; the two semicircles share that centre at --R + --g and
+   --R + 2*--g, so every curve stays concentric at any screen size. */
+.hero-geo {
+  --cx: 79vw;
+  --cy: 46vh;
+  --R: min(37vw, 60vh);
+  --g: clamp(16px, 1.6vw, 28px);
 }
+
+/* Photo frame: wavy bottom on small screens, true circle on desktop.
+   It bleeds past the top/right edges and sinks into the About wave below. */
+.hero-media { clip-path: url(#hero-clip-mobile); }
 .hero-media-img {
   transition: opacity 1.4s ease-in-out, transform 6s ease-out;
 }
+@media (min-width: 1024px) {
+  .hero-media-frame {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: calc(var(--cx) - var(--R));
+    width: auto;
+    height: auto;
+  }
+  .hero-media { clip-path: circle(var(--R) at var(--R) var(--cy)); }
+}
 
-/* Amber dot on the orbit: slow halo pulse */
-.hero-orbit-dot { animation: heroDotPulse 3.2s ease-in-out infinite; }
+/* Semicircles: left half only, tapering out at both ends */
+.hero-orbit {
+  position: absolute;
+  left: var(--cx);
+  top: var(--cy);
+  width: calc(2 * var(--r));
+  height: calc(2 * var(--r));
+  transform: translate(-50%, -50%);
+  border-radius: 9999px;
+  border: 1px solid var(--c);
+  -webkit-mask-image:
+    linear-gradient(to right, #000 50%, transparent 50%),
+    linear-gradient(to bottom, transparent 6%, #000 28%, #000 72%, transparent 94%);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    linear-gradient(to right, #000 50%, transparent 50%),
+    linear-gradient(to bottom, transparent 6%, #000 28%, #000 72%, transparent 94%);
+  mask-composite: intersect;
+}
+.hero-orbit--inner { --r: calc(var(--R) + var(--g)); --c: rgba(217, 138, 43, 0.75); }
+.hero-orbit--outer { --r: calc(var(--R) + 2 * var(--g)); --c: rgba(30, 86, 49, 0.3); }
+
+/* Amber dot sitting exactly on the inner semicircle, at its leftmost point */
+.hero-orbit-dot {
+  position: absolute;
+  left: calc(var(--cx) - var(--R) - var(--g));
+  top: var(--cy);
+  width: 0.8rem;
+  height: 0.8rem;
+  border-radius: 9999px;
+  background: #d98a2b;
+  transform: translate(-50%, -50%);
+  animation: heroDotPulse 3.2s ease-in-out infinite;
+}
 @keyframes heroDotPulse {
   0%, 100% { box-shadow: 0 0 0 0 rgba(217, 138, 43, 0.35); }
   50%      { box-shadow: 0 0 0 10px rgba(217, 138, 43, 0); }

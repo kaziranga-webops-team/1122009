@@ -45,10 +45,40 @@ export default function Home() {
 
       <main className="flex-grow">
         {/* HERO & ABOUT WRAPPER — Confines the stack scroll effect */}
-        <div className="relative z-10 bg-black">
+        {/* Wrapper matches About's green so no other shade ever shows between the two */}
+        <div className="relative z-10 bg-[#172b1e]">
           <HeroSection />
 
-          {/* DARK ZONE — Hero seamlessly blends into About Us */}
+          {/* Wavy top edge of the About zone, in About's own color. It overlaps the
+              hero's bottom and scrolls up with About (kept outside ScrollReveal so it
+              is always visible). */}
+          <svg
+            aria-hidden="true"
+            className="pointer-events-none relative z-20 -mb-px -mt-[7vh] block h-[7vh] w-full lg:-mt-[13vh] lg:h-[13vh]"
+            viewBox="0 0 1440 160"
+            preserveAspectRatio="none"
+          >
+            {/* Soft layer: the same S-curve as the front wave, shifted up 18 units */}
+            <path
+              d="M0,78 C180,46 300,30 440,30 C640,30 800,88 1000,88 C1180,88 1320,56 1440,38 L1440,160 L0,160 Z"
+              fill="#1e5631"
+              fillOpacity="0.16"
+            />
+            <path
+              d="M0,78 C180,46 300,30 440,30 C640,30 800,88 1000,88 C1180,88 1320,56 1440,38"
+              fill="none"
+              stroke="#1e5631"
+              strokeOpacity="0.28"
+              vectorEffect="non-scaling-stroke"
+            />
+            {/* Front wave in About's green: crest left, trough centre-right, rising at the edge */}
+            <path
+              d="M0,96 C180,64 300,48 440,48 C640,48 800,106 1000,106 C1180,106 1320,74 1440,56 L1440,160 L0,160 Z"
+              fill="#172b1e"
+            />
+          </svg>
+
+          {/* DARK ZONE — About Us */}
           <ScrollReveal delay={0} className="relative z-20">
             <AboutUsSection />
           </ScrollReveal>

@@ -32,8 +32,9 @@ export default function AboutUsSection() {
       id="about-us" 
       className="relative w-full bg-[#172b1e]"
     >
-      {/* Subtle Radial Gradient Overlay for depth */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-white/5 via-transparent to-transparent pointer-events-none" />
+      {/* Subtle Radial Gradient Overlay for depth — masked out at the top edge so the
+          section meets the wave above it in exactly the same green (no seam) */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-white/5 via-transparent to-transparent pointer-events-none [mask-image:linear-gradient(to_bottom,transparent,black_35%)]" />
 
       <div className="container relative z-10 mx-auto px-6 py-6 md:px-12 md:py-10 max-w-7xl">
         <div className="flex flex-col md:flex-row items-center gap-10 md:gap-16">

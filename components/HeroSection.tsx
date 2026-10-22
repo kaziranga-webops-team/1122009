@@ -7,22 +7,17 @@ import { ArrowRight } from "lucide-react";
 import { fetchHeroPhotos, type HeroPhoto } from "@/lib/api";
 
 const JOIN_URL = "https://forms.gle/Ac5Zxwn21cRMeEcy8";
-const PILLARS = ["Creators", "Leaders", "Dreamers"];
 const ROTATE_MS = 5000;
 const DEFAULT_SUBTITLE =
   "A student house of the IIT Madras BS Degree — 5,000+ members meeting up, learning, and building things together.";
 
-// Clip paths for the photo frame (objectBoundingBox units, 0–1).
-// Referenced from globals.css via `.hero-media { clip-path: url(#...) }`.
+// Mobile clip path for the photo (objectBoundingBox units, 0–1): full-width
+// image with a gentle wave at the bottom. On desktop the frame is a true circle
+// (see `.hero-media` in globals.css), so it shares a center with the orbits.
 function HeroClipPaths() {
   return (
     <svg width="0" height="0" className="absolute" aria-hidden="true" focusable="false">
       <defs>
-        {/* Desktop: big circle-arc on the left, soft wave along the bottom */}
-        <clipPath id="hero-clip" clipPathUnits="objectBoundingBox">
-          <path d="M1,0 L0.2,0 C0.06,0.16 -0.01,0.36 0.02,0.52 C0.05,0.68 0.14,0.8 0.3,0.86 C0.46,0.92 0.62,0.86 0.78,0.9 C0.88,0.93 0.95,0.97 1,1 Z" />
-        </clipPath>
-        {/* Mobile: full-width image with a gentle wave at the bottom */}
         <clipPath id="hero-clip-mobile" clipPathUnits="objectBoundingBox">
           <path d="M0,0 L1,0 L1,0.84 C0.78,0.98 0.42,0.88 0,0.97 Z" />
         </clipPath>
@@ -31,16 +26,14 @@ function HeroClipPaths() {
   );
 }
 
-// Thin orbit lines around the photo, with the amber dot (desktop only).
+// Two semicircles concentric with the photo's circular edge (desktop only).
+// Geometry comes from the --cx/--cy/--R/--g variables on `.hero-geo`.
 function Orbits() {
   return (
     <div aria-hidden="true" className="pointer-events-none absolute inset-0 hidden lg:block">
-      <div className="absolute left-[78%] top-[48%] h-0 w-0">
-        <div className="absolute h-[75vw] w-[75vw] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#1e5631]/25" />
-        <div className="absolute h-[71vw] w-[71vw] -translate-x-1/2 -translate-y-1/2 rounded-full border border-transparent border-l-[#d98a2b]/70">
-          <span className="hero-orbit-dot absolute left-0 top-1/2 h-3.5 w-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#d98a2b]" />
-        </div>
-      </div>
+      <div className="hero-orbit hero-orbit--inner" />
+      <div className="hero-orbit hero-orbit--outer" />
+      <span className="hero-orbit-dot" />
     </div>
   );
 }
@@ -110,7 +103,6 @@ export default function HeroSection() {
   const titleRef = useRef<HTMLHeadingElement>(null);
   const subtitleRef = useRef<HTMLParagraphElement>(null);
   const linkRef = useRef<HTMLAnchorElement>(null);
-  const pillarsRef = useRef<HTMLUListElement>(null);
   const mediaRef = useRef<HTMLDivElement>(null);
   const orbitsRef = useRef<HTMLDivElement>(null);
 
@@ -121,7 +113,6 @@ export default function HeroSection() {
       titleRef.current,
       subtitleRef.current,
       linkRef.current,
-      pillarsRef.current,
     ];
 
     // Reduced motion: skip the entrance and show everything immediately.
@@ -173,7 +164,7 @@ export default function HeroSection() {
   return (
     <section
       id="hero"
-      className="hero-canvas sticky top-0 z-0 flex w-full min-h-[100svh] flex-col overflow-hidden scroll-mt-20 lg:min-h-screen lg:justify-center"
+      className="hero-canvas hero-geo sticky top-0 z-0 flex w-full min-h-[100svh] flex-col overflow-hidden scroll-mt-20 lg:min-h-screen lg:justify-center"
     >
       <HeroClipPaths />
 
@@ -186,7 +177,7 @@ export default function HeroSection() {
           no hard cut; in flow above the copy on small screens, pinned right on desktop */}
       <div
         ref={mediaRef}
-        className="relative z-10 h-[56svh] w-full opacity-0 lg:absolute lg:bottom-[7vh] lg:right-0 lg:top-0 lg:h-auto lg:w-[56%]"
+        className="hero-media-frame relative z-10 h-[56svh] w-full opacity-0"
       >
         <HeroMedia />
       </div>
@@ -224,42 +215,9 @@ export default function HeroSection() {
             Join the House
             <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1" />
           </a>
-
-          <ul
-            ref={pillarsRef}
-            className="hero-eyebrow mt-11 space-y-1.5 border-l-2 border-[#d98a2b] pl-4 !text-[0.6rem] opacity-0"
-          >
-            {PILLARS.map((p) => (
-              <li key={p}>{p}</li>
-            ))}
-          </ul>
         </div>
       </div>
 
-      {/* Soft wave across the bottom, cutting the photo like the reference */}
-      <svg
-        aria-hidden="true"
-        className="pointer-events-none absolute bottom-0 left-0 z-[15] h-[9vh] w-full lg:h-[18vh]"
-        viewBox="0 0 1440 200"
-        preserveAspectRatio="none"
-      >
-        <path
-          d="M0,96 C260,40 560,46 820,96 C1060,142 1260,150 1440,104 L1440,200 L0,200 Z"
-          fill="#1e5631"
-          fillOpacity="0.06"
-        />
-        <path
-          d="M0,96 C260,40 560,46 820,96 C1060,142 1260,150 1440,104"
-          fill="none"
-          stroke="#1e5631"
-          strokeOpacity="0.18"
-          vectorEffect="non-scaling-stroke"
-        />
-        <path
-          d="M0,138 C280,82 600,96 860,136 C1080,168 1270,176 1440,146 L1440,200 L0,200 Z"
-          fill="#f8f9f4"
-        />
-      </svg>
     </section>
   );
 }
