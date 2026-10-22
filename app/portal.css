@@ -1,0 +1,450 @@
+/* ═══════════════════════════════════════════════════════════════
+   KAZIRANGA RHINOS — Portal Design System & Editorial Variables
+   Seamlessly unified with Kaziranga House (1122009) Design
+   ═══════════════════════════════════════════════════════════════ */
+
+/*
+  The palette is the illustrated site's, so the portal and the public pages
+  read as one product: cream paper, deep-green ink, the house green for
+  anything structural and the house red for anything that asks to be acted on.
+  The gold accent the portal used to carry belonged to no other surface here.
+*/
+:root {
+  /* Surfaces
+     Built from the house green scale: #051F20 · #0B2B26 · #163832 · #235347
+     · #8EB69B · #DAF1DE. Light mode derives two tints above the palest mint
+     so body text keeps its contrast — #8EB69B on white is about 2.4:1, which
+     is under the floor for anything you have to read. */
+  --surface: 239 246 240;        /* #eff6f0 page */
+  --surface-raised: 255 255 255; /* panels, cards, tables */
+  --surface-sunken: 218 241 222; /* #DAF1DE wells, inputs */
+  --surface-overlay: 255 255 255;
+  --surface-tint: 218 241 222;   /* #DAF1DE */
+
+  /* Ink & Typography */
+  --ink: 5 31 32;                /* #051F20 */
+  --ink-muted: 35 83 71;         /* #235347 */
+  --ink-faint: 79 122 104;       /* derived — #8EB69B is too light to read */
+  --ink-invert: 218 241 222;
+
+  /* Lines */
+  --hairline: 204 227 210;
+  --hairline-strong: 168 201 179;
+
+  /* Brand: pine green (#235347) */
+  --brand: 35 83 71;
+  --brand-soft: 218 241 222;
+  --brand-contrast: 218 241 222;
+
+  /* Accent: the house red. The green scale has no warm tone, and a dashboard
+     needs one colour that means "act on this" — all-green means nothing
+     stands out. */
+  --ed-accent: 198 1 31;
+  --accent-vivid: 224 20 58;
+  --accent-soft: 250 223 227;
+  --accent-contrast: 255 255 255;
+
+  /* Signals */
+  --signal-live: 35 83 71;
+  --signal-warn: 180 83 9;
+  --signal-danger: 198 1 31;
+  --signal-info: 3 105 161;
+
+  /* Shadows */
+  --elev-1: 0 1px 2px rgba(5, 31, 32, 0.05), 0 2px 8px -2px rgba(5, 31, 32, 0.06);
+  --elev-2: 0 2px 4px rgba(5, 31, 32, 0.05), 0 8px 20px -6px rgba(5, 31, 32, 0.10);
+  --elev-3: 0 4px 10px rgba(5, 31, 32, 0.06), 0 20px 40px -12px rgba(5, 31, 32, 0.16);
+  --elev-4: 0 10px 24px rgba(5, 31, 32, 0.08), 0 40px 80px -20px rgba(5, 31, 32, 0.22);
+
+  /* The sidebar and top bar are floating panels, and the top bar scrolls with
+     the page, so nothing is pinned above sticky content: --navbar-height is 0
+     and sticky elements add their own breathing room. */
+  --sidebar-width: 260px;
+  --navbar-height: 0px;
+}
+
+.dark {
+  --surface: 5 31 32;           /* #051F20 page */
+  --surface-raised: 11 43 38;   /* #0B2B26 panels */
+  --surface-sunken: 8 36 31;    /* between the two — inputs, table stripes */
+  --surface-overlay: 22 56 50;  /* #163832 */
+  --surface-tint: 22 56 50;
+
+  --ink: 218 241 222;           /* #DAF1DE */
+  --ink-muted: 142 182 155;     /* #8EB69B */
+  --ink-faint: 94 133 113;
+
+  --ink-invert: 5 31 32;
+
+  --hairline: 22 56 50;         /* #163832 */
+  --hairline-strong: 35 83 71;  /* #235347 */
+
+  --brand: 142 182 155;         /* #8EB69B — pine is too dark on this ground */
+  --brand-soft: 22 56 50;
+  --brand-contrast: 5 31 32;
+
+  --ed-accent: 239 59 87;       /* the house red, lifted to clear the dark */
+  --accent-vivid: 239 59 87;
+  --accent-soft: 60 12 20;
+  --accent-contrast: 255 255 255;
+
+  --signal-live: 142 182 155;
+  --signal-warn: 251 191 36;
+  --signal-danger: 239 59 87;
+  --signal-info: 56 189 248;
+
+  --elev-1: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --elev-2: 0 2px 6px rgba(0, 0, 0, 0.4), 0 10px 24px -6px rgba(0, 0, 0, 0.5);
+  --elev-3: 0 4px 12px rgba(0, 0, 0, 0.45), 0 24px 48px -12px rgba(0, 0, 0, 0.6);
+  --elev-4: 0 10px 24px rgba(0, 0, 0, 0.5), 0 48px 96px -24px rgba(0, 0, 0, 0.7);
+}
+
+/* ─── Semantic Background Utilities ─── */
+.bg-surface { background-color: rgb(var(--surface)); }
+.bg-surface-raised { background-color: rgb(var(--surface-raised)); }
+.bg-surface-sunken { background-color: rgb(var(--surface-sunken)); }
+.bg-surface-overlay { background-color: rgb(var(--surface-overlay)); }
+.bg-surface-tint { background-color: rgb(var(--surface-tint)); }
+
+.bg-brand { background-color: rgb(var(--brand)); }
+.bg-brand-soft { background-color: rgb(var(--brand-soft)); }
+.bg-accent { background-color: rgb(var(--ed-accent)); }
+.bg-accent-soft { background-color: rgb(var(--accent-soft)); }
+
+/* ─── Semantic Text Utilities ─── */
+.text-ink { color: rgb(var(--ink)); }
+.text-ink-muted { color: rgb(var(--ink-muted)); }
+.text-ink-faint { color: rgb(var(--ink-faint)); }
+.text-ink-invert { color: rgb(var(--ink-invert)); }
+
+.text-brand { color: rgb(var(--brand)); }
+.text-brand-contrast { color: rgb(var(--brand-contrast)); }
+.text-accent { color: rgb(var(--ed-accent)); }
+.text-accent-contrast { color: rgb(var(--accent-contrast)); }
+
+/* ─── Border Utilities ─── */
+.border-hairline { border-color: rgb(var(--hairline)); }
+.border-hairline-strong { border-color: rgb(var(--hairline-strong)); }
+
+/* ─── Signal Utilities ─── */
+.text-signal-live { color: rgb(var(--signal-live)); }
+.bg-signal-live { background-color: rgb(var(--signal-live)); }
+.border-signal-live { border-color: rgb(var(--signal-live)); }
+
+.text-signal-warn { color: rgb(var(--signal-warn)); }
+.bg-signal-warn { background-color: rgb(var(--signal-warn)); }
+.border-signal-warn { border-color: rgb(var(--signal-warn)); }
+
+.text-signal-danger { color: rgb(var(--signal-danger)); }
+.bg-signal-danger { background-color: rgb(var(--signal-danger)); }
+.border-signal-danger { border-color: rgb(var(--signal-danger)); }
+
+.text-signal-info { color: rgb(var(--signal-info)); }
+.bg-signal-info { background-color: rgb(var(--signal-info)); }
+.border-signal-info { border-color: rgb(var(--signal-info)); }
+
+/* ─── Elevation / Shadow Utilities ─── */
+.shadow-e-1 { box-shadow: var(--elev-1); }
+.shadow-e-2 { box-shadow: var(--elev-2); }
+.shadow-e-3 { box-shadow: var(--elev-3); }
+.shadow-e-4 { box-shadow: var(--elev-4); }
+
+/* ─── Typography Scales ─── */
+.text-eyebrow {
+  font-size: 0.6875rem;
+  line-height: 1;
+  letter-spacing: 0.2em;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.text-micro {
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+
+.text-caption {
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+
+.text-body {
+  font-size: 0.9375rem;
+  line-height: 1.65;
+}
+
+.text-body-lg {
+  font-size: 1.0625rem;
+  line-height: 1.7;
+}
+
+.text-title-sm {
+  font-size: 1.0625rem;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+  font-weight: 700;
+}
+
+.text-title {
+  font-size: 1.2rem;
+  line-height: 1.3;
+  letter-spacing: -0.015em;
+  font-weight: 700;
+}
+
+.text-title-lg {
+  font-size: 1.45rem;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  font-weight: 700;
+}
+
+.text-display-sm {
+  font-size: clamp(1.35rem, 1.1rem + 1.1vw, 1.8rem);
+  line-height: 1.18;
+  letter-spacing: -0.025em;
+  font-weight: 800;
+}
+
+.text-display-md {
+  font-size: clamp(1.7rem, 1.2rem + 2vw, 2.5rem);
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  font-weight: 800;
+}
+
+.text-display-lg {
+  font-size: clamp(2rem, 1.3rem + 2.6vw, 3rem);
+  line-height: 1.05;
+  letter-spacing: -0.035em;
+  font-weight: 900;
+}
+
+.text-display-xl {
+  font-size: clamp(2.3rem, 1.3rem + 4vw, 3.8rem);
+  line-height: 0.98;
+  letter-spacing: -0.04em;
+  font-weight: 900;
+}
+
+.tracking-eyebrow {
+  letter-spacing: 0.2em;
+}
+
+.font-display {
+  font-family: 'Montserrat', ui-sans-serif, system-ui, sans-serif;
+}
+
+/* The shell carries its own faces (lib/portal/fonts.ts). Outside the portal
+   layouts the variables are unset and both fall back to the house Montserrat. */
+.ed-app {
+  font-family: var(--font-portal-body, 'Montserrat'), ui-sans-serif, system-ui, sans-serif;
+  font-feature-settings: 'kern';
+}
+.ed-app .font-display {
+  font-family: var(--font-portal-display, 'Montserrat'), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* ─── Editorial Primitives ─── */
+.ed-stage {
+  background-color: #002820;
+  color: #f9fbe5;
+  isolation: isolate;
+}
+
+.ed-chrome {
+  background-color: rgb(var(--surface-raised));
+  color: rgb(var(--ink));
+  isolation: isolate;
+}
+
+.dark .ed-chrome {
+  background-color: #002820;
+  background-image:
+    radial-gradient(120% 60% at 50% -10%, rgba(150, 180, 165, 0.10) 0%, transparent 60%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0%, transparent 25%);
+  color: rgb(var(--ink));
+}
+
+.ed-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.6875rem;
+  line-height: 1;
+  letter-spacing: 0.2em;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: rgb(var(--ink-faint));
+}
+
+.ed-eyebrow::before {
+  content: '';
+  display: inline-block;
+  width: 1.5rem;
+  height: 1px;
+  background-color: rgb(var(--ed-accent) / 0.6);
+  flex-shrink: 0;
+}
+
+.ed-eyebrow-plain {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.6875rem;
+  line-height: 1;
+  letter-spacing: 0.2em;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: rgb(var(--ink-faint));
+}
+
+.ed-field {
+  width: 100%;
+  padding: 0.625rem 0.875rem;
+  border-radius: 0.75rem;
+  font-size: 0.9375rem;
+  background-color: rgb(var(--surface-raised));
+  color: rgb(var(--ink));
+  border: 1px solid rgb(var(--hairline));
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(12, 26, 22, 0.04);
+}
+
+.dark .ed-field {
+  background-color: rgb(var(--surface-sunken));
+  border-color: rgba(255, 255, 255, 0.1);
+  color: rgb(var(--ink));
+}
+
+.ed-field:focus {
+  outline: none;
+  border-color: rgb(var(--brand));
+  box-shadow: 0 0 0 3px rgba(30, 86, 49, 0.15);
+}
+
+.dark .ed-field:focus {
+  border-color: rgb(var(--ed-accent));
+  box-shadow: 0 0 0 3px rgba(212, 168, 83, 0.2);
+}
+
+.ed-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23445A52' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.75' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 0.85rem center;
+  background-size: 1.15rem 1.15rem;
+  padding-right: 2.5rem;
+}
+
+.dark .ed-select {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23D4AF37' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.75' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   LANDSCAPE HERO — day/night, driven by the existing .dark class
+   ═══════════════════════════════════════════════════════════════ */
+.dn-hero { background-color: #a9dcf0; }           /* sky, while images load */
+.dark .dn-hero { background-color: #0c1a3a; }
+
+.dn-scene { position: absolute; inset: 0; overflow: hidden; pointer-events: none; container-type: size; }
+/* A box the exact size and position of a `cover` / 50% 0% image, so images
+   and overlays share one coordinate space by construction. */
+.dn-art {
+  position: absolute; top: 0; left: 50%;
+  width: 100%;
+  width: max(100cqw, 100cqh * 1.7768);
+  aspect-ratio: 1672 / 941;
+  transform: translateX(-50%);
+}
+.dn-img { position: absolute; inset: 0; width: 100%; height: 100%; display: block; user-select: none; }
+
+.dn-night { opacity: 0; will-change: opacity; }
+.dark .dn-night { opacity: 1; }
+
+.dn-day-fx { position: absolute; inset: 0; opacity: 1;
+  background: radial-gradient(circle at 88% 0%, rgba(255, 214, 140, 0.38), rgba(255, 214, 140, 0) 42%); }
+.dark .dn-day-fx { opacity: 0; }
+
+.dn-night-fx { position: absolute; inset: 0; opacity: 0; }
+.dark .dn-night-fx { opacity: 1; }
+
+.dn-moon-glow { position: absolute; width: 16%; aspect-ratio: 1; transform: translate(-50%, -50%); border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 236, 180, 0.4), rgba(255, 236, 180, 0) 65%);
+  animation: dn-glow 6s ease-in-out infinite; }
+.dn-star { position: absolute; width: 2px; height: 2px; border-radius: 50%; background: #fff; opacity: 0.8;
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.85); animation: dn-twinkle 3.2s ease-in-out infinite; }
+.dn-fly { position: absolute; width: 5px; height: 5px; border-radius: 50%; background: #f7e58a; opacity: 0.8;
+  box-shadow: 0 0 10px 3px rgba(247, 229, 138, 0.55); animation: dn-drift 7s ease-in-out infinite; }
+
+/* Nobody sees the night effects by day, so they do not run by day. */
+.dn-night-fx > * { animation-play-state: paused; }
+.dark .dn-night-fx > * { animation-play-state: running; }
+
+/* Transitions only once the first paint is done (see LandscapeHero). The
+   night effects take a 0.5s delay going in, none coming out. */
+.dn-hero[data-dn-ready] .dn-night { transition: opacity 1.6s ease; }
+.dn-hero[data-dn-ready] .dn-day-fx { transition: opacity 1.2s ease; }
+.dn-hero[data-dn-ready] .dn-night-fx { transition: opacity 1.2s ease; }
+.dark .dn-hero[data-dn-ready] .dn-night-fx { transition: opacity 1.4s ease 0.5s; }
+
+/* The hero has its own small palette, because it sits on a picture rather
+   than on the page: a deep-green ink by day, and by night pale text on a navy
+   glass that matches the night sky instead of the page's teal. Colours change
+   with the theme rather than over 1.6s — a slow fade would pass through pale
+   text on pale glass midway. */
+.dn-hero {
+  --hero-ink: #0E3A2D; --hero-muted: #2F5146; --hero-accent: #C1121F;
+  --hero-btn: #0E4B39; --hero-btn-ink: #FFFFFF; --hero-line: rgba(14, 58, 45, 0.35);
+  --hero-panel: rgba(255, 255, 255, 0.82); --hero-panel-line: rgba(255, 255, 255, 0.7);
+  color: var(--hero-ink);
+}
+.dark .dn-hero {
+  --hero-ink: #EEF5F1; --hero-muted: #C6D3E3; --hero-accent: #FF8A8F;
+  --hero-btn: #EEF5F1; --hero-btn-ink: #0E3A2D; --hero-line: rgba(238, 245, 241, 0.35);
+  --hero-panel: rgba(9, 18, 40, 0.62); --hero-panel-line: rgba(255, 255, 255, 0.14);
+}
+.dn-panel { background-color: var(--hero-panel); border-color: var(--hero-panel-line);
+  box-shadow: 0 24px 50px -28px rgba(0, 0, 0, 0.45);
+  -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
+.dn-title { color: var(--hero-ink); }
+.dn-eyebrow, .dn-accent { color: var(--hero-accent); }
+.dn-sub { color: var(--hero-muted); }
+.dn-btn { font-weight: 800; text-decoration: none; transition: filter 0.2s ease, background-color 0.2s ease; }
+.dn-btn-primary { background-color: var(--hero-btn); color: var(--hero-btn-ink); }
+.dn-btn-primary:hover { filter: brightness(1.12); }
+.dn-btn-ghost { border: 1px solid var(--hero-line); color: var(--hero-ink); font-weight: 700; }
+.dn-btn-ghost:hover { background-color: rgba(127, 127, 127, 0.14); }
+.dn-btn:focus-visible { outline: 2px solid var(--hero-accent); outline-offset: 2px; }
+
+@keyframes dn-twinkle { 0%, 100% { opacity: 0.25; } 50% { opacity: 1; } }
+@keyframes dn-drift {
+  0% { transform: translate(0, 0); opacity: 0.15; } 25% { opacity: 1; }
+  50% { transform: translate(14px, -12px); opacity: 0.55; } 75% { opacity: 1; }
+  100% { transform: translate(0, 0); opacity: 0.15; } }
+@keyframes dn-glow { 0%, 100% { opacity: 0.7; } 50% { opacity: 1; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .dn-hero, .dn-hero * { transition: none !important; animation: none !important; }
+}
+
+/* ─── Native form controls in dark mode ───
+   Without a colour scheme the browser draws <select> lists, date pickers and
+   scrollbars for a light page: the open list came up white with the pale
+   dark-mode text on it, so the options could not be read. */
+:root { color-scheme: light; }
+.dark { color-scheme: dark; }
+.dark select option,
+.dark select optgroup {
+  background-color: rgb(var(--surface-raised));
+  color: rgb(var(--ink));
+}
+

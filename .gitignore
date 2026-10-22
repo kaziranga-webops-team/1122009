@@ -49,3 +49,31 @@ Thumbs.db
 # Replit
 .cache/
 .local/
+
+# Next.js
+/.next/
+/out/
+next-env.d.ts
+
+# Vercel
+.vercel
+
+# Env
+.env*.local
+
+# firebase cli cache + service account credentials
+.firebase/
+# Service-account keys. The pattern is deliberately loose: Google names the
+# download <project-id>-firebase-adminsdk-<hash>.json, so an anchored
+# "firebase-adminsdk-*" never matches it.
+*serviceAccount*.json
+*firebase-adminsdk*.json
+*-adminsdk-*.json
+
+# sheet exports staged for the Supabase import — the council tab carries
+# member phone numbers and email addresses, so these never get committed
+/data/
+*.csv
+/.claude
+/.agents
+*.json
