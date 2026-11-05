@@ -1,0 +1,455 @@
+/* ═══════════════════════════════════════════════════════════════════
+   KZ Scene — the waterfall stage shared by the hero, the login page and
+   the page headers, plus the small looping details that bring it alive.
+   Everything stops under prefers-reduced-motion (bottom of file).
+   ═══════════════════════════════════════════════════════════════════ */
+
+@layer components {
+  /* The frame is a size container so the stage can "cover" it in pure CSS,
+     and anything placed in stage coordinates stays glued to the artwork. */
+  .kz-frame {
+    container-type: size;
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    --ax: 0.5; /* horizontal anchor of the crop, 0 = left edge */
+    --ay: 1; /* vertical anchor, 1 = keep the bottom (water, rocks) */
+    /* Landscape: the whole painting, edge to edge, never zoomed past the
+       screen width. Any spare height above it is filled with the sky colour
+       (see .kz-sky), so nothing on the sides is ever cropped away. */
+    --W: 100cqw;
+    --H: calc(var(--W) * 0.5628);
+  }
+
+  /* Tall screens cannot show the full width legibly, so they crop to cover. */
+  @media (max-aspect-ratio: 1/1) {
+    .kz-frame {
+      --ax: 0.28;
+      --ay: 0.85;
+      --W: max(100cqw, calc(100cqh * 1.7768));
+    }
+  }
+
+  /* The painting's own sky colour, top to bottom, for any space above it. */
+  .kz-sky {
+    background: linear-gradient(180deg, #6ff2fc 0%, #6ff2fc 60%, #76f2fd 100%);
+  }
+
+  /* Feather the top edge of the painting into the sky fill. */
+  .kz-stage--feather {
+    -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 6%);
+    mask-image: linear-gradient(180deg, transparent 0, #000 6%);
+  }
+
+  .kz-stage {
+    position: absolute;
+    width: var(--W);
+    height: var(--H);
+    left: calc((100cqw - var(--W)) * var(--ax));
+    top: calc((100cqh - var(--H)) * var(--ay));
+    transform-origin: 50% 80%;
+  }
+
+  /* Placed in stage coordinates via --rx / --ry / --rw (fractions of the art). */
+  .kz-on-stage {
+    position: absolute;
+    left: calc((100cqw - var(--W)) * var(--ax) + var(--W) * var(--rx));
+    top: calc((100cqh - var(--H)) * var(--ay) + var(--H) * var(--ry));
+    width: calc(var(--W) * var(--rw));
+  }
+
+  /* On tall screens the rock sits outside the crop, so the rhino is placed
+     against the screen instead of against the artwork. */
+  @media (max-aspect-ratio: 1/1) {
+    .kz-on-stage--rhino {
+      left: auto;
+      right: -10cqw;
+      top: auto;
+      bottom: 5cqh;
+      width: min(74cqw, 46cqh);
+    }
+  }
+
+  /* ─── Falling water ─── */
+  .kz-falls {
+    position: absolute;
+    overflow: hidden;
+    pointer-events: none;
+    -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 14%, #000 84%, transparent 100%);
+    mask-image: linear-gradient(180deg, transparent 0, #000 14%, #000 84%, transparent 100%);
+  }
+
+  .kz-falls::before,
+  .kz-falls::after {
+    content: "";
+    position: absolute;
+    inset: -120px 0 0;
+    background-image: repeating-linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0) 0 26px,
+      rgba(255, 255, 255, 0.9) 26px 40px,
+      rgba(255, 255, 255, 0) 40px 78px
+    );
+    -webkit-mask-image: repeating-linear-gradient(90deg, #000 0 3px, transparent 3px 13px);
+    mask-image: repeating-linear-gradient(90deg, #000 0 3px, transparent 3px 13px);
+    animation: kz-fall 0.8s linear infinite;
+    opacity: 0.5;
+  }
+
+  .kz-falls::after {
+    background-image: repeating-linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0) 0 40px,
+      rgba(255, 255, 255, 0.75) 40px 52px,
+      rgba(255, 255, 255, 0) 52px 104px
+    );
+    -webkit-mask-image: repeating-linear-gradient(90deg, transparent 0 7px, #000 7px 9px, transparent 9px 17px);
+    mask-image: repeating-linear-gradient(90deg, transparent 0 7px, #000 7px 9px, transparent 9px 17px);
+    animation: kz-fall-b 1.2s linear infinite;
+    opacity: 0.42;
+  }
+
+  @keyframes kz-fall {
+    to {
+      transform: translateY(78px);
+    }
+  }
+
+  @keyframes kz-fall-b {
+    to {
+      transform: translateY(104px);
+    }
+  }
+
+  /* Foam rings where the water lands. */
+  .kz-foam {
+    position: absolute;
+    width: var(--s, 60px);
+    height: calc(var(--s, 60px) * 0.28);
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.85);
+    opacity: 0;
+    animation: kz-foam var(--d, 2.6s) ease-out infinite;
+    animation-delay: var(--delay, 0s);
+  }
+
+  @keyframes kz-foam {
+    0% {
+      transform: translate(-50%, -50%) scale(0.3);
+      opacity: 0;
+    }
+    20% {
+      opacity: 0.9;
+    }
+    100% {
+      transform: translate(-50%, -50%) scale(1.6);
+      opacity: 0;
+    }
+  }
+
+  /* Glints sliding across the pool. */
+  .kz-glint {
+    position: absolute;
+    height: 3px;
+    width: var(--w, 46px);
+    border-radius: 99px;
+    background: rgba(255, 255, 255, 0.9);
+    opacity: 0;
+    animation: kz-glint var(--d, 5s) ease-in-out infinite;
+    animation-delay: var(--delay, 0s);
+  }
+
+  @keyframes kz-glint {
+    0%,
+    100% {
+      transform: translateX(0) scaleX(0.4);
+      opacity: 0;
+    }
+    50% {
+      transform: translateX(var(--dx, 24px)) scaleX(1);
+      opacity: 0.85;
+    }
+  }
+
+  /* Mist puffs rising off the plunge pool. */
+  .kz-mist {
+    position: absolute;
+    width: var(--s, 90px);
+    height: var(--s, 90px);
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0) 68%);
+    opacity: 0;
+    animation: kz-mist var(--d, 6s) ease-out infinite;
+    animation-delay: var(--delay, 0s);
+  }
+
+  @keyframes kz-mist {
+    0% {
+      transform: translate(-50%, -30%) scale(0.6);
+      opacity: 0;
+    }
+    30% {
+      opacity: 0.75;
+    }
+    100% {
+      transform: translate(calc(-50% + var(--dx, 20px)), -150%) scale(1.5);
+      opacity: 0;
+    }
+  }
+
+  /* ─── Clouds ─── */
+  .kz-cloud {
+    position: absolute;
+    left: 0;
+    color: #fff;
+    animation: kz-cloud var(--d, 120s) linear infinite;
+    animation-delay: var(--delay, 0s);
+  }
+
+  @keyframes kz-cloud {
+    from {
+      transform: translateX(-25vw);
+    }
+    to {
+      transform: translateX(110vw);
+    }
+  }
+
+  /* ─── Rhino idle ─── */
+  .kz-breathe {
+    transform-origin: 50% 100%;
+    animation: kz-breathe 4.2s ease-in-out infinite;
+  }
+
+  @keyframes kz-breathe {
+    0%,
+    100% {
+      transform: scale(1, 1);
+    }
+    50% {
+      transform: scale(1.006, 1.02);
+    }
+  }
+
+  /* The rhino ambles in from the right on first paint. */
+  .kz-walk-in {
+    animation: kz-walk-in 1.5s cubic-bezier(0.22, 1, 0.36, 1) 0.45s backwards;
+  }
+
+  @keyframes kz-walk-in {
+    from {
+      transform: translateX(22%);
+      opacity: 0;
+    }
+  }
+
+  .kz-hop {
+    transform-origin: 50% 100%;
+    animation: kz-hop 0.7s cubic-bezier(0.34, 1.4, 0.64, 1);
+  }
+
+  @keyframes kz-hop {
+    0% {
+      transform: translateY(0) scale(1, 1);
+    }
+    18% {
+      transform: translateY(0) scale(1.04, 0.94);
+    }
+    45% {
+      transform: translateY(-9%) scale(0.98, 1.04) rotate(-2deg);
+    }
+    75% {
+      transform: translateY(0) scale(1.03, 0.97);
+    }
+    100% {
+      transform: translateY(0) scale(1, 1);
+    }
+  }
+
+  /* ─── Butterflies ─── */
+  .kz-butterfly {
+    position: absolute;
+    width: var(--w, 34px);
+    animation: kz-flutter var(--d, 14s) ease-in-out infinite;
+    animation-delay: var(--delay, 0s);
+  }
+
+  .kz-butterfly .kz-wing-l,
+  .kz-butterfly .kz-wing-r {
+    transform-box: fill-box;
+    animation: kz-wing 0.3s ease-in-out infinite alternate;
+  }
+
+  .kz-butterfly .kz-wing-l {
+    transform-origin: 100% 50%;
+  }
+
+  .kz-butterfly .kz-wing-r {
+    transform-origin: 0% 50%;
+  }
+
+  @keyframes kz-wing {
+    from {
+      transform: scaleX(1);
+    }
+    to {
+      transform: scaleX(0.2);
+    }
+  }
+
+  @keyframes kz-flutter {
+    0%,
+    100% {
+      transform: translate(0, 0) rotate(-8deg);
+    }
+    20% {
+      transform: translate(var(--x1, 40px), var(--y1, -30px)) rotate(6deg);
+    }
+    45% {
+      transform: translate(var(--x2, 90px), var(--y2, 10px)) rotate(-4deg);
+    }
+    70% {
+      transform: translate(var(--x3, 30px), var(--y3, 40px)) rotate(10deg);
+    }
+  }
+
+  /* ─── Marquee ─── */
+  .kz-marquee {
+    display: flex;
+    width: max-content;
+    animation: kz-marquee var(--d, 40s) linear infinite;
+  }
+
+  .kz-marquee--rev {
+    animation-direction: reverse;
+  }
+
+  @keyframes kz-marquee {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  /* ─── Pop in (speech bubble, red full stop) ─── */
+  .kz-pop {
+    animation: kz-pop 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+    animation-delay: var(--delay, 0s);
+  }
+
+  @keyframes kz-pop {
+    from {
+      transform: scale(0);
+      opacity: 0;
+    }
+  }
+
+  /* Masked word rise for big headings: each word slides up out of its own
+     clipping box. CSS rather than JS so a heading can never be stranded
+     invisible if animation frames do not arrive. */
+  .kz-word {
+    display: inline-block;
+    overflow: hidden;
+    vertical-align: top;
+    padding: 0 0.04em 0.12em;
+    margin: 0 -0.04em -0.12em;
+  }
+
+  .kz-word > span {
+    display: inline-block;
+  }
+
+  .kz-rise-word {
+    animation: kz-rise-word 1.05s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+    animation-delay: calc(var(--base, 0.15s) + var(--i, 0) * 0.07s);
+  }
+
+  @keyframes kz-rise-word {
+    from {
+      transform: translateY(110%) rotate(5deg);
+    }
+  }
+
+  /* A hand-drawn stroke that draws itself in (needs pathLength="1"). */
+  .kz-draw {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 0;
+    animation: kz-draw 0.9s cubic-bezier(0.65, 0, 0.35, 1) backwards;
+    animation-delay: var(--delay, 0s);
+  }
+
+  @keyframes kz-draw {
+    from {
+      stroke-dashoffset: 1;
+    }
+  }
+
+  /* Soft shimmer sweep for primary buttons. */
+  .kz-btn--shine {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+  }
+
+  .kz-btn--shine::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(110deg, transparent 30%, rgba(255, 255, 255, 0.35) 50%, transparent 70%);
+    transform: translateX(-120%);
+    animation: kz-shine 4.5s ease-in-out infinite;
+    animation-delay: 2s;
+  }
+
+  @keyframes kz-shine {
+    0%,
+    70% {
+      transform: translateX(-120%);
+    }
+    100% {
+      transform: translateX(120%);
+    }
+  }
+
+  /* Scroll cue in the hero. */
+  .kz-scroll-dot {
+    animation: kz-scroll-dot 1.8s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+  }
+
+  @keyframes kz-scroll-dot {
+    0% {
+      transform: translateY(0);
+      opacity: 0;
+    }
+    30% {
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(12px);
+      opacity: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .kz-falls::before,
+    .kz-falls::after,
+    .kz-foam,
+    .kz-glint,
+    .kz-mist,
+    .kz-cloud,
+    .kz-breathe,
+    .kz-butterfly,
+    .kz-butterfly .kz-wing-l,
+    .kz-butterfly .kz-wing-r,
+    .kz-marquee,
+    .kz-pop,
+    .kz-rise-word,
+    .kz-btn--shine::after,
+    .kz-scroll-dot,
+    .kz-walk-in,
+    .kz-hop,
+    .kz-draw {
+      animation: none;
+    }
+  }
+}

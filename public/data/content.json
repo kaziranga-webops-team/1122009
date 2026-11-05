@@ -1,0 +1,97 @@
+{
+  "site": {
+    "name": "Kaziranga House",
+    "tagline": "Creators. Leaders. Dreamers. Together, we go Beyond Limits!",
+    "description": "Your one-stop hub for all things Kaziranga House. Catch the latest Kaziranga Tak reels, check upcoming events, read our blogs, and access study materials.",
+    "instagram": "https://mayanksaini-eight.vercel.app",
+    "github": "https://github.com/kazirangahouse/kaziranga-now",
+    "footerNote": "Built with intention for the wild ones.",
+    "program": "IIT Madras BS Degree",
+    "house": "Kaziranga House"
+  },
+
+  "hero": {
+    "title": "Kaziranga House",
+    "subtitle": "A student house of the IIT Madras BS Degree — 5,000+ members meeting up, learning, and building things together.",
+    "ctaText": "Explore the Forest",
+    "image": ""
+  },
+
+  "tak": {
+    "sectionTitle": "Kaziranga Tak",
+    "sectionSubtitle": "Two members, a recorder, and endless group chat chaos. Catch up on the latest episode straight from Instagram.",
+    "sectionImage": "",
+    "reels": [
+      {
+        "id": "reel-1",
+        "title": "Latest Kaziranga Tak Episode",
+        "url": "https://www.instagram.com/reel/PLACEHOLDER/",
+        "thumbnail": "",
+        "date": "2026-05-01",
+        "description": "Our latest episode discussing what happened in the Kaziranga WhatsApp group this week!"
+      }
+    ]
+  },
+
+  "events": {
+    "sectionTitle": "House Events",
+    "sectionSubtitle": "Gatherings, competitions, and meetups. See what the house has been up to.",
+    "sectionImage": "",
+    "events": [
+      {
+        "id": "evt-1",
+        "title": "Intra-House Quiz Night",
+        "status": "upcoming",
+        "date": "2026-05-20",
+        "description": "A fun quiz night for all Kaziranga House members. Test your general knowledge!",
+        "participants": [],
+        "winners": []
+      },
+      {
+        "id": "evt-2",
+        "title": "Movie Night: Jungle Edition",
+        "status": "ongoing",
+        "date": "2026-05-10",
+        "description": "Ongoing movie marathon featuring films set in wild jungles and national parks.",
+        "participants": ["Arjun Sharma", "Priya Nair", "Rohan Das", "Sneha Patel"],
+        "winners": []
+      },
+      {
+        "id": "evt-3",
+        "title": "Kaziranga House Sports Day",
+        "status": "completed",
+        "date": "2026-04-15",
+        "description": "Annual sports day event featuring cricket, badminton, and chess tournaments.",
+        "participants": ["Arjun Sharma", "Priya Nair", "Rohan Das", "Sneha Patel", "Vikram Reddy", "Anjali Mehta", "Dev Kapoor", "Isha Bose"],
+        "winners": [
+          { "event": "Cricket", "name": "Arjun Sharma" },
+          { "event": "Badminton", "name": "Priya Nair" },
+          { "event": "Chess", "name": "Vikram Reddy" }
+        ]
+      },
+      {
+        "id": "evt-4",
+        "title": "Kaziranga Meetup — Season 1",
+        "status": "completed",
+        "date": "2026-03-22",
+        "description": "First ever in-person meetup of Kaziranga House members! A wonderful evening of conversations.",
+        "participants": ["Arjun Sharma", "Priya Nair", "Rohan Das", "Sneha Patel", "Dev Kapoor"],
+        "winners": []
+      }
+    ]
+  },
+
+  "blogs": {
+    "sectionTitle": "House Stories",
+    "sectionSubtitle": "Perspectives, reviews, and memories written by members of Kaziranga House.",
+    "sectionImage": "",
+    "posts": []
+  },
+
+  "study": {
+    "sectionTitle": "Study Zone",
+    "sectionSubtitle": "Quick access to all essential study resources for the IITM BS Degree.",
+    "sectionImage": "",
+    "studyPortalUrl": "https://study.iitm.ac.in/"
+  }
+}
