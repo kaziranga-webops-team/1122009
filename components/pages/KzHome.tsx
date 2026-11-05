@@ -5,6 +5,7 @@ import KzFooter from "@/components/kz/KzFooter";
 import SceneHero from "@/components/home/SceneHero";
 import KzEvents from "@/components/home/KzEvents";
 import KzCouncil from "@/components/home/KzCouncil";
+import KzCommunities from "@/components/home/KzCommunities";
 import { AboutIntro, GrowPanel, JoinFinale, StartHere, WhatWeDo } from "@/components/home/sections";
 
 /**
@@ -18,13 +19,14 @@ import { AboutIntro, GrowPanel, JoinFinale, StartHere, WhatWeDo } from "@/compon
  */
 export default function KzHome() {
   return (
-    <div className="kz-font min-h-screen bg-[#f9fbe5] selection:bg-[#c6011f]/20 selection:text-[#002820]">
+    <div className="kz-font kz-paper min-h-screen bg-[#f9fbe5] selection:bg-[#c10021]/20 selection:text-[#002820]">
       <KzHeader overlay />
       <main>
         <SceneHero />
         <AboutIntro />
         <StartHere />
         <WhatWeDo />
+        <KzCommunities />
         <KzEvents />
         <GrowPanel>
           <KzCouncil />

@@ -1,0 +1,250 @@
+/* ═══════════════════════════════════════════════════════════════════
+   KZ Calm — the Indian-minimal details
+
+   Colour comes from the logo: cream paper, deep forest, charcoal ink, and a
+   very small amount of rhino red. Instead of more colour, a few quiet craft
+   details carry the identity: a gamosa border, brass hairlines and corner
+   marks, a faint jaali lattice, and paper grain.
+   ═══════════════════════════════════════════════════════════════════ */
+
+@layer components {
+  /* ─── Eyebrow label: a short brass rule, then the label ─── */
+  .kz-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--kz-brass);
+  }
+
+  .kz-eyebrow::before {
+    content: "";
+    width: 1.75rem;
+    height: 1px;
+    background: currentColor;
+  }
+
+  .kz-eyebrow--light {
+    color: var(--kz-brass-light);
+  }
+
+  /* ─── Gamosa border ───
+     Assam's gamosa is a cream cloth with a red woven border. A thin strip of
+     the same pattern marks a change of chapter; it is the one place red is
+     used as decoration, and only as a thread. */
+  .kz-gamosa {
+    height: 22px;
+    background-color: var(--kz-cream);
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='22'><g fill='%23c10021'><rect y='2' width='32' height='1.6'/><rect y='18.4' width='32' height='1.6'/><path d='M16 6.2l4.8 4.8-4.8 4.8-4.8-4.8z'/><rect x='0' y='10.2' width='4' height='1.6'/><rect x='28' y='10.2' width='4' height='1.6'/></g><path d='M16 8.6l2.4 2.4-2.4 2.4-2.4-2.4z' fill='%23f9fbe5'/></svg>");
+    background-repeat: repeat-x;
+    background-position: center;
+    background-size: 32px 22px;
+  }
+
+  .kz-gamosa--dark {
+    background-color: var(--kz-deep);
+  }
+
+  /* ─── Jaali: a faint lattice for the one dark section ─── */
+  .kz-jaali {
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='56' height='56'><g fill='none' stroke='%23f9fbe5' stroke-opacity='0.06' stroke-width='1.2'><path d='M28 4c6 8 6 16 0 24-6-8-6-16 0-24zM28 28c6 8 6 16 0 24-6-8-6-16 0-24zM4 28c8-6 16-6 24 0-8 6-16 6-24 0zM28 28c8-6 16-6 24 0-8 6-16 6-24 0z'/><circle cx='28' cy='28' r='2.4'/></g></svg>");
+    background-size: 56px 56px;
+  }
+
+  /* ─── Brass corner marks, like a printed invitation ─── */
+  .kz-corners {
+    position: relative;
+    --c: var(--kz-brass-light);
+  }
+
+  .kz-corners::after {
+    content: "";
+    position: absolute;
+    inset: 12px;
+    pointer-events: none;
+    background:
+      linear-gradient(var(--c), var(--c)) top left / 16px 1px no-repeat,
+      linear-gradient(var(--c), var(--c)) top left / 1px 16px no-repeat,
+      linear-gradient(var(--c), var(--c)) top right / 16px 1px no-repeat,
+      linear-gradient(var(--c), var(--c)) top right / 1px 16px no-repeat,
+      linear-gradient(var(--c), var(--c)) bottom left / 16px 1px no-repeat,
+      linear-gradient(var(--c), var(--c)) bottom left / 1px 16px no-repeat,
+      linear-gradient(var(--c), var(--c)) bottom right / 16px 1px no-repeat,
+      linear-gradient(var(--c), var(--c)) bottom right / 1px 16px no-repeat;
+    opacity: 0.85;
+    transition: inset 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .kz-corners:hover::after {
+    inset: 8px;
+  }
+
+  /* A brass hairline with a small diamond in the middle — a section divider. */
+  .kz-rule {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    color: var(--kz-brass-light);
+  }
+
+  .kz-rule::before,
+  .kz-rule::after {
+    content: "";
+    height: 1px;
+    flex: 1;
+    background: currentColor;
+    opacity: 0.6;
+  }
+
+  /* ─── Quiet card: paper-2, hairline, a gentle lift on hover ─── */
+  .kz-card {
+    background: var(--kz-paper-2);
+    border: 1px solid rgba(0, 40, 32, 0.09);
+    border-radius: 1.25rem;
+    transition:
+      transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+      background-color 0.4s,
+      border-color 0.4s,
+      box-shadow 0.5s;
+  }
+
+  .kz-card:hover {
+    transform: translateY(-3px);
+    background: #f4f6e3;
+    border-color: rgba(0, 98, 85, 0.35);
+    box-shadow: 0 22px 40px -30px rgba(0, 40, 32, 0.5);
+  }
+
+  /* ─── Paper grain over the whole page, very faint ─── */
+  .kz-paper::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 80;
+    pointer-events: none;
+    opacity: 0.32;
+    mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.35  0 0 0 0 0.3  0 0 0 0 0.2  0 0 0 0.09 0'/></filter><rect width='160' height='160' filter='url(%23n)'/></svg>");
+  }
+
+  /* ─── Social icons: each one fills with its own brand colour on hover ───
+     The colour pops out from the centre, so the icon "lights up" as itself. */
+  .kz-social {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    transition:
+      color 0.3s,
+      border-color 0.3s,
+      transform 0.35s cubic-bezier(0.34, 1.4, 0.64, 1);
+  }
+
+  .kz-social::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background: var(--brand, #006255);
+    transform: scale(0);
+    transition: transform 0.4s cubic-bezier(0.34, 1.4, 0.64, 1);
+  }
+
+  .kz-social:hover,
+  .kz-social:focus-visible {
+    color: var(--brand-ink, #fff);
+    border-color: transparent;
+    transform: translateY(-3px);
+  }
+
+  .kz-social:hover::before,
+  .kz-social:focus-visible::before {
+    transform: scale(1);
+  }
+
+  .kz-social[data-brand="instagram"] {
+    --brand: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285aeb 90%);
+  }
+  .kz-social[data-brand="whatsapp"] {
+    --brand: #25d366;
+  }
+  .kz-social[data-brand="youtube"] {
+    --brand: #ff0000;
+  }
+  .kz-social[data-brand="linkedin"] {
+    --brand: #0a66c2;
+  }
+  .kz-social[data-brand="linktree"] {
+    --brand: #43e55e;
+    --brand-ink: #0b1a10;
+  }
+
+  /* ─── Swing: a card hanging from a peg, swaying gently ─── */
+  .kz-swing {
+    transform-origin: 50% -22px;
+    animation: kz-swing var(--d, 5.2s) ease-in-out infinite alternate;
+    animation-delay: var(--delay, 0s);
+  }
+
+  .kz-swing:hover {
+    animation-play-state: paused;
+  }
+
+  @keyframes kz-swing {
+    from {
+      transform: rotate(calc(var(--tilt, 0deg) - 1.3deg));
+    }
+    to {
+      transform: rotate(calc(var(--tilt, 0deg) + 1.3deg));
+    }
+  }
+
+  /* ─── Fog bank: a soft cream cloud that drifts back and forth ─── */
+  .kz-fog {
+    position: absolute;
+    inset: 0;
+    opacity: var(--o, 0.8);
+    background:
+      radial-gradient(38% 60% at 18% 55%, rgba(249, 251, 229, 0.95), rgba(249, 251, 229, 0) 70%),
+      radial-gradient(34% 55% at 46% 45%, rgba(249, 251, 229, 0.9), rgba(249, 251, 229, 0) 70%),
+      radial-gradient(40% 62% at 74% 58%, rgba(249, 251, 229, 0.95), rgba(249, 251, 229, 0) 70%),
+      radial-gradient(30% 50% at 96% 46%, rgba(249, 251, 229, 0.85), rgba(249, 251, 229, 0) 70%);
+    filter: blur(6px);
+    animation: kz-fog-drift var(--d, 40s) ease-in-out infinite alternate;
+    animation-delay: var(--delay, 0s);
+  }
+
+  @keyframes kz-fog-drift {
+    from {
+      transform: translateX(-6%);
+    }
+    to {
+      transform: translateX(6%);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .kz-fog,
+    .kz-swing,
+    .kz-social,
+    .kz-social::before {
+      animation: none;
+    }
+    .kz-card,
+    .kz-corners::after {
+      transition: none;
+    }
+    .kz-card:hover {
+      transform: none;
+    }
+  }
+
+  /* Visible keyboard focus: a brass ring, never on mouse click. */
+  .kz-focus:focus-visible {
+    outline: 2px solid var(--kz-brass-light);
+    outline-offset: 3px;
+  }
+}

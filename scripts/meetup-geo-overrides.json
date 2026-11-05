@@ -1,0 +1,180 @@
+{
+  "_readme": {
+    "note": "Hand-set geography for meetups the geocoder cannot place on its own. Keys are \"<Date>|<Venue>\", copied from data/meetups-geo.csv (whitespace is normalised on both sides, so spacing does not have to match). An entry may carry: query (a better search string, or a list tried in order), lat + lon (set outright, skipping the geocoder), and city/district/state (labels laid over whatever came back). An entry also means a human has checked the row, so it stops being flagged. This file is committed, so npm run geocode:meetups keeps every fix. Keys without a | are never looked up, which is why this note is safe here."
+  },
+
+  "1/10/2025|Dandiya cum meet-up night, Agra Chaupati": {
+    "query": ["Agra Chaupati, Agra", "Agra, Uttar Pradesh"],
+    "city": "Agra",
+    "district": "Agra",
+    "state": "Uttar Pradesh",
+    "note": "zone said Lucknow; the venue is in Agra"
+  },
+  "6/9/2025|Jawahar Park, Aligarh": {
+    "query": ["Jawahar Park, Aligarh", "Aligarh, Uttar Pradesh"],
+    "city": "Aligarh"
+  },
+  "14/09/2025|Sportify Sports Arena, Meerut": {
+    "query": ["Sportify Sports Arena, Meerut", "Meerut, Uttar Pradesh"],
+    "city": "Meerut"
+  },
+  "15/12/2025|7th heaven Cafe, Etah": {
+    "query": ["Etah, Uttar Pradesh"],
+    "city": "Etah",
+    "note": "cafe not in OSM — pinned on the town"
+  },
+  "20/03/2026|Lohia park, Mainpuri": {
+    "query": ["Lohia Park, Mainpuri", "Mainpuri, Uttar Pradesh"],
+    "city": "Mainpuri"
+  },
+  "21/09/2025|Phoenix United Mall, Barielly": {
+    "query": ["Phoenix United Mall, Bareilly", "Bareilly, Uttar Pradesh"],
+    "city": "Bareilly",
+    "district": "Bareilly",
+    "note": "sheet spells it Barielly; zone said Lucknow"
+  },
+  "29/11/2025|Gorakhpur Zoo": {
+    "query": [
+      "Shaheed Ashfaq Ullah Khan Prani Udyan, Gorakhpur",
+      "Gorakhpur Zoo, Gorakhpur",
+      "Gorakhpur, Uttar Pradesh"
+    ],
+    "city": "Gorakhpur",
+    "district": "Gorakhpur",
+    "note": "zone said Lucknow"
+  },
+  "25/01/2026|Lucknow Zoo": {
+    "query": [
+      "Nawab Wajid Ali Shah Prani Udyan, Lucknow",
+      "Lucknow Zoo, Lucknow",
+      "Lucknow, Uttar Pradesh"
+    ],
+    "city": "Lucknow"
+  },
+  "25/05/2026|Sankisa Buddhist Temple, Cambodian Temple, Shri Lanka Temple Gaj Stambh, Mainpuri, Uttar Pradesh": {
+    "city": "Mainpuri",
+    "note": "the sheet places it in Mainpuri; Sankisa itself straddles the Farrukhabad border"
+  },
+
+  "13/09/2025|Delhi meetup": {
+    "query": ["New Delhi, Delhi"],
+    "city": "New Delhi",
+    "district": "New Delhi",
+    "state": "Delhi",
+    "note": "no venue given — pinned on the city"
+  },
+  "21/03/2026|Indian gate meet-up": {
+    "query": ["India Gate, New Delhi"],
+    "city": "New Delhi",
+    "district": "New Delhi",
+    "state": "Delhi",
+    "note": "geocoder had matched a border gate in Sikkim"
+  },
+
+  "1/9/2025|Eco Park, Patna": { "city": "Patna" },
+  "22/02/2025|K Sector Park, Patna": { "city": "Patna" },
+  "28/02/2026|Banquet Hall, Gola Road, Patna": { "city": "Patna" },
+  "28/12/2025|Gandhi Maidan, Patna": { "city": "Patna" },
+
+  "31/05/2026|Gopalpur sea beach, Berhampur": {
+    "query": [
+      "Gopalpur Beach, Ganjam, Odisha",
+      "Gopalpur, Ganjam, Odisha",
+      "Berhampur, Ganjam, Odisha"
+    ],
+    "city": "Berhampur",
+    "district": "Ganjam",
+    "state": "Odisha",
+    "note": "geocoder had matched the other Berhampur, in Balasore"
+  },
+  "14/02/2026|Birsa Munda Hockey Stadium, Rourkela, Odisha": {
+    "city": "Rourkela",
+    "note": "Chhend is the locality inside Rourkela"
+  },
+  "22/02/2026|Regional Science Center, Bhubaneswar, Odisha": { "city": "Bhubaneswar" },
+  "28/06/2026|Ekamra Kanan Botanical Garden, Bhubaneshwar, Odisha": { "city": "Bhubaneswar" },
+
+  "1/2/2026|Surya Treasure Island,Bhilai,Chattisgarh": {
+    "city": "Bhilai",
+    "note": "Bhilai sits in Durg district"
+  },
+
+  "30/11/2026|jammu zoo, nagrota": {
+    "query": [
+      "Manda Zoological Park, Jammu",
+      "Nagrota, Jammu, Jammu and Kashmir",
+      "Jammu, Jammu and Kashmir"
+    ],
+    "city": "Jammu",
+    "district": "Jammu",
+    "state": "Jammu and Kashmir",
+    "note": "geocoder had matched the other Nagrota, in Kangra"
+  },
+  "29/03/2026|Tcb studio, Subash Nagar, Jammu and Kashmir": {
+    "query": ["Subash Nagar, Jammu", "Jammu, Jammu and Kashmir"],
+    "city": "Jammu",
+    "district": "Jammu"
+  },
+
+  "13/09/2025|Aurangabad [Pronze Mall]": {
+    "query": ["Aurangabad, Maharashtra"],
+    "city": "Aurangabad",
+    "note": "now Chhatrapati Sambhajinagar; zone said Mumbai"
+  },
+  "14/09/2025|Ahmedabad [Alpha one Mall]": {
+    "query": ["Alpha One Mall, Ahmedabad", "Ahmedabad, Gujarat"],
+    "city": "Ahmedabad",
+    "note": "zone said Mumbai"
+  },
+  "1/2/2026|PL Deshpande Garden": {
+    "query": [
+      "Okayama Friendship Garden, Pune",
+      "Pu La Deshpande Udyan, Pune",
+      "Pune, Maharashtra"
+    ],
+    "city": "Pune",
+    "district": "Pune",
+    "state": "Maharashtra",
+    "note": "Pune's Okayama Friendship Garden; zone said Mumbai"
+  },
+
+  "15/11/2025|Lal bagh Botanical Garden": {
+    "query": ["Lalbagh, Bengaluru, Karnataka"],
+    "city": "Bengaluru",
+    "note": "\"Lalbagh Botanical Garden\" matches a different garden in Bangalore East"
+  },
+  "14/02/2026|Ministry of Comedy": {
+    "query": ["Ministry of Comedy, Bengaluru", "Bengaluru, Karnataka"],
+    "city": "Bengaluru"
+  },
+
+  "4/1/2026|palapitta cycling track, kondapur": {
+    "query": ["Palapitta Cycling Track, Kondapur, Hyderabad", "Kondapur, Hyderabad"],
+    "city": "Hyderabad",
+    "note": "Kondapur"
+  },
+  "31/05/2026|McDonalds , Secundrabad": { "city": "Secunderabad" },
+  "7/9/2025|Thrivesome cafe and community": {
+    "query": ["Hyderabad, Telangana"],
+    "city": "Hyderabad",
+    "note": "cafe not in OSM — pinned on the city"
+  },
+  "19/07/2025|Jigyasa Studio": {
+    "query": ["Hyderabad, Telangana"],
+    "city": "Hyderabad",
+    "note": "studio not in OSM — pinned on the city"
+  },
+  "30/11/2025|The Crew cine cafe": {
+    "query": ["Hyderabad, Telangana"],
+    "city": "Hyderabad",
+    "note": "cafe not in OSM — pinned on the city"
+  },
+
+  "24/05/26|vishakapatnam inorbit mall": {
+    "query": ["Inorbit Mall, Visakhapatnam", "Visakhapatnam, Andhra Pradesh"],
+    "city": "Visakhapatnam",
+    "district": "Visakhapatnam",
+    "state": "Andhra Pradesh",
+    "note": "zone said Hyderabad"
+  }
+}

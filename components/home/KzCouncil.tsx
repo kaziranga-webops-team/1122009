@@ -37,7 +37,7 @@ function toMember(row: CouncilRow, i: number): Member {
   };
 }
 
-const ACCENT = "#96b4a5";
+const ACCENT = "#c9a24a";
 
 /**
  * A card that turns over: the photograph on the front, the detail on the back
@@ -66,7 +66,7 @@ function FlipCard({ member }: { member: Member }) {
               setFlipped(true);
             }
           }}
-          className="kz-flip-face group cursor-pointer rounded-2xl border-2 border-[#f9fbe5] bg-[#002820] shadow-[8px_8px_0_0_rgba(0,40,32,0.4)]"
+          className="kz-flip-face group cursor-pointer rounded-2xl border border-[#c9a24a]/50 bg-[#002820] shadow-[0_24px_40px_-24px_rgba(0,0,0,0.6)]"
         >
           {hasPhoto ? (
             <Image
@@ -85,7 +85,7 @@ function FlipCard({ member }: { member: Member }) {
           )}
 
           <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/45 to-transparent p-5 pt-12">
-            <span className="kz-h3 block text-[#96b4a5]">{member.role || "Council"}</span>
+            <span className="kz-h3 block text-[#c9a24a]">{member.role || "Council"}</span>
             <span className="mt-1 block truncate text-[1.1rem] font-bold text-white">{member.name}</span>
           </span>
 
@@ -107,7 +107,7 @@ function FlipCard({ member }: { member: Member }) {
               setFlipped(false);
             }
           }}
-          className="kz-flip-face kz-flip-face--back cursor-pointer rounded-2xl border-2 border-[#f9fbe5]"
+          className="kz-flip-face kz-flip-face--back cursor-pointer rounded-2xl border border-[#c9a24a]/50"
         >
           {/* The same photograph, blurred right down — it keeps the card the
               member's own colour without competing with the text. */}
@@ -199,8 +199,8 @@ export default function KzCouncil() {
     .sort((a, b) => rankOf(a.role) - rankOf(b.role));
 
   return (
-    <section id="council" className="kz-font relative isolate overflow-hidden bg-[#c6011f] text-white">
-      <span aria-hidden="true" className="absolute -right-24 -top-28 -z-10 h-[34rem] w-[34rem] rounded-full bg-white/10" />
+    <section id="council" className="kz-font kz-jaali relative isolate overflow-hidden bg-[#00332a] text-[#f9fbe5]">
+      
 
       <SectionHead
         dark

@@ -17,9 +17,14 @@
     --kz-ink: #002820;
     --kz-green: #006255;
     --kz-sage: #96b4a5;
-    --kz-red: #c6011f;
+    --kz-red: #c10021;
     --kz-sky: #bdf6ff;
-    --kz-muted: #4b6660;
+    --kz-muted: #3f5a52;
+    /* calm palette, all sampled from the logo */
+    --kz-paper-2: #eef1dc;
+    --kz-deep: #00332a;
+    --kz-brass: #8a6522;
+    --kz-brass-light: #c9a24a;
   }
 
   @media (min-width: 640px) {
@@ -35,21 +40,28 @@
 
   /* ─── Type ────────────────────────────────────────────────────── */
 
-  .kz-display,
-  .kz-h2 {
+  .kz-display {
     font-family: "Montserrat", ui-sans-serif, system-ui, sans-serif;
     font-weight: 600;
     line-height: 0.98;
     letter-spacing: -0.025em;
     text-wrap: balance;
-  }
-
-  .kz-display {
     font-size: clamp(2.9rem, 7.6vw, 7.4rem);
   }
 
+  /* Section headings are set in a calm editorial serif, a medium weight and
+     a size that leaves room around it. The hero keeps its rounded sans. */
+  .kz-h2,
+  .kz-serif {
+    font-family: "Playfair Display", ui-serif, Georgia, serif;
+    font-weight: 600;
+    line-height: 1.06;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+
   .kz-h2 {
-    font-size: clamp(2.2rem, 5.4vw, 4.6rem);
+    font-size: clamp(2rem, 4.2vw, 3.6rem);
   }
 
   /* Card and cell titles are set small, upper and tracked — the counterpoint
@@ -145,6 +157,25 @@
 
   .kz-btn--ink:hover {
     background: var(--kz-green);
+  }
+
+  .kz-btn--forest {
+    background: var(--kz-green);
+    color: var(--kz-cream);
+  }
+
+  .kz-btn--forest:hover {
+    background: var(--kz-deep);
+  }
+
+  .kz-btn--outline {
+    background: transparent;
+    color: currentColor;
+    box-shadow: inset 0 0 0 1.5px color-mix(in srgb, currentColor 28%, transparent);
+  }
+
+  .kz-btn--outline:hover {
+    box-shadow: inset 0 0 0 1.5px currentColor;
   }
 
   .kz-btn--white {

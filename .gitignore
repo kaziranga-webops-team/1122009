@@ -76,4 +76,6 @@ next-env.d.ts
 *.csv
 /.claude
 /.agents
-*.json
+# local AI-tool lock file (was *.json, which also hid the meetups map data in public/geo)
+skills-lock.json
+/artifacts

@@ -93,7 +93,7 @@ export default function VideoHero() {
         <h1 {...rise(0)} className="kz-display kz-rise text-[clamp(2.9rem,7.6vw,7.4rem)]">
           We are
           <br />
-          Kaziranga House<span className="text-[#c6011f]">.</span>
+          Kaziranga House<span className="text-[#c10021]">.</span>
         </h1>
         <p {...rise(1)} className="kz-lead kz-rise mt-5 max-w-[34rem] text-[#1d3d35]">
           {subtitle}

@@ -24,6 +24,7 @@ const COLUMNS = [
     links: [
       { label: "Council", href: "/council" },
       { label: "Events", href: "/events" },
+      { label: "Communities", href: "/communities" },
       { label: "Meetups", href: "/meetups" },
       { label: "Gallery", href: "/gallery" },
     ],
@@ -63,7 +64,7 @@ export default function KzFooter() {
             <a href={INSTAGRAM} target="_blank" rel="noopener noreferrer" className="kz-btn kz-btn--white">
               Message us on Instagram <ArrowRight size={18} />
             </a>
-            <Link href="/council" className="kz-btn kz-btn--red">
+            <Link href="/council" className="kz-btn kz-btn--outline">
               Meet the council
             </Link>
           </div>
@@ -87,7 +88,8 @@ export default function KzFooter() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={label}
-                  className="grid h-11 w-11 place-items-center rounded-full border border-white/25 transition-colors duration-300 hover:border-transparent hover:bg-[#c6011f]"
+                  data-brand={label.toLowerCase()}
+                  className="kz-social grid h-11 w-11 place-items-center rounded-full border border-white/25"
                 >
                   <Icon size={17} />
                 </a>

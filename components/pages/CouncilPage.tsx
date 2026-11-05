@@ -67,15 +67,15 @@ const SUB_TEAMS = [
 
 function teamMeta(name: string): { Icon: typeof Crown; tint: string; blurb: string } {
   const n = name.toLowerCase();
-  if (n.includes("upper")) return { Icon: Crown, tint: "#ffd27a", blurb: "The house-wide roles that steer culture, events and community." };
-  if (n.includes("lower")) return { Icon: Users, tint: "#96b4a5", blurb: "Regional coordinators who bring the house to every city." };
-  if (n.includes("web")) return { Icon: Globe, tint: "#bfe9f5", blurb: "The people who build and run this website." };
-  if (n.includes("graphic")) return { Icon: Palette, tint: "#ffd9e8", blurb: "Posters, stickers and everything the house looks like." };
-  if (n.includes("content")) return { Icon: PenTool, tint: "#fde7c8", blurb: "Words for every post, announcement and story." };
-  if (n.includes("pr")) return { Icon: Megaphone, tint: "#ffd9d9", blurb: "Outreach, partnerships and getting the word out." };
-  if (n.includes("multimedia")) return { Icon: Video, tint: "#e3dcff", blurb: "Reels, edits and Kaziranga Tak." };
-  if (n.includes("event")) return { Icon: Calendar, tint: "#dcebd8", blurb: "Planning and running every session and contest." };
-  return { Icon: Award, tint: "#dcebd8", blurb: "" };
+  if (n.includes("upper")) return { Icon: Crown, tint: "#eef1dc", blurb: "The house-wide roles that steer culture, events and community." };
+  if (n.includes("lower")) return { Icon: Users, tint: "#eef1dc", blurb: "Regional coordinators who bring the house to every city." };
+  if (n.includes("web")) return { Icon: Globe, tint: "#eef1dc", blurb: "The people who build and run this website." };
+  if (n.includes("graphic")) return { Icon: Palette, tint: "#eef1dc", blurb: "Posters, stickers and everything the house looks like." };
+  if (n.includes("content")) return { Icon: PenTool, tint: "#eef1dc", blurb: "Words for every post, announcement and story." };
+  if (n.includes("pr")) return { Icon: Megaphone, tint: "#eef1dc", blurb: "Outreach, partnerships and getting the word out." };
+  if (n.includes("multimedia")) return { Icon: Video, tint: "#eef1dc", blurb: "Reels, edits and Kaziranga Tak." };
+  if (n.includes("event")) return { Icon: Calendar, tint: "#eef1dc", blurb: "Planning and running every session and contest." };
+  return { Icon: Award, tint: "#eef1dc", blurb: "" };
 }
 
 const SOFT = [0.22, 1, 0.36, 1] as const;
@@ -92,20 +92,20 @@ function TeamBlock({ name, members, index }: { name: string; members: CouncilMem
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20, transition: { duration: 0.2 } }}
       transition={{ duration: 0.6, delay: index * 0.05, ease: SOFT }}
-      className={upper ? "relative isolate overflow-hidden rounded-[2.25rem] bg-[#c6011f] px-5 py-12 text-white sm:px-10 md:rounded-[3rem] md:py-16" : "py-4"}
+      className={upper ? "relative isolate overflow-hidden rounded-[2.25rem] kz-jaali bg-[#00332a] px-5 py-12 text-[#f9fbe5] sm:px-10 md:rounded-[3rem] md:py-16" : "py-4"}
     >
-      {upper && <span aria-hidden="true" className="absolute -right-24 -top-28 -z-10 h-[30rem] w-[30rem] rounded-full bg-white/10" />}
+      
       <div className="mb-8 flex flex-col gap-4 md:mb-10 md:flex-row md:items-end md:justify-between">
         <div className="flex items-center gap-4">
           <span className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl text-[#002820]" style={{ background: tint }}>
             <Icon size={24} />
           </span>
           <div>
-            <RevealWords lines={[name]} className="text-[clamp(1.6rem,3vw,2.4rem)] font-semibold leading-tight tracking-[-0.02em]" />
-            {blurb && <p className={`kz-body mt-1 ${upper ? "text-white/80" : "text-[#4b6660]"}`}>{blurb}</p>}
+            <RevealWords lines={[name]} className="kz-serif text-[clamp(1.6rem,3vw,2.3rem)]" />
+            {blurb && <p className={`kz-body mt-1 ${upper ? "text-white/80" : "text-[#3f5a52]"}`}>{blurb}</p>}
           </div>
         </div>
-        <span className={`kz-label ${upper ? "text-white/70" : "text-[#4b6660]"}`}>
+        <span className={`kz-label ${upper ? "text-white/70" : "text-[#3f5a52]"}`}>
           {members.length} {members.length === 1 ? "member" : "members"}
         </span>
       </div>
@@ -175,7 +175,7 @@ export default function CouncilPage() {
   }, [ordered, category, subTeam]);
 
   return (
-    <div className="kz-font min-h-screen bg-[#f9fbe5] text-[#002820] selection:bg-[#c6011f]/20">
+    <div className="kz-font kz-paper min-h-screen bg-[#f9fbe5] text-[#002820] selection:bg-[#c10021]/20">
       <KzHeader />
       <main>
         <PageHero
@@ -187,14 +187,14 @@ export default function CouncilPage() {
             loading
               ? []
               : [
-                  { value: String(members.length), label: "Council members", bg: "#dcebd8" },
-                  { value: String(ordered.length), label: "Teams", bg: "#ffd27a" },
-                  { value: String(groups[UPPER]?.length ?? 0), label: "Upper house", bg: "#c6011f", ink: "#ffffff" },
+                  { value: String(members.length), label: "Council members" },
+                  { value: String(ordered.length), label: "Teams" },
+                  { value: String(groups[UPPER]?.length ?? 0), label: "Upper house" },
                 ]
           }
         />
 
-        <section className="relative z-30 mx-auto max-w-[90rem] px-5 sm:px-8 md:px-12 lg:sticky lg:top-[calc(var(--kz-header-h)+0.9rem)]">
+        <section className="relative mx-auto max-w-[90rem] px-5 sm:px-8 md:px-12">
           <Segmented
             id="council-cat"
             options={CATEGORIES}
@@ -222,7 +222,7 @@ export default function CouncilPage() {
                       className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-[0.85rem] font-semibold transition-all duration-300 ${
                         subTeam === value
                           ? "border-[#006255] bg-[#006255] text-white shadow-[0_10px_20px_-12px_rgba(0,98,85,0.8)]"
-                          : "border-[#002820]/15 bg-white text-[#002820]/75 hover:border-[#002820]/35 hover:text-[#002820]"
+                          : "border-[#002820]/15 bg-transparent text-[#002820]/75 hover:border-[#002820]/35 hover:text-[#002820]"
                       }`}
                     >
                       <Icon size={14} /> {label}
@@ -244,7 +244,7 @@ export default function CouncilPage() {
           )}
 
           {error && !loading && (
-            <div className="mx-auto flex max-w-md items-center gap-3 rounded-2xl bg-[#ffe1e1] p-5 text-[#8a0016]">
+            <div className="mx-auto flex max-w-md items-center gap-3 rounded-2xl border border-[#c10021]/25 bg-[#f9fbe5] p-5 text-[#8a0016]">
               <AlertTriangle size={20} className="shrink-0" />
               <span className="font-semibold">{error}</span>
             </div>
@@ -262,7 +262,7 @@ export default function CouncilPage() {
             <div className="mx-auto flex max-w-md flex-col items-center py-10 text-center">
               <Image src={RHINO_SRC} alt="" width={220} height={154} className="kz-float" />
               <h3 className="mt-6 text-[1.3rem] font-semibold">Council information is being updated</h3>
-              <p className="kz-body mt-2 text-[#4b6660]">Check back soon to meet the team.</p>
+              <p className="kz-body mt-2 text-[#3f5a52]">Check back soon to meet the team.</p>
             </div>
           )}
         </div>

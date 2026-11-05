@@ -39,8 +39,8 @@ export default function MeetupCard({
 
         <div className="flex min-w-0 flex-1 flex-col p-4">
           <div className="flex items-start justify-between gap-2">
-            <p className="kz-label flex flex-wrap items-center gap-1.5 text-[0.62rem] text-[#c6011f]">
-              {isUpcoming(m) && <span className="rounded-full bg-[#c6011f] px-1.5 py-0.5 text-[0.54rem] text-white">Upcoming</span>}
+            <p className="kz-label flex flex-wrap items-center gap-1.5 text-[0.62rem] text-[#c10021]">
+              {isUpcoming(m) && <span className="rounded-full bg-[#c10021] px-1.5 py-0.5 text-[0.54rem] text-white">Upcoming</span>}
               {formatMeetupDate(m.date) || "Date to come"}
             </p>
             {onClose && (
@@ -48,7 +48,7 @@ export default function MeetupCard({
                 type="button"
                 onClick={onClose}
                 aria-label="Close"
-                className="-mr-1.5 -mt-1.5 grid h-7 w-7 shrink-0 place-items-center rounded-full text-[#4b6660] transition-colors hover:bg-[#002820]/5 hover:text-[#002820]"
+                className="-mr-1.5 -mt-1.5 grid h-7 w-7 shrink-0 place-items-center rounded-full text-[#3f5a52] transition-colors hover:bg-[#002820]/5 hover:text-[#002820]"
               >
                 <X size={15} />
               </button>
@@ -58,7 +58,7 @@ export default function MeetupCard({
           <h3 className="mt-2 line-clamp-3 text-[0.95rem] font-bold leading-snug">{m.venue || place}</h3>
 
           {place && (
-            <p className="mt-2 flex items-start gap-1.5 text-[0.78rem] font-semibold leading-snug text-[#4b6660]">
+            <p className="mt-2 flex items-start gap-1.5 text-[0.78rem] font-semibold leading-snug text-[#3f5a52]">
               <MapPin size={13} className="mt-[0.15rem] shrink-0 text-[#006255]" />
               <span>{place}</span>
             </p>
@@ -83,7 +83,7 @@ export default function MeetupCard({
           for both on a 344 px card, and the button folded into three lines. */}
       {many && (
         <div className="flex items-center justify-between gap-3 border-t border-[#002820]/10 bg-[#f9fbe5] px-4 py-2">
-          <span className="text-[0.7rem] font-bold tabular-nums text-[#4b6660]">
+          <span className="text-[0.7rem] font-bold tabular-nums text-[#3f5a52]">
             {index + 1} of {meetups.length} meetups here
           </span>
           <div className="flex items-center gap-1.5">

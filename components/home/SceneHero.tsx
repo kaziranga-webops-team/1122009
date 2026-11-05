@@ -78,7 +78,7 @@ export default function SceneHero() {
           </span>
           <span className="block">
             <WordRise text="Kaziranga House" start={2} />
-            <span className="kz-pop inline-block text-[#c6011f]" style={vars({ "--delay": "0.95s" })}>
+            <span className="kz-pop inline-block text-[#c10021]" style={vars({ "--delay": "0.95s" })}>
               .
             </span>
           </span>

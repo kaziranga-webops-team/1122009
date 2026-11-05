@@ -23,10 +23,10 @@ type Card = {
 };
 
 const BADGE: Record<Status, { label: string; className: string }> = {
-  "live-now": { label: "Live now", className: "bg-[#c6011f] text-white" },
+  "live-now": { label: "Live now", className: "bg-[#c10021] text-white" },
   upcoming: { label: "Upcoming", className: "bg-[#002820] text-[#f9fbe5]" },
   "past-recorded": { label: "Recorded", className: "bg-[#dcebd8] text-[#1d3d35]" },
-  "past-unrecorded": { label: "Not recorded", className: "bg-[#e7e7d8] text-[#4b6660]" },
+  "past-unrecorded": { label: "Not recorded", className: "bg-[#e7e7d8] text-[#3f5a52]" },
 };
 
 function toStatus(raw: string): Status {
@@ -67,7 +67,7 @@ function EventCard({ event }: { event: Card }) {
   const href = isLive ? event.meet : event.youtube;
 
   return (
-    <article className="flex h-full flex-col overflow-hidden rounded-2xl border border-[#002820]/15 bg-white">
+    <article className="flex h-full flex-col overflow-hidden rounded-[1.25rem] border border-[#002820]/10 bg-[#eef1dc]">
       <div className="relative aspect-[16/9] shrink-0 bg-[#dcebd8]">
         {event.image && <Image src={event.image} alt="" fill sizes="420px" className="object-cover" unoptimized />}
       </div>
@@ -76,7 +76,7 @@ function EventCard({ event }: { event: Card }) {
         <div className="flex items-center justify-between gap-3">
           <span className={`kz-label rounded-full px-3 py-1.5 text-[0.65rem] ${badge.className}`}>{badge.label}</span>
           {event.date && (
-            <span className="inline-flex items-center gap-1.5 text-[0.78rem] font-semibold text-[#4b6660]">
+            <span className="inline-flex items-center gap-1.5 text-[0.78rem] font-semibold text-[#3f5a52]">
               <CalendarDays size={14} />
               {event.date}
             </span>
@@ -86,13 +86,13 @@ function EventCard({ event }: { event: Card }) {
         <h3 className="kz-h3 mt-4 text-[1.05rem] normal-case tracking-normal">{event.title}</h3>
 
         {event.speaker && (
-          <p className="mt-3 inline-flex max-w-full items-center gap-2 self-start rounded-full bg-[#f1f5e4] px-3 py-1.5 text-[0.78rem] font-semibold text-[#1d3d35]">
+          <p className="mt-3 inline-flex max-w-full items-center gap-2 self-start rounded-full bg-[#f9fbe5] px-3 py-1.5 text-[0.78rem] font-semibold text-[#1d3d35]">
             <Mic size={13} className="shrink-0 text-[#006255]" />
             <span className="truncate">{event.speaker}</span>
           </p>
         )}
 
-        {event.description && <p className="kz-body mt-3 line-clamp-3 text-[#4b6660]">{event.description}</p>}
+        {event.description && <p className="kz-body mt-3 line-clamp-3 text-[#3f5a52]">{event.description}</p>}
 
         {href && (
           // mt-auto on the wrapper, not the button: it pins the CTA to the
@@ -102,7 +102,7 @@ function EventCard({ event }: { event: Card }) {
               href={href}
               target="_blank"
               rel="noopener noreferrer"
-              className={`kz-btn kz-btn--sm ${isLive ? "kz-btn--ink" : "kz-btn--red"}`}
+              className={`kz-btn kz-btn--sm ${isLive ? "kz-btn--forest" : "kz-btn--red"}`}
             >
               {isLive ? "Join session" : <><Youtube size={15} /> Watch on YouTube</>}
             </a>
@@ -202,7 +202,7 @@ export default function KzEvents() {
                   aria-label={`Go to slide ${i + 1}`}
                   onClick={() => embla?.scrollTo(i)}
                   className={`h-2 rounded-full transition-all duration-300 ${
-                    i === selected ? "w-7 bg-[#c6011f]" : "w-2 bg-[#002820]/25 hover:bg-[#002820]/45"
+                    i === selected ? "w-7 bg-[#006255]" : "w-2 bg-[#002820]/25 hover:bg-[#002820]/45"
                   }`}
                 />
               ))}
@@ -222,7 +222,7 @@ export default function KzEvents() {
       )}
 
       <div className="flex justify-center px-5 pb-20 pt-10 md:pb-28">
-        <Link href="/events" className="kz-btn kz-btn--ink">
+        <Link href="/events" className="kz-btn kz-btn--forest">
           See every event <ArrowRight size={18} />
         </Link>
       </div>

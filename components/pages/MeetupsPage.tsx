@@ -104,7 +104,7 @@ export default function MeetupsPage() {
   );
 
   return (
-    <div className="kz-font min-h-screen bg-[#f9fbe5] text-[#002820] selection:bg-[#c6011f]/20">
+    <div className="kz-font min-h-screen bg-[#f9fbe5] text-[#002820] selection:bg-[#c10021]/20">
       <KzHeader />
       <main className="pt-[var(--kz-header-h)]">
         {/* ═══ The sea ═══ */}
@@ -200,7 +200,7 @@ function IndiaHead({
   const ready = !loading || meetups > 0;
   return (
     <motion.div {...swap}>
-      <p className="kz-label kz-mark text-[#c6011f]">House meetups</p>
+      <p className="kz-label kz-mark text-[#c10021]">House meetups</p>
       <h1 className="kz-display mt-4 text-[clamp(2.6rem,5.4vw,5.2rem)]">
         {ready && cities ? (
           <>
@@ -209,7 +209,7 @@ function IndiaHead({
         ) : (
           "We meet up all over India"
         )}
-        <span className="text-[#c6011f]">.</span>
+        <span className="text-[#c10021]">.</span>
       </h1>
       <p className="kz-lead mt-5 max-w-md text-[#1d3d35]">
         {ready && meetups ? `${meetups} meetups across ${states} states so far, ` : "Meetups across India, "}
@@ -241,7 +241,7 @@ function StateHead({
       </button>
       <h1 className="kz-display mt-4 text-[clamp(2.6rem,5.4vw,5.2rem)]">
         {name ?? "This state"}
-        <span className="text-[#c6011f]">.</span>
+        <span className="text-[#c10021]">.</span>
       </h1>
       <p className="kz-lead mt-5 max-w-md text-[#1d3d35]">
         {count
@@ -274,7 +274,7 @@ function StateChips({ states, loading, onPick }: { states: States; loading: bool
                 >
                   <span className="h-3.5 w-3.5 rounded-[4px] ring-1 ring-[#002820]/15" style={{ background: landFill(s.items.length) }} />
                   {s.name}
-                  <span className="tabular-nums text-[#4b6660] group-hover:text-[#f9fbe5]/70">{s.items.length}</span>
+                  <span className="tabular-nums text-[#3f5a52] group-hover:text-[#f9fbe5]/70">{s.items.length}</span>
                 </button>
               </li>
             ))}
@@ -312,9 +312,9 @@ function CityList({
       {cities.map((c) => (
         <section key={c.key} className="px-2 py-2">
           <h2 className="flex items-center gap-2 pb-1">
-            <MapPin size={13} className="text-[#c6011f]" />
+            <MapPin size={13} className="text-[#c10021]" />
             <span className="kz-h3 text-[0.74rem]">{c.name}</span>
-            <span className="ml-auto text-[0.74rem] font-bold tabular-nums text-[#4b6660]">{c.items.length}</span>
+            <span className="ml-auto text-[0.74rem] font-bold tabular-nums text-[#3f5a52]">{c.items.length}</span>
           </h2>
           <ul>
             {[...c.items].sort(newestFirst).map((m) => (
@@ -328,7 +328,7 @@ function CityList({
                   onClick={() => onShow(m.key)}
                   className="group flex w-full items-baseline gap-3 rounded-lg px-2 py-1.5 text-left transition-colors hover:bg-[#002820]/[0.05]"
                 >
-                  <span className="w-[5.4rem] shrink-0 text-[0.7rem] font-bold tabular-nums text-[#c6011f]">
+                  <span className="w-[5.4rem] shrink-0 text-[0.7rem] font-bold tabular-nums text-[#c10021]">
                     {formatMeetupDate(m.date)}
                   </span>
                   <span className="min-w-0 flex-1 truncate text-[0.86rem] font-semibold group-hover:text-[#006255]">{m.venue}</span>
@@ -432,12 +432,12 @@ function PosterCard({ m, onShow }: { m: MeetupPin; onShow: (key: string) => void
       </span>
       <span className="mt-4 flex items-center gap-2">
         {isUpcoming(m) && (
-          <span className="kz-label rounded-full bg-[#c6011f] px-2 py-0.5 text-[0.56rem] text-white">Upcoming</span>
+          <span className="kz-label rounded-full bg-[#c10021] px-2 py-0.5 text-[0.56rem] text-white">Upcoming</span>
         )}
-        <span className="kz-label text-[0.62rem] text-[#c6011f]">{formatMeetupDate(m.date)}</span>
+        <span className="kz-label text-[0.62rem] text-[#c10021]">{formatMeetupDate(m.date)}</span>
       </span>
       <span className="mt-1.5 line-clamp-2 block text-[0.95rem] font-semibold leading-snug">{m.venue}</span>
-      <span className="mt-1 block text-[0.78rem] font-medium text-[#4b6660]">{[m.city, m.state].filter(Boolean).join(", ")}</span>
+      <span className="mt-1 block text-[0.78rem] font-medium text-[#3f5a52]">{[m.city, m.state].filter(Boolean).join(", ")}</span>
     </button>
   );
 }

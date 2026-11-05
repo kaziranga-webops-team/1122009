@@ -16,7 +16,7 @@ import BackgroundAudio from "@/components/BackgroundAudio";
 
 // Routes that render their own header, so the global Navbar is hidden.
 // "/" is the illustrated homepage — it ships its own KzHeader.
-const NAVBAR_HIDDEN = ["/", "/gallery", "/events", "/council", "/meetups"];
+const NAVBAR_HIDDEN = ["/", "/gallery", "/events", "/council", "/meetups", "/communities"];
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(() => new QueryClient());

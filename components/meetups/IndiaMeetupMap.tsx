@@ -698,7 +698,7 @@ export default function IndiaMeetupMap({
           {chip && (
             <div className="min-w-0 rounded-2xl bg-[#f9fbe5]/95 px-3.5 py-2 shadow-sm">
               <p className="truncate text-[0.85rem] font-bold leading-tight">{chip.title}</p>
-              <p className="truncate text-[0.7rem] font-semibold text-[#4b6660]">{chip.sub}</p>
+              <p className="truncate text-[0.7rem] font-semibold text-[#3f5a52]">{chip.sub}</p>
             </div>
           )}
         </div>
@@ -706,7 +706,7 @@ export default function IndiaMeetupMap({
 
       {!focus && geo && (
         <div className="pointer-events-none absolute bottom-3 left-3 rounded-2xl bg-[#f9fbe5]/95 px-3.5 py-2.5 shadow-sm sm:bottom-5 sm:left-5">
-          <p className="kz-label mb-1.5 text-[0.56rem] text-[#4b6660]">Meetups per state</p>
+          <p className="kz-label mb-1.5 text-[0.56rem] text-[#3f5a52]">Meetups per state</p>
           <div className="flex items-center gap-3 text-[0.68rem] font-semibold">
             {[
               ["1–2", 1],
@@ -725,11 +725,11 @@ export default function IndiaMeetupMap({
       {!geo && (
         <div className="absolute inset-0 grid place-items-center">
           {failed ? (
-            <p className="kz-body max-w-xs px-6 text-center text-[#4b6660]">
+            <p className="kz-body max-w-xs px-6 text-center text-[#3f5a52]">
               The map could not load. Every meetup is still in the list.
             </p>
           ) : (
-            <p className="inline-flex items-center gap-2 text-[0.85rem] font-semibold text-[#4b6660]">
+            <p className="inline-flex items-center gap-2 text-[0.85rem] font-semibold text-[#3f5a52]">
               <Loader2 size={16} className="animate-spin" /> Drawing India…
             </p>
           )}
@@ -758,7 +758,7 @@ function Pin({
     <span className="relative block" style={{ width: size, height: h }}>
       {/* The newest meetup in the house breathes, so the map has a "now". */}
       {pulse && (
-        <span className="absolute bottom-0 left-1/2 h-3 w-3 -translate-x-1/2 translate-y-1/2 rounded-full bg-[#c6011f] opacity-60 motion-safe:animate-ping" />
+        <span className="absolute bottom-0 left-1/2 h-3 w-3 -translate-x-1/2 translate-y-1/2 rounded-full bg-[#c10021] opacity-60 motion-safe:animate-ping" />
       )}
       <span
         className={`absolute bottom-0 left-1/2 h-1.5 -translate-x-1/2 translate-y-1/2 rounded-full bg-[#002820]/30 blur-[1px] transition-all duration-300 ${
@@ -775,7 +775,7 @@ function Pin({
       >
         <path
           d="M12 31.2s10.4-10 10.4-18.6a10.4 10.4 0 1 0-20.8 0C1.6 21.2 12 31.2 12 31.2z"
-          fill={active ? INK : "#c6011f"}
+          fill={active ? INK : "#c10021"}
           stroke="#fff"
           strokeWidth={1.8}
           className="transition-[fill] duration-200"
