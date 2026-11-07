@@ -2,13 +2,12 @@ import React, { useState, useMemo } from 'react';
 import { UserProfile, UserRole } from '@/types/portal';
 import { useAuth } from '@/context/AuthContext';
 import { auth, db, isMockMode } from '@/lib/firebase';
-import { doc, updateDoc, setDoc, collection } from 'firebase/firestore';
+import { doc, updateDoc, setDoc } from 'firebase/firestore';
 import { mockStore } from '@/lib/portal/firebase/mockStore';
 import { formatRoleName } from '@/lib/portal/utils/roleFormatter';
 import {
   Shield,
   Crown,
-  User,
   ArrowUpRight,
   CheckCircle2,
   AlertTriangle,
@@ -18,7 +17,6 @@ import {
   GraduationCap,
   UsersRound,
 } from 'lucide-react';
-import { Card } from '@/components/portal/ui/Card';
 import { Badge } from '@/components/portal/ui/Badge';
 import { Button } from '@/components/portal/ui/Button';
 import { Modal } from '@/components/portal/ui/Modal';
@@ -170,7 +168,7 @@ export const RoleManager: React.FC<RoleManagerProps> = ({ users, onRoleUpdated }
       if (isMockMode) {
         mockStore.updateUserRole(targetUser.uid, selectedRole, currentUser);
       } else {
-        const token = await auth.currentUser?.getIdToken();
+        const token = await auth?.currentUser?.getIdToken();
         let serverSuccess = false;
 
         if (token) {
