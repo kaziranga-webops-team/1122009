@@ -205,7 +205,6 @@ export default function ClassicEventsPage() {
   return (
     <div className="space-y-8">
       <HouseHeader
-        badge="Rhinos Event Arena"
         title="Every competition, one arena."
         subtitle="Browse active festivals, rulebooks, venues and deadlines across Kaziranga House."
         footer={

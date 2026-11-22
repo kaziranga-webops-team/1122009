@@ -1,123 +1,143 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { FaInstagram, FaLinkedinIn, FaWhatsapp, FaYoutube } from "react-icons/fa";
 import { SiLinktree } from "react-icons/si";
-import Ambient from "@/components/kz/Ambient";
 import { JOIN_URL } from "@/components/kz/KzHeader";
+import { Gamosa, Postmark } from "@/components/kz/Motifs";
+import { HERITAGE_CREDIT } from "@/lib/heritage";
 
 const INSTAGRAM = "https://www.instagram.com/kaziranga_iitm/";
 
 const SOCIALS = [
-  { Icon: FaInstagram, href: INSTAGRAM, label: "Instagram" },
-  { Icon: FaWhatsapp, href: JOIN_URL, label: "WhatsApp" },
-  { Icon: FaYoutube, href: "http://www.youtube.com/@KazirangaHouse", label: "YouTube" },
-  { Icon: FaLinkedinIn, href: "https://www.linkedin.com/company/kaziranga-iitm", label: "LinkedIn" },
-  { Icon: SiLinktree, href: "https://linktr.ee/KazirangaHouseBS", label: "Linktree" },
+  { Icon: FaInstagram, href: INSTAGRAM, label: "Instagram", bg: "#e2387a", ink: "#fff" },
+  { Icon: FaWhatsapp, href: JOIN_URL, label: "WhatsApp", bg: "#0f5e48", ink: "#f5e9cf" },
+  { Icon: FaYoutube, href: "http://www.youtube.com/@KazirangaHouse", label: "YouTube", bg: "#c8102e", ink: "#fff" },
+  { Icon: FaLinkedinIn, href: "https://www.linkedin.com/company/kaziranga-iitm", label: "LinkedIn", bg: "#2343b8", ink: "#f5e9cf" },
+  { Icon: SiLinktree, href: "https://linktr.ee/KazirangaHouseBS", label: "Linktree", bg: "#f6b51e", ink: "#1c130c" },
 ];
 
+/** The same three groups as the header, so the site is organised one way everywhere. */
 const COLUMNS = [
   {
     heading: "The house",
     links: [
-      { label: "Council", href: "/council" },
-      { label: "Events", href: "/events" },
+      { label: "Our story", href: "/#land" },
       { label: "Communities", href: "/communities" },
-      { label: "Meetups", href: "/meetups" },
+      { label: "Council", href: "/council" },
       { label: "Gallery", href: "/gallery" },
+    ],
+  },
+  {
+    heading: "Gatherings",
+    links: [
+      { label: "Meetups", href: "/meetups" },
+      { label: "Events", href: "/events" },
+      { label: "Kaziranga Tak", href: "/tak" },
     ],
   },
   {
     heading: "Learn",
     links: [
       { label: "Study Zone", href: "/study" },
-      { label: "Revision sessions", href: "/study" },
-      { label: "Kaziranga Tak", href: "/tak" },
+      { label: "Resource hub", href: "/hub" },
+      { label: "Notes", href: "/resources" },
     ],
   },
 ];
 
 /**
- * The close of the page.
- *
- * "Still have questions?" lives here rather than in a section of its own:
- * as a standalone block between the sunset band and the footer it was a third
- * ending in a row, and it floated on a strip of canopy art with no ground
- * under it. Asked right above the links that answer it, it has a job.
+ * The close of every page: a gamosa edge, the question most visitors still
+ * have, then the house's name set huge and hanging from its bar, with the
+ * site's three groups and the ways to reach us.
  */
 export default function KzFooter() {
   return (
-    <footer className="kz-font relative isolate overflow-hidden rounded-t-[2.25rem] bg-[#002820] text-[#f9fbe5] md:rounded-t-[3.5rem]">
-      <Ambient birds={0} specks={24} seed={21} sky={[4, 94]} />
+    <footer className="kz-font relative overflow-hidden bg-[#1c130c] text-[#f5e9cf]">
+      <Gamosa />
 
-      <div className="relative border-b border-white/12 bg-[#00392e]">
-        <div className="mx-auto flex max-w-[90rem] flex-col items-start gap-7 px-5 py-16 sm:px-8 md:flex-row md:items-end md:justify-between md:px-12 md:py-20">
+      <div className="kz-halftone bg-[#2343b8]" style={{ ["--dot" as string]: "rgba(10,20,80,0.55)" }}>
+        <div className="mx-auto flex max-w-[90rem] flex-col items-start gap-7 px-5 py-14 sm:px-8 md:flex-row md:items-end md:justify-between md:px-12 md:py-16">
           <div>
-            <h2 className="kz-h2 text-[clamp(1.9rem,4vw,3.2rem)]">Still have questions?</h2>
-            <p className="kz-lead mt-4 max-w-md text-white/70">
-              Message the house on Instagram, or reach any council member directly from their card.
-            </p>
+            <h2 className="kz-h2 kz-offset text-[clamp(2.2rem,4.6vw,3.8rem)] text-[#f6b51e]" style={{ ["--offset" as string]: "#e2387a" }}>
+              Still have questions?
+            </h2>
+            <p className="kz-lead mt-4 max-w-md text-[#f5e9cf]/85">Message the house on Instagram, or reach any council member directly from their card.</p>
           </div>
           <div className="flex flex-wrap gap-3">
-            <a href={INSTAGRAM} target="_blank" rel="noopener noreferrer" className="kz-btn kz-btn--white">
-              Message us on Instagram <ArrowRight size={18} />
+            <a href={INSTAGRAM} target="_blank" rel="noopener noreferrer" className="kz-btn kz-focus bg-[#f6b51e] text-[#1c130c]">
+              Message us on Instagram <ArrowRight size={16} />
             </a>
-            <Link href="/council" className="kz-btn kz-btn--outline">
+            <Link href="/council" className="kz-btn kz-btn--outline kz-focus">
               Meet the council
             </Link>
           </div>
         </div>
       </div>
 
-      <div className="relative mx-auto grid max-w-[90rem] gap-12 px-5 py-16 sm:px-8 md:grid-cols-[1.4fr_1fr_1fr] md:px-12 md:py-20">
-        <div>
-          <Link href="/" className="flex items-center gap-3">
-            <Image src="/logo.png" alt="" width={40} height={40} className="h-10 w-10 rounded-full" />
-            <span className="kz-wordmark text-[1.3rem]">kaziranga house</span>
-          </Link>
-          <p className="kz-body mt-6 max-w-sm text-white/70">
-            Creators. Leaders. Dreamers. Together, we go Beyond Limits!
+      <div className="mx-auto max-w-[90rem] px-5 pt-16 sm:px-8 md:px-12 md:pt-20">
+        <div className="flex items-start gap-6">
+          <p aria-hidden="true" className="kz-display kz-hang min-w-0 flex-1 text-[clamp(3.6rem,13vw,12rem)] text-[#f5e9cf]" style={{ ["--hang-color" as string]: "#c8102e" }}>
+            <span>Kaziranga</span>
           </p>
-          <ul className="mt-7 flex flex-wrap gap-3">
-            {SOCIALS.map(({ Icon, href, label }) => (
-              <li key={label}>
-                <a
-                  href={href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={label}
-                  data-brand={label.toLowerCase()}
-                  className="kz-social grid h-11 w-11 place-items-center rounded-full border border-white/25"
-                >
-                  <Icon size={17} />
-                </a>
-              </li>
-            ))}
-          </ul>
+          <Postmark
+            className="hidden w-32 shrink-0 rotate-[-10deg] text-[0.95rem] md:inline-grid lg:w-40"
+            color="#f6b51e"
+            top="BEYOND LIMITS"
+            bottom="IIT MADRAS BS"
+            center={
+              <>
+                HOUSE
+                <br />
+                {new Date().getFullYear()}
+              </>
+            }
+          />
         </div>
 
-        {COLUMNS.map((col) => (
-          <nav key={col.heading}>
-            <h2 className="kz-label text-white/45">{col.heading}</h2>
-            <ul className="mt-5 space-y-3">
-              {col.links.map((l) => (
-                <li key={l.label}>
-                  <Link href={l.href} className="kz-lead text-white/85 transition-colors hover:text-white">
-                    {l.label}
-                  </Link>
+        <div className="mt-12 grid gap-12 pb-16 md:grid-cols-[1.3fr_1fr_1fr_1fr] md:pb-20">
+          <div>
+            <p className="kz-lead max-w-sm text-[#f5e9cf]/75">Creators, leaders, dreamers — a student house of the IIT Madras BS degree, named for a floodplain in Assam.</p>
+            <ul className="mt-7 flex flex-wrap gap-2">
+              {SOCIALS.map(({ Icon, href, label, bg, ink }) => (
+                <li key={label}>
+                  <a
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={label}
+                    className="kz-focus grid h-11 w-11 place-items-center transition-transform duration-300 hover:-translate-y-1 hover:rotate-[-6deg]"
+                    style={{ background: bg, color: ink, clipPath: "polygon(6px 0, calc(100% - 6px) 0, 100% 6px, 100% calc(100% - 6px), calc(100% - 6px) 100%, 6px 100%, 0 calc(100% - 6px), 0 6px)" }}
+                  >
+                    <Icon size={17} />
+                  </a>
                 </li>
               ))}
             </ul>
-          </nav>
-        ))}
+          </div>
+
+          {COLUMNS.map((col) => (
+            <nav key={col.heading} aria-label={col.heading}>
+              <h2 className="kz-label text-[#f6b51e]">{col.heading}</h2>
+              <ul className="mt-5 space-y-3">
+                {col.links.map((l) => (
+                  <li key={l.label}>
+                    <Link href={l.href} className="kz-focus text-[1.05rem] text-[#f5e9cf]/85 transition-colors hover:text-[#f6b51e]">
+                      {l.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          ))}
+        </div>
       </div>
 
-      <div className="relative border-t border-white/12">
-        <div className="mx-auto flex max-w-[90rem] flex-col gap-2 px-5 py-6 text-[0.8rem] text-white/55 sm:flex-row sm:items-center sm:justify-between sm:px-8 md:px-12">
-          <p>© {new Date().getFullYear()} Kaziranga House. All rights reserved.</p>
-          <p>IIT Madras BS Degree · Built by the house web team</p>
+      <div className="border-t border-[#f5e9cf]/12">
+        <div className="mx-auto flex max-w-[90rem] flex-col gap-2 px-5 py-6 text-[0.8rem] text-[#f5e9cf]/55 sm:px-8 md:flex-row md:items-center md:justify-between md:px-12">
+          <p>© {new Date().getFullYear()} Kaziranga House · IIT Madras BS degree · Built by the house web team</p>
+          <p>Historical artworks: {HERITAGE_CREDIT}</p>
         </div>
       </div>
     </footer>

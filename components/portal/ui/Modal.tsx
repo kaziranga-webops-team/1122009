@@ -11,7 +11,6 @@ interface ModalProps {
   onClose: () => void;
   title: string;
   subtitle?: string;
-  eyebrow?: string;
   children: React.ReactNode;
   footer?: React.ReactNode;
   maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl';
@@ -31,7 +30,6 @@ export const Modal: React.FC<ModalProps> = ({
   onClose,
   title,
   subtitle,
-  eyebrow,
   children,
   footer,
   maxWidth = 'md',
@@ -112,11 +110,6 @@ export const Modal: React.FC<ModalProps> = ({
               {/* Header adapts between clean raised surface in light mode and dark stage in dark mode. */}
               <div className="relative bg-surface-raised border-b border-hairline dark:ed-stage dark:ed-mesh dark:border-transparent shrink-0 px-6 py-5 flex items-start justify-between gap-4">
                 <div className="min-w-0 space-y-1">
-                  {eyebrow && (
-                    <div className="text-eyebrow uppercase font-display text-accent dark:text-[rgb(var(--accent-vivid))]">
-                      {eyebrow}
-                    </div>
-                  )}
                   <h3 className="font-display font-extrabold text-title text-ink dark:text-white leading-tight">
                     {title}
                   </h3>

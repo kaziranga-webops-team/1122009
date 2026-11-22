@@ -2,8 +2,6 @@ import React from 'react';
 import { cn } from '@/lib/utils';
 
 interface SectionHeadingProps {
-  /** Small tracked-out label above the title. */
-  eyebrow?: React.ReactNode;
   title: React.ReactNode;
   description?: React.ReactNode;
   /** Right-aligned actions — a link or button, kept to one or two. */
@@ -20,7 +18,6 @@ const titleSize = {
 };
 
 export const SectionHeading: React.FC<SectionHeadingProps> = ({
-  eyebrow,
   title,
   description,
   actions,
@@ -35,8 +32,6 @@ export const SectionHeading: React.FC<SectionHeadingProps> = ({
     )}
   >
     <div className="space-y-2 min-w-0">
-      {/* Same label as the public site's section heads — hornbill, red, tracked. */}
-      {eyebrow && <div className="kz-label kz-mark text-accent">{eyebrow}</div>}
       <Tag className={cn('font-display font-semibold tracking-tight text-ink', titleSize[size])}>
         {title}
       </Tag>

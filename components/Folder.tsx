@@ -29,7 +29,7 @@ const darkenColor = (hex: string, percent: number): string => {
   return '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase();
 };
 
-const Folder: React.FC<FolderProps> = ({ color = '#5227FF', size = 1, items = [], className = '', label, subLabel }) => {
+const Folder: React.FC<FolderProps> = ({ color = '#2343b8', size = 1, items = [], className = '', label, subLabel }) => {
   const maxItems = 3;
   const papers = items.slice(0, maxItems);
   while (papers.length < maxItems) {
@@ -106,7 +106,7 @@ const Folder: React.FC<FolderProps> = ({ color = '#5227FF', size = 1, items = []
             }}
           >
             {(label || subLabel) && (
-              <div className="relative flex flex-col items-center justify-center px-1.5 py-1 bg-[#fdfbf7] shadow-[0_2px_8px_rgba(0,0,0,0.15)] rounded-[4px] pointer-events-none w-[92%] mt-1 transition-opacity duration-300 group-hover:opacity-60">
+              <div className="relative flex flex-col items-center justify-center px-1.5 py-1 bg-[#fbf3df] shadow-[0_2px_8px_rgba(0,0,0,0.15)] rounded-[4px] pointer-events-none w-[92%] mt-1 transition-opacity duration-300 group-hover:opacity-60">
                 {label && <span className="text-[8.5px] font-black text-black/80 uppercase tracking-widest leading-tight w-full text-center block break-words whitespace-normal">{label}</span>}
                 {subLabel && <span className="text-[5px] font-bold text-black/40 uppercase tracking-wider mt-0.5 leading-none block">{subLabel}</span>}
               </div>

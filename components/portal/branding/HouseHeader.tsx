@@ -10,8 +10,6 @@ import { EASE_EDITORIAL } from '@/components/portal/ui/Motion';
 interface HouseHeaderProps {
   title: React.ReactNode;
   subtitle?: React.ReactNode;
-  /** Small tracked-out label above the title, carrying the hornbill mark. */
-  badge?: React.ReactNode;
   actions?: React.ReactNode;
   /** Statistics or meta rendered below the rule. */
   footer?: React.ReactNode;
@@ -32,7 +30,6 @@ interface HouseHeaderProps {
 export const HouseHeader: React.FC<HouseHeaderProps> = ({
   title,
   subtitle,
-  badge,
   actions,
   footer,
   size = 'md',
@@ -49,12 +46,9 @@ export const HouseHeader: React.FC<HouseHeaderProps> = ({
     >
       <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 lg:gap-10">
         <div className="min-w-0 max-w-3xl">
-          {badge && <p className="kz-label kz-mark text-accent">{badge}</p>}
-
           <h1
             className={cn(
               'font-display font-semibold tracking-tight text-ink',
-              badge && 'mt-4',
               size === 'lg' ? 'text-display-lg' : 'text-display-md'
             )}
           >

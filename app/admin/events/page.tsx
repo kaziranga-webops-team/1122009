@@ -272,7 +272,6 @@ export default function AdminEventsPage() {
 
       <div className="space-y-7">
         <SectionHeading
-          eyebrow="Admin control"
           title="Event management"
           description="Create, edit, publish or close registration for Kaziranga House events."
           size="lg"

@@ -321,7 +321,6 @@ export function ContentManager({ resource }: { resource: ContentResource }) {
       <Modal
         isOpen={editing !== null}
         onClose={() => (saving ? undefined : setEditing(null))}
-        eyebrow={labels.title}
         title={editing === 'new' ? `New ${labels.singular}` : `Edit ${labels.singular}`}
         subtitle="Changes appear on the website straight away."
         maxWidth="3xl"

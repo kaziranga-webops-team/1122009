@@ -60,7 +60,7 @@ function resolveIcon(iconName?: string): LucideIcon {
 }
 
 // ─── Static community CTA (not part of the portal/guide schema) ─────
-const COMMUNITY = {
+export const COMMUNITY = {
   label: "Join Study Circle",
   url: "https://forms.gle/kKBmVCAu8UwtpcpN8",
   icon: Users,
@@ -68,7 +68,7 @@ const COMMUNITY = {
   badge: "COLLABORATION"
 };
 
-export default function StudySection() {
+export default function StudySection({ bare = false }: { bare?: boolean }) {
   const { data: content } = useContent();
   const studyData = content?.study;
   const [activeDept, setActiveDept] = useState<"ds" | "es">("ds");
@@ -96,7 +96,9 @@ export default function StudySection() {
   }, [links, activeDept]);
 
   return (
-    <section id="study" className="py-20 md:py-28 relative overflow-hidden font-sans">
+    <section id="study" className={`relative overflow-hidden ${bare ? "kz-font pb-24 pt-4" : "py-20 md:py-28 font-sans"}`}>
+      {!bare && (
+      <>
       {/* Immersive organic nature background */}
       <div className="absolute inset-0 bg-gradient-to-br from-[#eae4ce] via-[#e8e2cc] to-[#f0ead4] dark:from-[#081e11] dark:via-[#05130b] dark:to-[#020a06] transition-colors duration-500" />
       
@@ -106,6 +108,8 @@ export default function StudySection() {
 
       {/* Subtle organic background pattern */}
       <div className="absolute inset-0 opacity-[0.015] dark:opacity-[0.03] bg-[radial-gradient(#1e5631_1px,transparent_1px)] [background-size:24px_24px] pointer-events-none" />
+      </>
+      )}
 
       <div className="container mx-auto px-4 md:px-6 relative z-10">
         {studyData?.sectionImage && (
@@ -121,6 +125,7 @@ export default function StudySection() {
         )}
 
         {/* Header */}
+        {!bare && (
         <motion.div
           initial={{ opacity: 0, y: 25 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -148,6 +153,7 @@ export default function StudySection() {
             {studyData?.sectionSubtitle || "Quick access to all essential study resources for the IITM BS Degree."}
           </p>
         </motion.div>
+        )}
 
         {/* Department Switcher — centered below description */}
         <motion.div

@@ -27,7 +27,6 @@ export default function ContentResourcePage() {
   return (
     <div className="space-y-8">
       <HouseHeader
-        badge="Website content"
         title={labels.title}
         subtitle={
           user?.role === 'RC'

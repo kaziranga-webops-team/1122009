@@ -44,7 +44,7 @@ function LoginContent() {
   if (user) return null;
 
   return (
-    <div className="kz-font relative min-h-[100svh] w-full overflow-hidden bg-[#8ef0fb] text-[#002820]">
+    <div className="kz-font relative min-h-[100svh] w-full overflow-hidden bg-[#8ef0fb] text-[#1c130c]">
       {/* ── the valley ── */}
       <div aria-hidden="true" className="absolute inset-0">
         <div className="kz-frame">
@@ -60,18 +60,18 @@ function LoginContent() {
             </div>
           </div>
         </div>
-        <div className="absolute inset-0 bg-[radial-gradient(60%_70%_at_50%_45%,rgba(0,40,32,0.18),rgba(0,40,32,0)_70%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(60%_70%_at_50%_45%,rgba(28,19,12,0.18),rgba(28,19,12,0)_70%)]" />
       </div>
 
       {/* ── top bar ── */}
       <header className="relative z-10 flex items-center justify-between px-5 py-5 sm:px-8 md:px-10">
-        <Link href="/" className="group flex items-center gap-3 rounded-full bg-[#f9fbe5]/85 py-1.5 pl-1.5 pr-4 shadow-[0_10px_30px_-16px_rgba(0,40,32,0.5)] backdrop-blur">
+        <Link href="/" className="group flex items-center gap-3 rounded-full bg-[#f5e9cf]/85 py-1.5 pl-1.5 pr-4 shadow-[0_10px_30px_-16px_rgba(28,19,12,0.5)] backdrop-blur">
           <Image src="/logo.png" alt="" width={36} height={36} className="h-9 w-9 rounded-full transition-transform duration-700 group-hover:rotate-[360deg]" />
           <span className="kz-wordmark text-[1rem]">kaziranga house</span>
         </Link>
         <Link
           href="/"
-          className="inline-flex items-center gap-2 rounded-full bg-[#002820] px-4 py-2.5 text-[0.88rem] font-semibold text-[#f9fbe5] transition-colors hover:bg-[#006255]"
+          className="inline-flex items-center gap-2 rounded-full bg-[#1c130c] px-4 py-2.5 text-[0.88rem] font-semibold text-[#f5e9cf] transition-colors hover:bg-[#0f5e48]"
         >
           <ArrowLeft size={16} /> <span className="hidden sm:inline">Back to the site</span>
         </Link>
@@ -83,21 +83,20 @@ function LoginContent() {
           initial={reduce ? false : { opacity: 0, y: 40, scale: 0.97 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ duration: 0.9, delay: 0.15, ease: SOFT }}
-          className="kz-corners w-full max-w-[460px] rounded-[2rem] border border-[#c9a24a]/40 bg-[#f9fbe5]/95 p-7 shadow-[0_40px_80px_-40px_rgba(0,40,32,0.6)] backdrop-blur-md sm:p-9"
+          className="kz-corners w-full max-w-[460px] rounded-[2rem] border border-[#e3a936]/40 bg-[#f5e9cf]/95 p-7 shadow-[0_40px_80px_-40px_rgba(28,19,12,0.6)] backdrop-blur-md sm:p-9"
         >
-          <p className="kz-eyebrow">House portal</p>
-          <h1 className="mt-4 kz-serif text-[clamp(2rem,4.4vw,2.7rem)]">
+          <h1 className="kz-serif text-[clamp(2rem,4.4vw,2.7rem)]">
             <span className="block">
               <WordRise text="Welcome back" base={0.35} />
             </span>
             <span className="block">
               <WordRise text="to the house" start={2} base={0.35} />
-              <span className="kz-pop inline-block text-[#c10021]" style={vars({ '--delay': '0.9s' })}>
+              <span className="kz-pop inline-block text-[#c8102e]" style={vars({ '--delay': '0.9s' })}>
                 .
               </span>
             </span>
           </h1>
-          <p className="kz-body mt-4 text-[#3f5a52]">
+          <p className="kz-body mt-4 text-[#5e4a35]">
             Sign in with your official IIT Madras student account to join house events, form teams and follow your submissions.
           </p>
 
@@ -105,10 +104,10 @@ function LoginContent() {
             {PERKS.map(({ Icon, label }, i) => (
               <li
                 key={label}
-                className="kz-rise inline-flex items-center gap-2 rounded-full border border-[#002820]/10 bg-[#eef1dc] px-3.5 py-2 text-[0.8rem] font-semibold text-[#1d3d35]"
+                className="kz-rise inline-flex items-center gap-2 rounded-full border border-[#1c130c]/10 bg-[#ebd9b2] px-3.5 py-2 text-[0.8rem] font-semibold text-[#1d3d35]"
                 style={vars({ '--i': 4 + i })}
               >
-                <Icon size={15} className="text-[#006255]" /> {label}
+                <Icon size={15} className="text-[#0f5e48]" /> {label}
               </li>
             ))}
           </ul>
@@ -117,16 +116,16 @@ function LoginContent() {
             type="button"
             disabled={loading}
             onClick={loginWithGoogle}
-            className="group mt-7 flex h-14 w-full items-center justify-center gap-3 rounded-full bg-[#006255] text-[0.98rem] font-semibold text-[#f9fbe5] shadow-[0_18px_30px_-18px_rgba(0,40,32,0.8)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#00332a] active:translate-y-0 active:scale-[0.99] disabled:pointer-events-none disabled:opacity-70"
+            className="group mt-7 flex h-14 w-full items-center justify-center gap-3 rounded-full bg-[#0f5e48] text-[0.98rem] font-semibold text-[#f5e9cf] shadow-[0_18px_30px_-18px_rgba(28,19,12,0.8)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#0a3b2f] active:translate-y-0 active:scale-[0.99] disabled:pointer-events-none disabled:opacity-70"
           >
             <span className="grid h-8 w-8 place-items-center rounded-full bg-white transition-transform duration-500 group-hover:rotate-[360deg]">
-              {loading ? <Loader2 size={18} className="animate-spin text-[#002820]" /> : <GoogleMark />}
+              {loading ? <Loader2 size={18} className="animate-spin text-[#1c130c]" /> : <GoogleMark />}
             </span>
             {loading ? 'Signing you in…' : 'Continue with Google'}
           </button>
 
-          <p className="mt-5 flex items-start gap-2 text-[0.78rem] leading-relaxed text-[#3f5a52]">
-            <ShieldCheck size={15} className="mt-0.5 shrink-0 text-[#006255]" />
+          <p className="mt-5 flex items-start gap-2 text-[0.78rem] leading-relaxed text-[#5e4a35]">
+            <ShieldCheck size={15} className="mt-0.5 shrink-0 text-[#0f5e48]" />
             Access is limited to Kaziranga House members. Not on the roster? Reach out to your house coordinator.
           </p>
         </motion.div>

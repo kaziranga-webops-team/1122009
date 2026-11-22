@@ -2,40 +2,34 @@
 
 import KzHeader from "@/components/kz/KzHeader";
 import KzFooter from "@/components/kz/KzFooter";
-import SceneHero from "@/components/home/SceneHero";
 import KzEvents from "@/components/home/KzEvents";
 import KzCouncil from "@/components/home/KzCouncil";
 import KzCommunities from "@/components/home/KzCommunities";
-import { AboutIntro, GrowPanel, JoinFinale, StartHere, WhatWeDo } from "@/components/home/sections";
+import { ChapterRail, ComeHome, Gatherings, PosterHero, PosterWall, TheLand, ThreeSteps } from "@/components/home/Story";
 
 /**
- * The illustrated homepage, ordered as a walkthrough for someone new:
- * who we are, the three steps in, what the house does, what's on, who runs
- * it, and the ways to stay in touch.
- *
- * The About section slides up over the hero on rounded corners, and the
- * colour blocks (council, footer) grow from inset cards to full width as
- * they arrive, so changes of colour read as chapters rather than cuts.
+ * The homepage, told as a story for someone arriving for the first time:
+ * the poster that says where we are, the floodplain we're named for, the
+ * three steps in, what the house does, its communities and events, the
+ * people who run it, and the way home.
  */
 export default function KzHome() {
   return (
-    <div className="kz-font kz-paper min-h-screen bg-[#f9fbe5] selection:bg-[#c10021]/20 selection:text-[#002820]">
-      <KzHeader overlay />
+    <div className="kz-font kz-paper min-h-screen bg-[#f5e9cf] selection:bg-[#e2387a]/30 selection:text-[#1c130c]">
+      <KzHeader />
+      <ChapterRail />
       <main>
-        <SceneHero />
-        <AboutIntro />
-        <StartHere />
-        <WhatWeDo />
+        <PosterHero />
+        <TheLand />
+        <ThreeSteps />
+        <Gatherings />
+        <PosterWall />
         <KzCommunities />
         <KzEvents />
-        <GrowPanel>
-          <KzCouncil />
-        </GrowPanel>
-        <JoinFinale />
+        <KzCouncil />
+        <ComeHome />
       </main>
-      <GrowPanel>
-        <KzFooter />
-      </GrowPanel>
+      <KzFooter />
     </div>
   );
 }

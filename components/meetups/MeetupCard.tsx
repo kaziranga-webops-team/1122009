@@ -32,15 +32,15 @@ export default function MeetupCard({
 
   return (
     <article
-      className={`kz-font w-[min(21.5rem,calc(100vw-2.5rem))] overflow-hidden rounded-2xl border border-[#002820]/15 bg-white text-[#002820] shadow-[0_18px_40px_-14px_rgba(0,40,32,0.45)] ${className}`}
+      className={`kz-font w-[min(21.5rem,calc(100vw-2.5rem))] overflow-hidden rounded-2xl border border-[#1c130c]/15 bg-white text-[#1c130c] shadow-[0_18px_40px_-14px_rgba(28,19,12,0.45)] ${className}`}
     >
       <div className="flex">
         <Poster key={m.key} src={m.poster} city={m.city} />
 
         <div className="flex min-w-0 flex-1 flex-col p-4">
           <div className="flex items-start justify-between gap-2">
-            <p className="kz-label flex flex-wrap items-center gap-1.5 text-[0.62rem] text-[#c10021]">
-              {isUpcoming(m) && <span className="rounded-full bg-[#c10021] px-1.5 py-0.5 text-[0.54rem] text-white">Upcoming</span>}
+            <p className="kz-label flex flex-wrap items-center gap-1.5 text-[0.62rem] text-[#c8102e]">
+              {isUpcoming(m) && <span className="rounded-full bg-[#c8102e] px-1.5 py-0.5 text-[0.54rem] text-white">Upcoming</span>}
               {formatMeetupDate(m.date) || "Date to come"}
             </p>
             {onClose && (
@@ -48,7 +48,7 @@ export default function MeetupCard({
                 type="button"
                 onClick={onClose}
                 aria-label="Close"
-                className="-mr-1.5 -mt-1.5 grid h-7 w-7 shrink-0 place-items-center rounded-full text-[#3f5a52] transition-colors hover:bg-[#002820]/5 hover:text-[#002820]"
+                className="-mr-1.5 -mt-1.5 grid h-7 w-7 shrink-0 place-items-center rounded-full text-[#5e4a35] transition-colors hover:bg-[#1c130c]/5 hover:text-[#1c130c]"
               >
                 <X size={15} />
               </button>
@@ -58,8 +58,8 @@ export default function MeetupCard({
           <h3 className="mt-2 line-clamp-3 text-[0.95rem] font-bold leading-snug">{m.venue || place}</h3>
 
           {place && (
-            <p className="mt-2 flex items-start gap-1.5 text-[0.78rem] font-semibold leading-snug text-[#3f5a52]">
-              <MapPin size={13} className="mt-[0.15rem] shrink-0 text-[#006255]" />
+            <p className="mt-2 flex items-start gap-1.5 text-[0.78rem] font-semibold leading-snug text-[#5e4a35]">
+              <MapPin size={13} className="mt-[0.15rem] shrink-0 text-[#0f5e48]" />
               <span>{place}</span>
             </p>
           )}
@@ -70,7 +70,7 @@ export default function MeetupCard({
                 href={m.instagram}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-[#002820] px-3 py-1.5 text-[0.72rem] font-semibold text-[#f9fbe5] transition-colors hover:bg-[#006255]"
+                className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-[#1c130c] px-3 py-1.5 text-[0.72rem] font-semibold text-[#f5e9cf] transition-colors hover:bg-[#0f5e48]"
               >
                 <FaInstagram size={12} /> See the post
               </a>
@@ -82,8 +82,8 @@ export default function MeetupCard({
       {/* A strip of its own: beside the Instagram button there is not room
           for both on a 344 px card, and the button folded into three lines. */}
       {many && (
-        <div className="flex items-center justify-between gap-3 border-t border-[#002820]/10 bg-[#f9fbe5] px-4 py-2">
-          <span className="text-[0.7rem] font-bold tabular-nums text-[#3f5a52]">
+        <div className="flex items-center justify-between gap-3 border-t border-[#1c130c]/10 bg-[#f5e9cf] px-4 py-2">
+          <span className="text-[0.7rem] font-bold tabular-nums text-[#5e4a35]">
             {index + 1} of {meetups.length} meetups here
           </span>
           <div className="flex items-center gap-1.5">
@@ -117,7 +117,7 @@ function PageButton({
       aria-label={label}
       disabled={disabled}
       onClick={onClick}
-      className="grid h-7 w-7 place-items-center rounded-full border border-[#002820]/20 transition-colors enabled:hover:bg-[#002820] enabled:hover:text-[#f9fbe5] disabled:opacity-30"
+      className="grid h-7 w-7 place-items-center rounded-full border border-[#1c130c]/20 transition-colors enabled:hover:bg-[#1c130c] enabled:hover:text-[#f5e9cf] disabled:opacity-30"
     >
       {children}
     </button>
@@ -149,7 +149,7 @@ function Poster({ src, city }: { src: string; city: string }) {
             className="absolute inset-0 h-full w-full object-cover"
           />
         ) : (
-          <div className="absolute inset-0 grid place-items-center bg-[#006255] p-3 text-center">
+          <div className="absolute inset-0 grid place-items-center bg-[#0f5e48] p-3 text-center">
             <span className="kz-label text-[0.6rem] text-white/80">{city || "Meetup"}</span>
           </div>
         )}

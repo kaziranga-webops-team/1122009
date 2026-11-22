@@ -99,7 +99,6 @@ export default function HeroSection() {
   const houseName = content?.hero?.title || "Kaziranga House";
   const subtitle = content?.hero?.subtitle || DEFAULT_SUBTITLE;
 
-  const eyebrowRef = useRef<HTMLParagraphElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
   const subtitleRef = useRef<HTMLParagraphElement>(null);
   const linkRef = useRef<HTMLAnchorElement>(null);
@@ -109,7 +108,6 @@ export default function HeroSection() {
   // Entrance: copy rises in, photo frame settles, orbits fade in last.
   useEffect(() => {
     const copy = [
-      eyebrowRef.current,
       titleRef.current,
       subtitleRef.current,
       linkRef.current,
@@ -185,12 +183,7 @@ export default function HeroSection() {
       {/* Copy — left-aligned with the navbar logo so it never drifts into the orbits */}
       <div className="relative z-20 w-full px-6 pb-24 pt-8 md:px-12 lg:py-28">
         <div className="max-w-xl lg:max-w-[36vw]">
-          <p ref={eyebrowRef} className="hero-eyebrow flex items-center gap-4 opacity-0">
-            <span className="h-px w-8 bg-current opacity-60" />
-            IITM BS · {houseName}
-          </p>
-
-          <h1 ref={titleRef} className="hero-display mt-5 opacity-0 lg:mt-6">
+          <h1 ref={titleRef} className="hero-display opacity-0">
             <span className="sr-only">{houseName}: </span>
             Together,
             <br />

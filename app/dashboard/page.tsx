@@ -167,7 +167,6 @@ export default function UserDashboard() {
     <div className="space-y-10">
       <div className="space-y-4">
       <LandscapeHero
-        badge="Kaziranga House"
         title={
           <>
             Welcome back, <span className="dn-accent">{firstName}.</span>
@@ -213,7 +212,7 @@ export default function UserDashboard() {
         <div className="xl:col-span-2 space-y-10 min-w-0">
           {loading ? (
             <div className="space-y-5">
-              <SectionHeading eyebrow="Loading" title="Fetching events" size="md" />
+              <SectionHeading title="Fetching events" size="md" />
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <EventCardSkeleton />
                 <EventCardSkeleton />
@@ -222,7 +221,6 @@ export default function UserDashboard() {
           ) : groupedEvents.length === 0 ? (
             <div className="space-y-5">
               <SectionHeading
-                eyebrow="Now open"
                 title="Upcoming events"
                 size="md"
               />
@@ -243,7 +241,6 @@ export default function UserDashboard() {
             groupedEvents.map((group, groupIndex) => (
               <section key={group.key} className="space-y-5">
                 <SectionHeading
-                  eyebrow={groupIndex === 0 ? 'Now open' : undefined}
                   title={group.label}
                   size="md"
                   actions={

@@ -261,7 +261,7 @@ export default function ReelSection() {
   }, []);
 
   return (
-    <section id="tak" className="relative overflow-hidden bg-[#050505] pt-24 pb-16 md:pt-32 md:pb-24 font-sans">
+    <section id="tak" className="kz-font relative overflow-hidden bg-[#1c130c] pt-14 pb-16 md:pt-20 md:pb-24">
       {/* Redesigned Premium Background */}
       <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
         <div 
@@ -280,23 +280,6 @@ export default function ReelSection() {
       </div>
 
       <div className="container mx-auto px-4 md:px-6 relative z-10">
-        {/* Section header */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-8 relative"
-        >
-          <h2 className="font-serif text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6 tracking-tight drop-shadow-md section-title">
-            Kaziranga Tak
-          </h2>
-          <p className="text-white/60 text-lg md:text-xl max-w-2xl mx-auto font-light leading-relaxed">
-            Two members, a recorder, and endless group chat chaos. Catch every
-            episode of our official house podcast.
-          </p>
-        </motion.div>
-
         {/* Loading state */}
         {loading && (
           <div className="flex flex-col items-center justify-center py-20 gap-4">

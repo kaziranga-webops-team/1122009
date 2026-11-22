@@ -114,7 +114,6 @@ export default function ProfilePage() {
   return (
     <div className="space-y-7 max-w-3xl mx-auto">
       <SectionHeading
-        eyebrow="Your account"
         title="Profile"
         description="These details are copied into every registration you make, so keep them current."
         size="lg"

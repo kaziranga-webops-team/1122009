@@ -492,7 +492,6 @@ export const RegistrationTable: React.FC<RegistrationTableProps> = ({
         <Modal
           isOpen={!!selectedRegistration}
           onClose={() => setSelectedRegistration(null)}
-          eyebrow="Registration"
           title={selectedRegistration.nameSnapshot}
           subtitle={selectedRegistration.emailSnapshot}
           maxWidth="lg"

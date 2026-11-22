@@ -1,132 +1,151 @@
 /* ═══════════════════════════════════════════════════════════════════
-   KZ — the illustrated house design system
+   KZ — the house design system: an illuminated story of Assam
 
-   Flat vector art, saturated colour blocks and one geometric sans, after
-   the Kurzgesagt house style. Everything here is scoped behind .kz-font or
-   a kz- prefix so it cannot leak into the portal or the older pages.
+   Colour comes from the things of the place: gamosa red, muga silk gold,
+   bell-metal brass, the forest of the logo, the Brahmaputra at night and a
+   raw-silk ivory ground, with the poster-shop accents of rani, marigold and
+   cobalt. Type is three voices: Yatra One for titles (drawn from the
+   hand-painted signage of Mumbai's local trains), Akasha for the
+   signwriter's labels and numerals, and Mukta (Ek Type) to read by.
+   Everything is scoped behind .kz-font or a kz- prefix so the portal keeps
+   its own system.
    ═══════════════════════════════════════════════════════════════════ */
 
+/* Akasha draws small inside its em box; size-adjust brings it level with Mukta. */
+@font-face {
+  font-family: "Akasha";
+  src: url("/fonts/akasha-regular.ttf") format("truetype");
+  font-display: swap;
+  size-adjust: 128%;
+}
+
+@font-face {
+  font-family: "Akasha";
+  src: url("/fonts/akasha-italic.ttf") format("truetype");
+  font-style: italic;
+  font-display: swap;
+  size-adjust: 128%;
+}
+
 @layer components {
-  /* Montserrat is pulled in by the font @import at the top of globals.css —
-     an @import here would land after other rules and be dropped at build. */
-
   :root {
-    --kz-header-h: 60px;
+    --kz-header-h: 80px;
 
-    --kz-cream: #f9fbe5;
-    --kz-ink: #002820;
-    --kz-green: #006255;
+    --kz-cream: #f5e9cf;
+    --kz-ink: #1c130c;
+    --kz-green: #0f5e48;
     --kz-sage: #96b4a5;
-    --kz-red: #c10021;
+    --kz-red: #c8102e;
     --kz-sky: #bdf6ff;
-    --kz-muted: #3f5a52;
-    /* calm palette, all sampled from the logo */
-    --kz-paper-2: #eef1dc;
-    --kz-deep: #00332a;
-    --kz-brass: #8a6522;
-    --kz-brass-light: #c9a24a;
+    --kz-muted: #5e4a35;
+    --kz-paper-2: #ebd9b2;
+    --kz-deep: #0a3b2f;
+    --kz-brass: #9c5d14;
+    --kz-brass-light: #e3a936;
+    --kz-indigo: #1d2a5b;
+    --kz-gold-soft: #f2c66b;
+    /* the poster-shop accents: truck art, film hoardings, matchbox labels */
+    --kz-rani: #e2387a;
+    --kz-marigold: #f6b51e;
+    --kz-cobalt: #2343b8;
+
+    --kz-f-display: "Yatra One", "Mukta", ui-serif, Georgia, serif;
+    --kz-f-sign: "Akasha", ui-monospace, "Courier New", monospace;
+    --kz-f-body: "Mukta", ui-sans-serif, system-ui, sans-serif;
   }
 
   @media (min-width: 640px) {
     :root {
-      --kz-header-h: 68px;
+      --kz-header-h: 88px;
     }
   }
 
   .kz-font {
-    font-family: "Montserrat", ui-sans-serif, system-ui, sans-serif;
+    font-family: var(--kz-f-body);
     font-feature-settings: "kern";
   }
 
   /* ─── Type ────────────────────────────────────────────────────── */
 
   .kz-display {
-    font-family: "Montserrat", ui-sans-serif, system-ui, sans-serif;
-    font-weight: 600;
-    line-height: 0.98;
-    letter-spacing: -0.025em;
+    font-family: var(--kz-f-display);
+    font-weight: 400;
+    line-height: 1;
+    letter-spacing: 0;
     text-wrap: balance;
-    font-size: clamp(2.9rem, 7.6vw, 7.4rem);
+    font-size: clamp(3.2rem, 8vw, 8rem);
   }
 
-  /* Section headings are set in a calm editorial serif, a medium weight and
-     a size that leaves room around it. The hero keeps its rounded sans. */
+  /* Yatra One has a single weight; never let the browser fake a bold. */
   .kz-h2,
   .kz-serif {
-    font-family: "Playfair Display", ui-serif, Georgia, serif;
-    font-weight: 600;
-    line-height: 1.06;
-    letter-spacing: -0.01em;
+    font-family: var(--kz-f-display);
+    font-weight: 400;
+    font-synthesis: none;
+    line-height: 1.08;
+    letter-spacing: 0;
     text-wrap: balance;
   }
 
   .kz-h2 {
-    font-size: clamp(2rem, 4.2vw, 3.6rem);
+    font-size: clamp(2.2rem, 4.4vw, 3.8rem);
   }
 
-  /* Card and cell titles are set small, upper and tracked — the counterpoint
-     to the very large display sizes. */
+  /* The signwriter's hand: labels, card titles, numerals. */
+  .kz-sign,
+  .kz-h3,
+  .kz-label {
+    font-family: var(--kz-f-sign);
+    font-weight: 400;
+  }
+
   .kz-h3 {
-    font-family: "Montserrat", ui-sans-serif, system-ui, sans-serif;
-    font-size: 0.95rem;
-    font-weight: 700;
-    line-height: 1.3;
+    font-size: 1rem;
+    line-height: 1.25;
     text-transform: uppercase;
-    letter-spacing: 0.07em;
+    letter-spacing: 0.06em;
   }
 
   .kz-lead {
-    font-size: clamp(1rem, 1.25vw, 1.1rem);
-    line-height: 1.62;
-    font-weight: 500;
+    font-size: clamp(1.05rem, 1.3vw, 1.2rem);
+    line-height: 1.6;
+    font-weight: 400;
   }
 
   .kz-body {
-    font-size: 0.95rem;
-    line-height: 1.62;
-    font-weight: 500;
+    font-size: 1rem;
+    line-height: 1.6;
+    font-weight: 400;
   }
 
   .kz-label {
-    font-size: 0.73rem;
-    font-weight: 700;
+    font-size: 0.74rem;
     text-transform: uppercase;
-    letter-spacing: 0.17em;
+    letter-spacing: 0.14em;
   }
 
   .kz-wordmark {
-    font-size: 1.12rem;
-    font-weight: 700;
-    letter-spacing: -0.015em;
-  }
-
-  /* The small red hornbill that opens a section label. */
-  .kz-mark::before {
-    content: "";
-    display: inline-block;
-    width: 1.15em;
-    height: 1.15em;
-    margin-right: 0.55em;
-    vertical-align: -0.28em;
-    background-color: currentColor;
-    -webkit-mask: var(--kz-bird-mask) center / contain no-repeat;
-    mask: var(--kz-bird-mask) center / contain no-repeat;
-  }
-
-  :root {
-    --kz-bird-mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M22 5.5c-1.1.5-2 .7-3.1.8A4.5 4.5 0 0 0 20.8 4c-1 .6-2.1 1-3.3 1.3A4.6 4.6 0 0 0 9.6 9.5 13.2 13.2 0 0 1 .9 4.9a4.6 4.6 0 0 0 1.4 6.1c-.8 0-1.5-.2-2.1-.6 0 2.2 1.5 4 3.6 4.5-.7.2-1.4.2-2.1.1a4.6 4.6 0 0 0 4.3 3.2A9.2 9.2 0 0 1 0 20.1a13 13 0 0 0 7 2c8.4 0 13-7 13-13v-.6c.9-.6 1.6-1.4 2-2.3z'/></svg>");
+    font-family: var(--kz-f-display);
+    font-size: 1.5rem;
+    font-weight: 400;
+    line-height: 1;
   }
 
   /* ─── Buttons ─────────────────────────────────────────────────── */
 
   .kz-btn {
+    /* a painted signboard tag: cut corners, signwriter capitals */
     display: inline-flex;
     align-items: center;
-    gap: 0.55rem;
-    border-radius: 999px;
-    padding: 0.95rem 1.7rem;
-    font-size: 0.95rem;
-    font-weight: 600;
+    gap: 0.6rem;
+    border-radius: 0;
+    clip-path: polygon(10px 0, calc(100% - 10px) 0, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0 calc(100% - 10px), 0 10px);
+    padding: 1rem 1.6rem 0.9rem;
+    font-family: var(--kz-f-sign);
+    font-size: 0.86rem;
+    font-weight: 400;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
     line-height: 1;
     white-space: nowrap;
     transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), filter 0.25s, background-color 0.25s, color 0.25s;
@@ -137,8 +156,9 @@
   }
 
   .kz-btn--sm {
-    padding: 0.7rem 1.3rem;
-    font-size: 0.88rem;
+    clip-path: polygon(7px 0, calc(100% - 7px) 0, 100% 7px, 100% calc(100% - 7px), calc(100% - 7px) 100%, 7px 100%, 0 calc(100% - 7px), 0 7px);
+    padding: 0.78rem 1.15rem 0.7rem;
+    font-size: 0.78rem;
   }
 
   .kz-btn--red {
@@ -253,7 +273,7 @@
     position: absolute;
     left: 0;
     width: var(--w, 18px);
-    color: #002820;
+    color: #1c130c;
     opacity: 0.55;
     animation: kz-cross var(--d, 30s) linear infinite;
     animation-delay: var(--delay, 0s);

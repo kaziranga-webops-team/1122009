@@ -1,31 +1,19 @@
 "use client";
 
-
 import ReelSection from "@/components/ReelSection";
-import Footer from "@/components/Footer";
-import ScrollReveal from "@/components/ScrollReveal";
-import { useMemo } from "react";
+import KzHeader from "@/components/kz/KzHeader";
+import KzFooter from "@/components/kz/KzFooter";
+import PageHero from "@/components/kz/PageHero";
 
 export default function TakPage() {
-  const jsonLd = useMemo(() => ({
-    "@type": "WebPage",
-    "name": "Kaziranga Tak — Short Videos & Creative Content",
-    "description": "Watch short-form video reels and creative content from Kaziranga House members at IIT Madras BS Degree.",
-    "isPartOf": { "@type": "WebSite", "name": "Kaziranga House", "url": "https://kaziranga-house.vercel.app" },
-  }), []);
-
-
   return (
-    <div className="min-h-screen flex flex-col selection:bg-[#1e5631]/30 selection:text-white bg-[#050505]">
-
-      <main className="flex-grow">
-        <ScrollReveal delay={0}>
-          <ReelSection />
-        </ScrollReveal>
+    <div className="kz-font kz-paper min-h-screen bg-[#1c130c] text-[#f5e9cf] selection:bg-[#e2387a]/30">
+      <KzHeader />
+      <main>
+        <PageHero ground="cobalt" title={["Kaziranga Tak"]} intro="Two members, a recorder, and endless group chat chaos. Catch every episode of the house podcast." />
+        <ReelSection />
       </main>
-      <ScrollReveal delay={0} distance={24}>
-        <Footer />
-      </ScrollReveal>
+      <KzFooter />
     </div>
   );
 }

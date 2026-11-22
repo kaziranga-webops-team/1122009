@@ -15,7 +15,6 @@ export interface HeroAction {
 interface LandscapeHeroProps {
   title: React.ReactNode;
   subtitle?: React.ReactNode;
-  badge?: React.ReactNode;
   /** Plain links styled for the glass, so there is no button inside an anchor. */
   actions?: HeroAction[];
 }
@@ -49,7 +48,7 @@ const FIREFLIES: [x: number, y: number, delay: number, duration: number][] = [
  * arriving on the page would watch a 1.6s fade to night on every load, which
  * reads as something happening rather than a remembered preference.
  */
-export const LandscapeHero: React.FC<LandscapeHeroProps> = ({ title, subtitle, badge, actions }) => {
+export const LandscapeHero: React.FC<LandscapeHeroProps> = ({ title, subtitle, actions }) => {
   const [ready, setReady] = useState(false);
 
   // Before paint: apply the stored theme, so a client-side arrival (e.g. from
@@ -112,13 +111,7 @@ export const LandscapeHero: React.FC<LandscapeHeroProps> = ({ title, subtitle, b
       </div>
 
       <div className="dn-panel relative max-w-[500px] min-w-0 rounded-[20px] border px-6 py-6 sm:px-7 sm:py-[26px]">
-        {badge && (
-          <p className="dn-eyebrow flex items-center gap-2 text-[0.75rem] font-extrabold uppercase tracking-[0.18em]">
-            <span aria-hidden className="w-2 h-2 rounded-full bg-current" />
-            {badge}
-          </p>
-        )}
-        <h1 className="dn-title mt-3.5 font-display font-extrabold leading-[1.02] tracking-[-0.035em] text-[clamp(2rem,4vw,3rem)]">
+        <h1 className="dn-title font-display font-extrabold leading-[1.02] tracking-[-0.035em] text-[clamp(2rem,4vw,3rem)]">
           {title}
         </h1>
         {subtitle && <p className="dn-sub mt-4 text-base leading-[1.6]">{subtitle}</p>}

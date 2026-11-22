@@ -8,9 +8,8 @@ import { useLenis } from "lenis/react";
 import { AlertTriangle, ArrowRight, ArrowUpRight, CalendarDays, Mic, Play, Search, Trophy, X } from "lucide-react";
 import KzHeader from "@/components/kz/KzHeader";
 import KzFooter from "@/components/kz/KzFooter";
-import { Segmented } from "@/components/kz/PageHero";
+import PageHero, { Segmented } from "@/components/kz/PageHero";
 import CommunityPatch from "@/components/communities/CommunityPatch";
-import { RHINO_SRC } from "@/components/kz/Scene";
 import { fetchEvents, getCachedEvents } from "@/lib/api";
 import { communityBySlug, type Community } from "@/lib/communities";
 import { formatDate, hasResults, isSoon, parseDate, primaryAction, seriesLabel, toEvents, toTime, type EventItem } from "@/lib/events";
@@ -38,10 +37,10 @@ function Ticket({ event, onOpen, index }: { event: EventItem; onOpen: (e: EventI
       initial={reduce ? false : { opacity: 0, y: 24, rotate: -2 }}
       animate={{ opacity: 1, y: 0, rotate: 0 }}
       transition={{ type: "spring", stiffness: 140, damping: 16, delay: 0.1 + index * 0.08 }}
-      className="group relative flex min-h-[11rem] overflow-hidden rounded-[1.25rem] bg-[#eef1dc] shadow-[0_18px_30px_-24px_rgba(0,40,32,0.6)]"
+      className="group relative flex min-h-[11rem] overflow-hidden border-2 border-[#1c130c] bg-[#f5e9cf] transition-shadow duration-300 hover:shadow-[6px_6px_0_#c8102e]"
     >
       {/* the stub: the date, torn off along the dotted line */}
-      <div className={`relative flex w-[6.25rem] shrink-0 flex-col items-center justify-center gap-1 px-3 text-center sm:w-[7rem] ${live ? "bg-[#c10021] text-white" : "bg-[#006255] text-[#f9fbe5]"}`}>
+      <div className={`relative flex w-[6.25rem] shrink-0 flex-col items-center justify-center gap-1 px-3 text-center sm:w-[7rem] kz-halftone ${live ? "bg-[#c8102e] text-white" : "bg-[#2343b8] text-[#f5e9cf]"}`}>
         {live ? (
           <>
             <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-white" />
@@ -49,24 +48,24 @@ function Ticket({ event, onOpen, index }: { event: EventItem; onOpen: (e: EventI
           </>
         ) : d ? (
           <>
-            <span className="kz-label text-[0.66rem] text-[#ecd394]">{d.toLocaleDateString("en-IN", { month: "short" })}</span>
-            <span className="kz-serif text-[2.8rem] leading-none">{d.getDate()}</span>
+            <span className="kz-label text-[0.66rem] text-[#f6b51e]">{d.toLocaleDateString("en-IN", { month: "short" })}</span>
+            <span className="kz-display text-[2.8rem] leading-none">{d.getDate()}</span>
             <span className="text-[0.72rem] font-semibold opacity-80">{d.toLocaleDateString("en-IN", { weekday: "short" })}</span>
           </>
         ) : (
           <span className="kz-serif text-[1.3rem]">Soon</span>
         )}
       </div>
-      <span aria-hidden="true" className="absolute bottom-0 left-[6.25rem] top-0 border-l-2 border-dashed border-[#f9fbe5]/90 sm:left-[7rem]" />
-      <span aria-hidden="true" className="absolute -top-3 left-[calc(6.25rem-0.75rem)] h-6 w-6 rounded-full bg-[#f9fbe5] sm:left-[calc(7rem-0.75rem)]" />
-      <span aria-hidden="true" className="absolute -bottom-3 left-[calc(6.25rem-0.75rem)] h-6 w-6 rounded-full bg-[#f9fbe5] sm:left-[calc(7rem-0.75rem)]" />
+      <span aria-hidden="true" className="absolute bottom-0 left-[6.25rem] top-0 border-l-2 border-dashed border-[#f5e9cf]/90 sm:left-[7rem]" />
+      <span aria-hidden="true" className="absolute -top-3 left-[calc(6.25rem-0.75rem)] h-6 w-6 rounded-full bg-[#f5e9cf] sm:left-[calc(7rem-0.75rem)]" />
+      <span aria-hidden="true" className="absolute -bottom-3 left-[calc(6.25rem-0.75rem)] h-6 w-6 rounded-full bg-[#f5e9cf] sm:left-[calc(7rem-0.75rem)]" />
 
       <div className="flex min-w-0 flex-1 flex-col justify-between gap-4 p-5 pl-6 sm:p-6 sm:pl-7">
         <div>
-          <p className="text-[0.72rem] font-bold uppercase tracking-[0.14em] text-[#006255]">{seriesLabel(event)}</p>
+          <p className="kz-sign text-[0.72rem] uppercase tracking-[0.14em] text-[#c8102e]">{seriesLabel(event)}</p>
           <h3 className="kz-serif mt-1.5 text-[1.35rem] leading-snug">{event.title}</h3>
           {event.speaker && (
-            <p className="mt-1.5 flex items-center gap-1.5 truncate text-[0.85rem] font-medium text-[#3f5a52]">
+            <p className="mt-1.5 flex items-center gap-1.5 truncate text-[0.85rem] font-medium text-[#5e4a35]">
               <Mic size={13} className="shrink-0" /> {event.speaker}
             </p>
           )}
@@ -101,10 +100,10 @@ function EventCard({ event, index, onOpen }: { event: EventItem; index: number; 
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.97, transition: { duration: 0.15 } }}
       transition={{ duration: 0.5, delay: Math.min(index, 10) * 0.035, ease: SOFT }}
-      className="group relative flex h-full flex-col rounded-[1.35rem] border border-[#002820]/10 bg-[#eef1dc] transition-[transform,box-shadow,border-color] duration-500 [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-1 hover:border-[#006255]/30 hover:shadow-[0_24px_40px_-30px_rgba(0,40,32,0.6)]"
+      className="group relative flex h-full flex-col border-2 border-[#1c130c] bg-[#f5e9cf] transition-[transform,box-shadow] duration-300 hover:-translate-x-1 hover:-translate-y-1 hover:shadow-[6px_6px_0_#c8102e]"
     >
       {/* the poster, set inside a soft frame */}
-      <div className="relative m-2 mb-0 aspect-[16/9] overflow-hidden rounded-[1rem]" style={{ background: c?.bg ?? "#dcebd8" }}>
+      <div className="relative aspect-[16/9] overflow-hidden border-b-2 border-[#1c130c]" style={{ background: c?.bg ?? "#ebd9b2" }}>
         {event.imageUrl && !broken ? (
           <Image
             src={event.imageUrl}
@@ -121,11 +120,11 @@ function EventCard({ event, index, onOpen }: { event: EventItem; index: number; 
           </span>
         ) : (
           <span className="grid h-full w-full place-items-center">
-            <CalendarDays size={36} className="text-[#006255]/45" />
+            <CalendarDays size={36} className="text-[#0f5e48]/45" />
           </span>
         )}
         {hasResults(event) && (
-          <span className="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-full bg-[#ecd394] px-2.5 py-1 text-[0.66rem] font-bold uppercase tracking-wider text-[#002820] shadow-sm">
+          <span className="kz-sign kz-signboard absolute left-0 top-3 inline-flex items-center gap-1.5 bg-[#f6b51e] py-1.5 pl-3 pr-6 text-[0.68rem] uppercase tracking-[0.1em] text-[#1c130c]">
             <Trophy size={12} /> Results
           </span>
         )}
@@ -134,25 +133,25 @@ function EventCard({ event, index, onOpen }: { event: EventItem; index: number; 
       <div className="relative flex flex-1 flex-col px-5 pb-5 pt-4">
         {/* a small calendar tile, pinned to the edge of the poster */}
         {d && (
-          <span className="absolute -top-7 left-5 flex w-12 flex-col items-center overflow-hidden rounded-xl bg-[#f9fbe5] text-center shadow-[0_8px_16px_-10px_rgba(0,40,32,0.6)] ring-1 ring-[#002820]/10">
-            <span className="w-full bg-[#006255] py-0.5 text-[0.58rem] font-bold uppercase tracking-wider text-[#f9fbe5]">
+          <span className="absolute -top-8 left-5 flex w-12 flex-col items-center overflow-hidden border-2 border-[#1c130c] bg-[#f5e9cf] text-center">
+            <span className="kz-sign w-full bg-[#c8102e] py-0.5 text-[0.6rem] uppercase tracking-wider text-[#f5e9cf]">
               {d.toLocaleDateString("en-IN", { month: "short" })}
             </span>
-            <span className="kz-serif pt-0.5 text-[1.3rem] leading-tight text-[#002820]">{d.getDate()}</span>
-            <span className="pb-1 text-[0.58rem] font-bold text-[#3f5a52]">{d.getFullYear()}</span>
+            <span className="kz-display pt-0.5 text-[1.3rem] leading-tight text-[#1c130c]">{d.getDate()}</span>
+            <span className="kz-sign pb-1 text-[0.6rem] text-[#5e4a35]">{d.getFullYear()}</span>
           </span>
         )}
-        <span className={`text-[0.7rem] font-bold uppercase tracking-[0.13em] text-[#006255] ${d ? "pl-16" : ""}`}>
+        <span className={`kz-sign text-[0.72rem] uppercase tracking-[0.12em] text-[#c8102e] ${d ? "pl-16" : ""}`}>
           {seriesLabel(event)}
         </span>
-        <h3 className="kz-serif mt-3 line-clamp-2 text-[1.2rem] leading-snug text-[#002820]">
+        <h3 className="kz-serif mt-3 line-clamp-2 text-[1.2rem] leading-snug text-[#1c130c]">
           {/* the whole card opens the details; this is its one real control */}
-          <button type="button" onClick={() => onOpen(event)} className="kz-focus text-left after:absolute after:inset-0 after:rounded-[1.35rem]">
+          <button type="button" onClick={() => onOpen(event)} className="kz-focus text-left after:absolute after:inset-0">
             {event.title}
           </button>
         </h3>
         {event.speaker && (
-          <p className="mt-1.5 flex items-center gap-1.5 truncate text-[0.84rem] font-medium text-[#3f5a52]">
+          <p className="mt-1.5 flex items-center gap-1.5 truncate text-[0.84rem] font-medium text-[#5e4a35]">
             <Mic size={13} className="shrink-0" /> <span className="truncate">{event.speaker}</span>
           </p>
         )}
@@ -163,17 +162,17 @@ function EventCard({ event, index, onOpen }: { event: EventItem; index: number; 
               href={event.youtubeLink}
               target="_blank"
               rel="noopener noreferrer"
-              className="kz-focus relative z-10 inline-flex items-center gap-2 rounded-full bg-[#ff0000] py-2 pl-2 pr-4 text-[0.82rem] font-bold text-white transition-transform duration-300 hover:scale-[1.03]"
+              className="kz-focus kz-sign kz-signboard relative z-10 inline-flex items-center gap-2 bg-[#ff0000] py-2 pl-2.5 pr-7 text-[0.78rem] uppercase tracking-[0.1em] text-white transition-transform duration-300 hover:translate-x-1"
             >
-              <span className="grid h-6 w-6 place-items-center rounded-full bg-white/20">
+              <span className="grid h-6 w-6 place-items-center bg-white/20">
                 <Play size={12} fill="currentColor" className="translate-x-px" />
               </span>
               Watch
             </a>
           ) : (
-            <span className="text-[0.8rem] font-semibold text-[#3f5a52]/80">{event.status === "past-unrecorded" ? "Not recorded" : "Recording soon"}</span>
+            <span className="kz-sign text-[0.72rem] uppercase tracking-[0.1em] text-[#5e4a35]/80">{event.status === "past-unrecorded" ? "Not recorded" : "Recording soon"}</span>
           )}
-          <span className="grid h-9 w-9 place-items-center rounded-full border border-[#002820]/15 text-[#002820] transition-[background-color,color,border-color,transform] duration-300 group-hover:border-[#006255] group-hover:bg-[#006255] group-hover:text-[#f9fbe5]">
+          <span className="grid h-9 w-9 place-items-center border-2 border-[#1c130c] text-[#1c130c] transition-colors duration-300 group-hover:bg-[#1c130c] group-hover:text-[#f6b51e]">
             <ArrowUpRight size={16} className="transition-transform duration-300 group-hover:rotate-45" />
           </span>
         </div>
@@ -193,8 +192,8 @@ function Results({ event }: { event: EventItem }) {
   ].filter((r) => r.name);
   if (!rows.length) return null;
   return (
-    <div className="mt-6 rounded-[1rem] border border-[#c9a24a]/45 bg-[#eef1dc] p-5">
-      <p className="kz-label flex items-center gap-2 text-[#8a6522]">
+    <div className="kz-halftone mt-6 border-2 border-[#1c130c] bg-[#f6b51e] p-5" style={{ ["--dot" as string]: "rgba(120,60,0,0.2)" }}>
+      <p className="kz-label flex items-center gap-2 text-[#1c130c]">
         <Trophy size={14} /> Results
       </p>
       <ul className="mt-3 space-y-2.5">
@@ -202,8 +201,8 @@ function Results({ event }: { event: EventItem }) {
           <li key={r.role} className="flex items-start gap-3">
             <span className="text-xl leading-none">{r.medal}</span>
             <span>
-              <span className="kz-label block text-[0.6rem] text-[#8a6522]">{r.role}</span>
-              <span className="font-semibold text-[#002820]">{r.name}</span>
+              <span className="kz-label block text-[0.62rem] text-[#7a3d06]">{r.role}</span>
+              <span className="font-semibold text-[#1c130c]">{r.name}</span>
             </span>
           </li>
         ))}
@@ -231,7 +230,7 @@ function EventModal({ event, onClose }: { event: EventItem; onClose: () => void 
 
   return (
     <motion.div
-      className="kz-font fixed inset-0 z-[70] flex items-end justify-center bg-[#002820]/55 backdrop-blur-sm sm:items-center sm:p-6"
+      className="kz-font fixed inset-0 z-[70] flex items-end justify-center bg-[#1c130c]/55 backdrop-blur-sm sm:items-center sm:p-6"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -247,18 +246,18 @@ function EventModal({ event, onClose }: { event: EventItem; onClose: () => void 
         exit={{ y: 40, opacity: 0 }}
         transition={{ duration: 0.45, ease: SOFT }}
         onClick={(e) => e.stopPropagation()}
-        className="relative grid max-h-[92svh] w-full max-w-5xl overflow-y-auto rounded-t-[1.75rem] bg-[#f9fbe5] text-[#002820] shadow-[0_40px_80px_-30px_rgba(0,0,0,0.5)] sm:rounded-[1.75rem] md:grid-cols-[1.05fr_1fr] md:overflow-hidden"
+        className="kz-folio relative grid max-h-[92svh] w-full max-w-5xl overflow-y-auto bg-[#f5e9cf] text-[#1c130c] md:grid-cols-[1.05fr_1fr] md:overflow-hidden"
       >
         <button
           type="button"
           onClick={onClose}
           aria-label="Close"
-          className="kz-focus absolute right-4 top-4 z-10 grid h-11 w-11 place-items-center rounded-full bg-white/90 text-[#002820] shadow transition-transform duration-300 hover:rotate-90"
+          className="kz-focus absolute right-4 top-4 z-10 grid h-11 w-11 place-items-center bg-[#1c130c] text-[#f6b51e] transition-transform duration-300 hover:rotate-90"
         >
           <X size={20} />
         </button>
 
-        <div className="relative min-h-[14rem] md:min-h-full" style={{ background: c?.bg ?? "#dcebd8" }}>
+        <div className="relative min-h-[14rem] md:min-h-full" style={{ background: c?.bg ?? "#ebd9b2" }}>
           {event.imageUrl ? (
             <Image src={event.imageUrl} alt="" fill sizes="(max-width: 768px) 100vw, 520px" className="object-cover" unoptimized />
           ) : c ? (
@@ -267,24 +266,24 @@ function EventModal({ event, onClose }: { event: EventItem; onClose: () => void 
             </span>
           ) : (
             <span className="grid h-full w-full place-items-center">
-              <CalendarDays size={56} className="text-[#006255]/40" />
+              <CalendarDays size={56} className="text-[#0f5e48]/40" />
             </span>
           )}
         </div>
 
         <div className="p-6 sm:p-8 md:max-h-[86svh] md:overflow-y-auto">
-          <p className="pr-12 text-[0.74rem] font-bold uppercase tracking-[0.14em] text-[#006255]">
+          <p className="kz-sign pr-12 text-[0.74rem] uppercase tracking-[0.14em] text-[#c8102e]">
             {seriesLabel(event)}
-            {event.date && <span className="text-[#3f5a52]"> · {formatDate(event.date)}</span>}
+            {event.date && <span className="text-[#5e4a35]"> · {formatDate(event.date)}</span>}
           </p>
-          <h2 className="kz-serif mt-3 text-[clamp(1.5rem,3vw,2.1rem)]">{event.title}</h2>
+          <h2 className="kz-h2 kz-offset mt-3 text-[clamp(1.6rem,3vw,2.3rem)]" style={{ ["--offset" as string]: "rgba(200,16,46,0.28)" }}>{event.title}</h2>
           {event.speaker && (
-            <p className="mt-4 inline-flex items-center gap-2 rounded-full bg-[#eef1dc] px-3.5 py-2 text-[0.85rem] font-semibold text-[#1d3d35]">
-              <Mic size={14} className="text-[#006255]" /> {event.speaker}
+            <p className="mt-4 inline-flex items-center gap-2 border-2 border-[#1c130c] px-3.5 py-2 text-[0.88rem] font-semibold text-[#1c130c]">
+              <Mic size={14} className="text-[#c8102e]" /> {event.speaker}
             </p>
           )}
           <Results event={event} />
-          {event.description && <p className="kz-body mt-5 whitespace-pre-line text-[#36524b]">{event.description}</p>}
+          {event.description && <p className="kz-body mt-5 whitespace-pre-line text-[#4a3a29]">{event.description}</p>}
           <div className="mt-7 flex flex-wrap gap-3">
             {action && (
               <a
@@ -373,28 +372,24 @@ export default function EventsPage() {
   let tile = 0;
 
   return (
-    <div className="kz-font kz-paper min-h-screen bg-[#f9fbe5] text-[#002820] selection:bg-[#c10021]/20">
+    <div className="kz-font kz-paper min-h-screen bg-[#f5e9cf] text-[#1c130c] selection:bg-[#c8102e]/20">
       <KzHeader />
-      <main className="pt-[var(--kz-header-h)]">
-        {/* ── a one-line title, and the search ── */}
-        <section className="mx-auto flex max-w-[90rem] flex-wrap items-end justify-between gap-x-8 gap-y-4 px-5 pb-6 pt-8 sm:px-8 md:px-12 md:pt-12">
-          <h1 className="kz-serif flex items-baseline gap-4 text-[clamp(2.4rem,5vw,4rem)] leading-none">
-            Events
-            {!loading && (
-              <span className="-rotate-3 text-[clamp(1.2rem,2vw,1.6rem)] font-normal text-[#8a6522] [font-family:Caveat,cursive]">{events.length} and counting!</span>
-            )}
-          </h1>
+      <main>
+        <PageHero title={["Events &", "sessions"]} />
+
+        {/* ── the search ── */}
+        <section className="mx-auto flex max-w-[90rem] justify-end px-5 pb-6 pt-10 sm:px-8 md:px-12">
           <label className="relative block w-full sm:w-80">
             <span className="sr-only">Search events</span>
-            <Search size={17} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[#3f5a52]" />
+            <Search size={17} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[#5e4a35]" />
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search events or speakers"
-              className="h-12 w-full rounded-full border border-[#002820]/12 bg-white/70 pl-11 pr-10 text-[0.92rem] font-medium outline-none transition-[box-shadow,border-color] placeholder:text-[#3f5a52]/75 focus:border-[#006255] focus:shadow-[0_0_0_4px_rgba(0,98,85,0.12)]"
+              className="h-12 w-full border-2 border-[#1c130c] bg-[#f5e9cf] pl-11 pr-10 text-[0.95rem] outline-none transition-shadow placeholder:text-[#5e4a35]/75 focus:shadow-[4px_4px_0_#c8102e]"
             />
             {query && (
-              <button type="button" aria-label="Clear search" onClick={() => setQuery("")} className="absolute right-3 top-1/2 grid h-7 w-7 -translate-y-1/2 place-items-center rounded-full text-[#3f5a52] hover:bg-[#002820]/5">
+              <button type="button" aria-label="Clear search" onClick={() => setQuery("")} className="absolute right-3 top-1/2 grid h-7 w-7 -translate-y-1/2 place-items-center text-[#5e4a35] hover:bg-[#1c130c]/5">
                 <X size={15} />
               </button>
             )}
@@ -404,7 +399,6 @@ export default function EventsPage() {
         {/* ── coming up ── */}
         {soon.length > 0 && !query && (
           <section className="mx-auto max-w-[90rem] px-5 pb-10 sm:px-8 md:px-12">
-            <p className="kz-eyebrow mb-4">Coming up</p>
             <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
               {soon.map((e, i) => (
                 <Ticket key={e.id} event={e} index={i} onOpen={setSelected} />
@@ -434,7 +428,7 @@ export default function EventsPage() {
               <button
                 type="button"
                 onClick={() => setOnlyCommunity(null)}
-                className="kz-focus ml-2 mt-3 inline-flex items-center gap-2 rounded-full border border-[#006255] bg-[#006255] py-1.5 pl-1.5 pr-3 text-[0.85rem] font-semibold text-[#f9fbe5] lg:mt-0"
+                className="kz-focus ml-2 mt-3 inline-flex items-center gap-2 border-2 border-[#1c130c] bg-[#1c130c] py-1 pl-1 pr-3 text-[0.88rem] font-semibold text-[#f6b51e] lg:mt-0"
               >
                 <CommunityPatch c={focused} size={26} /> {focused.name} <X size={14} />
               </button>
@@ -445,7 +439,7 @@ export default function EventsPage() {
         {/* ── the sections ── */}
         <section className="mx-auto max-w-[90rem] px-5 pb-24 pt-10 sm:px-8 md:px-12 md:pb-32">
           {error && !loading && (
-            <div className="mx-auto flex max-w-md items-center gap-3 rounded-2xl border border-[#c10021]/25 p-5 text-[#8a0016]">
+            <div className="mx-auto flex max-w-md items-center gap-3 border-2 border-[#c8102e] p-5 text-[#8a0016]">
               <AlertTriangle size={20} className="shrink-0" />
               <span className="font-semibold">{error}</span>
             </div>
@@ -454,11 +448,11 @@ export default function EventsPage() {
           {loading && (
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {Array.from({ length: 6 }, (_, i) => (
-                <div key={i} className="rounded-[1.35rem] border border-[#002820]/10 bg-[#eef1dc] p-2">
-                  <div className="aspect-[16/9] animate-pulse rounded-[1rem] bg-[#e2ead6]" />
+                <div key={i} className="border-2 border-[#1c130c]/15">
+                  <div className="aspect-[16/9] animate-pulse bg-[#ebd9b2]" />
                   <div className="space-y-2.5 p-4">
-                    <div className="h-3 w-16 animate-pulse rounded-full bg-[#e2ead6]" />
-                    <div className="h-5 w-4/5 animate-pulse rounded-full bg-[#e2ead6]" />
+                    <div className="h-3 w-16 animate-pulse bg-[#ebd9b2]" />
+                    <div className="h-5 w-4/5 animate-pulse bg-[#ebd9b2]" />
                   </div>
                 </div>
               ))}
@@ -471,12 +465,12 @@ export default function EventsPage() {
                 <div key={`${tab}-${s.key}`}>
                   {s.label && (
                   <div className="mb-8 flex items-center gap-4">
-                    <h2 className="kz-serif shrink-0 text-[1.6rem]">{s.label}</h2>
-                    <span className="h-px flex-1 bg-[#002820]/12" />
-                    <span className="shrink-0 rounded-full bg-[#eef1dc] px-2.5 py-1 text-[0.78rem] font-bold text-[#3f5a52]">{s.items.length}</span>
+                    <h2 className="kz-h2 shrink-0 text-[1.8rem]">{s.label}</h2>
+                    <span className="h-[2px] flex-1 bg-[#1c130c]" />
+                    <span className="kz-sign shrink-0 bg-[#1c130c] px-2.5 py-1 text-[0.78rem] text-[#f6b51e]">{s.items.length}</span>
                   </div>
                   )}
-                  <motion.div layout className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
+                  <motion.div layout className="grid grid-cols-1 gap-x-7 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
                     <AnimatePresence mode="popLayout">
                       {s.items.map((e) => (
                         <EventCard key={e.id} event={e} index={tile++} onOpen={setSelected} />
@@ -490,9 +484,8 @@ export default function EventsPage() {
 
           {!loading && !error && shownCount === 0 && (
             <div className="mx-auto flex max-w-md flex-col items-center py-10 text-center">
-              <Image src={RHINO_SRC} alt="" width={200} height={140} className="kz-float" />
-              <h3 className="kz-serif mt-6 text-[1.4rem]">{query ? `Nothing matches “${query}”` : "Nothing here yet"}</h3>
-              <p className="kz-body mt-2 text-[#3f5a52]">{query ? "Try a speaker's name or a shorter word." : "The next one will show up here."}</p>
+              <h3 className="kz-h2 text-[1.8rem]">{query ? `Nothing matches “${query}”` : "Nothing here yet"}</h3>
+              <p className="kz-body mt-2 text-[#5e4a35]">{query ? "Try a speaker's name or a shorter word." : "The next one will show up here."}</p>
             </div>
           )}
         </section>

@@ -23,10 +23,10 @@ type Card = {
 };
 
 const BADGE: Record<Status, { label: string; className: string }> = {
-  "live-now": { label: "Live now", className: "bg-[#c10021] text-white" },
-  upcoming: { label: "Upcoming", className: "bg-[#002820] text-[#f9fbe5]" },
+  "live-now": { label: "Live now", className: "bg-[#c8102e] text-white" },
+  upcoming: { label: "Upcoming", className: "bg-[#1c130c] text-[#f5e9cf]" },
   "past-recorded": { label: "Recorded", className: "bg-[#dcebd8] text-[#1d3d35]" },
-  "past-unrecorded": { label: "Not recorded", className: "bg-[#e7e7d8] text-[#3f5a52]" },
+  "past-unrecorded": { label: "Not recorded", className: "bg-[#e7e7d8] text-[#5e4a35]" },
 };
 
 function toStatus(raw: string): Status {
@@ -67,7 +67,7 @@ function EventCard({ event }: { event: Card }) {
   const href = isLive ? event.meet : event.youtube;
 
   return (
-    <article className="flex h-full flex-col overflow-hidden rounded-[1.25rem] border border-[#002820]/10 bg-[#eef1dc]">
+    <article className="flex h-full flex-col overflow-hidden rounded-[1.25rem] border border-[#1c130c]/10 bg-[#ebd9b2]">
       <div className="relative aspect-[16/9] shrink-0 bg-[#dcebd8]">
         {event.image && <Image src={event.image} alt="" fill sizes="420px" className="object-cover" unoptimized />}
       </div>
@@ -76,7 +76,7 @@ function EventCard({ event }: { event: Card }) {
         <div className="flex items-center justify-between gap-3">
           <span className={`kz-label rounded-full px-3 py-1.5 text-[0.65rem] ${badge.className}`}>{badge.label}</span>
           {event.date && (
-            <span className="inline-flex items-center gap-1.5 text-[0.78rem] font-semibold text-[#3f5a52]">
+            <span className="inline-flex items-center gap-1.5 text-[0.78rem] font-semibold text-[#5e4a35]">
               <CalendarDays size={14} />
               {event.date}
             </span>
@@ -86,13 +86,13 @@ function EventCard({ event }: { event: Card }) {
         <h3 className="kz-h3 mt-4 text-[1.05rem] normal-case tracking-normal">{event.title}</h3>
 
         {event.speaker && (
-          <p className="mt-3 inline-flex max-w-full items-center gap-2 self-start rounded-full bg-[#f9fbe5] px-3 py-1.5 text-[0.78rem] font-semibold text-[#1d3d35]">
-            <Mic size={13} className="shrink-0 text-[#006255]" />
+          <p className="mt-3 inline-flex max-w-full items-center gap-2 self-start rounded-full bg-[#f5e9cf] px-3 py-1.5 text-[0.78rem] font-semibold text-[#1d3d35]">
+            <Mic size={13} className="shrink-0 text-[#0f5e48]" />
             <span className="truncate">{event.speaker}</span>
           </p>
         )}
 
-        {event.description && <p className="kz-body mt-3 line-clamp-3 text-[#3f5a52]">{event.description}</p>}
+        {event.description && <p className="kz-body mt-3 line-clamp-3 text-[#5e4a35]">{event.description}</p>}
 
         {href && (
           // mt-auto on the wrapper, not the button: it pins the CTA to the
@@ -161,9 +161,8 @@ export default function KzEvents() {
     .slice(0, 9);
 
   return (
-    <section id="events" className="kz-font bg-[#f9fbe5] text-[#002820]">
+    <section id="events" className="kz-font bg-[#f5e9cf] text-[#1c130c]">
       <SectionHead
-        label="House events"
         title={["Events &", "sessions"]}
         intro="Catch up on the latest guest sessions, Community Day, Aarohan and Curiosity Hour."
       />
@@ -189,7 +188,7 @@ export default function KzEvents() {
               aria-label="Previous events"
               disabled={!canPrev}
               onClick={() => embla?.scrollPrev()}
-              className="grid h-12 w-12 place-items-center rounded-full border border-[#002820]/25 transition-colors enabled:hover:bg-[#002820] enabled:hover:text-[#f9fbe5] disabled:opacity-30"
+              className="grid h-12 w-12 place-items-center rounded-full border border-[#1c130c]/25 transition-colors enabled:hover:bg-[#1c130c] enabled:hover:text-[#f5e9cf] disabled:opacity-30"
             >
               <ArrowLeft size={18} />
             </button>
@@ -202,7 +201,7 @@ export default function KzEvents() {
                   aria-label={`Go to slide ${i + 1}`}
                   onClick={() => embla?.scrollTo(i)}
                   className={`h-2 rounded-full transition-all duration-300 ${
-                    i === selected ? "w-7 bg-[#006255]" : "w-2 bg-[#002820]/25 hover:bg-[#002820]/45"
+                    i === selected ? "w-7 bg-[#0f5e48]" : "w-2 bg-[#1c130c]/25 hover:bg-[#1c130c]/45"
                   }`}
                 />
               ))}
@@ -213,7 +212,7 @@ export default function KzEvents() {
               aria-label="More events"
               disabled={!canNext}
               onClick={() => embla?.scrollNext()}
-              className="grid h-12 w-12 place-items-center rounded-full border border-[#002820]/25 transition-colors enabled:hover:bg-[#002820] enabled:hover:text-[#f9fbe5] disabled:opacity-30"
+              className="grid h-12 w-12 place-items-center rounded-full border border-[#1c130c]/25 transition-colors enabled:hover:bg-[#1c130c] enabled:hover:text-[#f5e9cf] disabled:opacity-30"
             >
               <ArrowRight size={18} />
             </button>

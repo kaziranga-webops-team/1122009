@@ -1,15 +1,12 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import Image from "next/image";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { AlertTriangle, Award, Calendar, Crown, Globe, Megaphone, Palette, PenTool, Users, Video } from "lucide-react";
 import KzHeader from "@/components/kz/KzHeader";
 import KzFooter from "@/components/kz/KzFooter";
 import PageHero, { Segmented } from "@/components/kz/PageHero";
-import { RHINO_SRC } from "@/components/kz/Scene";
 import { FlipCard, toMember, type Member } from "@/components/home/KzCouncil";
-import { RevealWords } from "@/components/home/sections";
 import { fetchCouncil, getCachedCouncil, type CouncilRow } from "@/lib/api";
 
 type CouncilMember = Member & { type: string };
@@ -67,15 +64,15 @@ const SUB_TEAMS = [
 
 function teamMeta(name: string): { Icon: typeof Crown; tint: string; blurb: string } {
   const n = name.toLowerCase();
-  if (n.includes("upper")) return { Icon: Crown, tint: "#eef1dc", blurb: "The house-wide roles that steer culture, events and community." };
-  if (n.includes("lower")) return { Icon: Users, tint: "#eef1dc", blurb: "Regional coordinators who bring the house to every city." };
-  if (n.includes("web")) return { Icon: Globe, tint: "#eef1dc", blurb: "The people who build and run this website." };
-  if (n.includes("graphic")) return { Icon: Palette, tint: "#eef1dc", blurb: "Posters, stickers and everything the house looks like." };
-  if (n.includes("content")) return { Icon: PenTool, tint: "#eef1dc", blurb: "Words for every post, announcement and story." };
-  if (n.includes("pr")) return { Icon: Megaphone, tint: "#eef1dc", blurb: "Outreach, partnerships and getting the word out." };
-  if (n.includes("multimedia")) return { Icon: Video, tint: "#eef1dc", blurb: "Reels, edits and Kaziranga Tak." };
-  if (n.includes("event")) return { Icon: Calendar, tint: "#eef1dc", blurb: "Planning and running every session and contest." };
-  return { Icon: Award, tint: "#eef1dc", blurb: "" };
+  if (n.includes("upper")) return { Icon: Crown, tint: "#f6b51e", blurb: "The house-wide roles that steer culture, events and community." };
+  if (n.includes("lower")) return { Icon: Users, tint: "#e2387a", blurb: "Regional coordinators who bring the house to every city." };
+  if (n.includes("web")) return { Icon: Globe, tint: "#2343b8", blurb: "The people who build and run this website." };
+  if (n.includes("graphic")) return { Icon: Palette, tint: "#f6b51e", blurb: "Posters, stickers and everything the house looks like." };
+  if (n.includes("content")) return { Icon: PenTool, tint: "#f6b51e", blurb: "Words for every post, announcement and story." };
+  if (n.includes("pr")) return { Icon: Megaphone, tint: "#f6b51e", blurb: "Outreach, partnerships and getting the word out." };
+  if (n.includes("multimedia")) return { Icon: Video, tint: "#f6b51e", blurb: "Reels, edits and Kaziranga Tak." };
+  if (n.includes("event")) return { Icon: Calendar, tint: "#f6b51e", blurb: "Planning and running every session and contest." };
+  return { Icon: Award, tint: "#f6b51e", blurb: "" };
 }
 
 const SOFT = [0.22, 1, 0.36, 1] as const;
@@ -92,20 +89,21 @@ function TeamBlock({ name, members, index }: { name: string; members: CouncilMem
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20, transition: { duration: 0.2 } }}
       transition={{ duration: 0.6, delay: index * 0.05, ease: SOFT }}
-      className={upper ? "relative isolate overflow-hidden rounded-[2.25rem] kz-jaali bg-[#00332a] px-5 py-12 text-[#f9fbe5] sm:px-10 md:rounded-[3rem] md:py-16" : "py-4"}
+      className={upper ? "kz-folio--dark kz-folio kz-jaali relative isolate bg-[#0a3b2f] px-5 py-12 text-[#f5e9cf] sm:px-10 md:py-16" : "border-t-2 border-[#1c130c] pt-8"}
     >
-      
       <div className="mb-8 flex flex-col gap-4 md:mb-10 md:flex-row md:items-end md:justify-between">
         <div className="flex items-center gap-4">
-          <span className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl text-[#002820]" style={{ background: tint }}>
+          <span className="grid h-14 w-14 shrink-0 place-items-center text-[#1c130c]" style={{ background: tint }}>
             <Icon size={24} />
           </span>
           <div>
-            <RevealWords lines={[name]} className="kz-serif text-[clamp(1.6rem,3vw,2.3rem)]" />
-            {blurb && <p className={`kz-body mt-1 ${upper ? "text-white/80" : "text-[#3f5a52]"}`}>{blurb}</p>}
+            <h2 className={`kz-h2 kz-offset text-[clamp(1.7rem,3vw,2.5rem)] ${upper ? "text-[#f6b51e]" : ""}`} style={{ ["--offset" as string]: upper ? "#c8102e" : "rgba(200,16,46,0.28)" }}>
+              {name}
+            </h2>
+            {blurb && <p className={`kz-body mt-1 ${upper ? "text-[#f5e9cf]/80" : "text-[#5e4a35]"}`}>{blurb}</p>}
           </div>
         </div>
-        <span className={`kz-label ${upper ? "text-white/70" : "text-[#3f5a52]"}`}>
+        <span className={`kz-label ${upper ? "text-[#f5e9cf]/70" : "text-[#5e4a35]"}`}>
           {members.length} {members.length === 1 ? "member" : "members"}
         </span>
       </div>
@@ -175,23 +173,13 @@ export default function CouncilPage() {
   }, [ordered, category, subTeam]);
 
   return (
-    <div className="kz-font kz-paper min-h-screen bg-[#f9fbe5] text-[#002820] selection:bg-[#c10021]/20">
+    <div className="kz-font kz-paper min-h-screen bg-[#f5e9cf] text-[#1c130c] selection:bg-[#c8102e]/20">
       <KzHeader />
       <main>
         <PageHero
-          crumb="Council"
-          label="Student council 2025–26"
+          ground="forest"
           title={["The team behind", "the house"]}
-          intro="The students leading culture, events and community. Tap any card to flip it over for their contact details."
-          stickers={
-            loading
-              ? []
-              : [
-                  { value: String(members.length), label: "Council members" },
-                  { value: String(ordered.length), label: "Teams" },
-                  { value: String(groups[UPPER]?.length ?? 0), label: "Upper house" },
-                ]
-          }
+          intro="Tap any card to flip it over for contact details."
         />
 
         <section className="relative mx-auto max-w-[90rem] px-5 sm:px-8 md:px-12">
@@ -219,10 +207,10 @@ export default function CouncilPage() {
                       key={value}
                       type="button"
                       onClick={() => setSubTeam(value)}
-                      className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-[0.85rem] font-semibold transition-all duration-300 ${
+                      className={`kz-sign inline-flex items-center gap-2 border-2 px-3.5 pb-1.5 pt-2 text-[0.76rem] uppercase tracking-[0.1em] transition-colors duration-300 ${
                         subTeam === value
-                          ? "border-[#006255] bg-[#006255] text-white shadow-[0_10px_20px_-12px_rgba(0,98,85,0.8)]"
-                          : "border-[#002820]/15 bg-transparent text-[#002820]/75 hover:border-[#002820]/35 hover:text-[#002820]"
+                          ? "border-[#1c130c] bg-[#1c130c] text-[#f6b51e]"
+                          : "border-[#1c130c]/20 text-[#1c130c]/75 hover:border-[#1c130c] hover:text-[#1c130c]"
                       }`}
                     >
                       <Icon size={14} /> {label}
@@ -238,13 +226,13 @@ export default function CouncilPage() {
           {loading && (
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {Array.from({ length: 8 }, (_, i) => (
-                <div key={i} className="aspect-[4/5] animate-pulse rounded-2xl bg-[#e6eedc]" />
+                <div key={i} className="aspect-[4/5.4] animate-pulse bg-[#ebd9b2]" />
               ))}
             </div>
           )}
 
           {error && !loading && (
-            <div className="mx-auto flex max-w-md items-center gap-3 rounded-2xl border border-[#c10021]/25 bg-[#f9fbe5] p-5 text-[#8a0016]">
+            <div className="mx-auto flex max-w-md items-center gap-3 border-2 border-[#c8102e] bg-[#f5e9cf] p-5 text-[#8a0016]">
               <AlertTriangle size={20} className="shrink-0" />
               <span className="font-semibold">{error}</span>
             </div>
@@ -260,9 +248,8 @@ export default function CouncilPage() {
 
           {!loading && !error && shown.length === 0 && (
             <div className="mx-auto flex max-w-md flex-col items-center py-10 text-center">
-              <Image src={RHINO_SRC} alt="" width={220} height={154} className="kz-float" />
-              <h3 className="mt-6 text-[1.3rem] font-semibold">Council information is being updated</h3>
-              <p className="kz-body mt-2 text-[#3f5a52]">Check back soon to meet the team.</p>
+              <h3 className="kz-h2 text-[1.8rem]">Council information is being updated</h3>
+              <p className="kz-body mt-2 text-[#5e4a35]">Check back soon to meet the team.</p>
             </div>
           )}
         </div>

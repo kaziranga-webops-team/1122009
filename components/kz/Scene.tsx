@@ -216,7 +216,7 @@ export function Rhino({ greet = true, className = "" }: { greet?: boolean; class
               height={936}
               priority
               draggable={false}
-              className="h-auto w-full select-none drop-shadow-[0_18px_18px_rgba(0,40,32,0.18)]"
+              className="h-auto w-full select-none drop-shadow-[0_18px_18px_rgba(28,19,12,0.18)]"
             />
           </span>
         </span>
@@ -225,7 +225,7 @@ export function Rhino({ greet = true, className = "" }: { greet?: boolean; class
         <span
           key={say}
           role="status"
-          className="kz-pop absolute -top-[14%] left-[4%] z-30 sm:left-[38%] origin-bottom-left whitespace-nowrap rounded-2xl rounded-bl-sm bg-white px-4 py-2.5 text-[clamp(0.75rem,1vw,0.95rem)] font-bold text-[#002820] shadow-[0_12px_30px_-10px_rgba(0,40,32,0.45)]"
+          className="kz-pop absolute -top-[14%] left-[4%] z-30 sm:left-[38%] origin-bottom-left whitespace-nowrap rounded-2xl rounded-bl-sm bg-white px-4 py-2.5 text-[clamp(0.75rem,1vw,0.95rem)] font-bold text-[#1c130c] shadow-[0_12px_30px_-10px_rgba(28,19,12,0.45)]"
         >
           {GREETINGS[say]}
         </span>

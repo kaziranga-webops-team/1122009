@@ -62,7 +62,7 @@ export default function VideoHero() {
   const rise = (i: number) => ({ style: vars({ "--i": i }) });
 
   return (
-    <section id="hero" className="kz-font relative isolate bg-[#9fdcef] pt-[var(--kz-header-h)] text-[#002820]">
+    <section id="hero" className="kz-font relative isolate bg-[#9fdcef] pt-[var(--kz-header-h)] text-[#1c130c]">
       {/* the frame takes the loop's own proportions, so the whole artwork is always visible */}
       <div className="relative w-full overflow-hidden aspect-[1920/1294] [@media(max-aspect-ratio:4/5)]:aspect-[9/16]">
       <div aria-hidden="true" className="absolute inset-0 -z-10">
@@ -93,7 +93,7 @@ export default function VideoHero() {
         <h1 {...rise(0)} className="kz-display kz-rise text-[clamp(2.9rem,7.6vw,7.4rem)]">
           We are
           <br />
-          Kaziranga House<span className="text-[#c10021]">.</span>
+          Kaziranga House<span className="text-[#c8102e]">.</span>
         </h1>
         <p {...rise(1)} className="kz-lead kz-rise mt-5 max-w-[34rem] text-[#1d3d35]">
           {subtitle}

@@ -370,7 +370,7 @@ export default function EventGroupDetailPage() {
 
       {/* ─── Activities ─── */}
       <section className="space-y-5">
-        <SectionHeading eyebrow="On the programme" title="Activities" size="md" />
+        <SectionHeading title="Activities" size="md" />
 
         <FilterToolbar
           variant="bare"

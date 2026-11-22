@@ -9,7 +9,7 @@ import type { Community } from "@/lib/communities";
 export default function CommunityPatch({ c, size = 88, className = "" }: { c: Community; size?: number; className?: string }) {
   return (
     <span
-      className={`relative inline-grid shrink-0 place-items-center rounded-full shadow-[0_10px_18px_-12px_rgba(0,40,32,0.6),inset_0_-3px_0_rgba(0,0,0,0.12)] ${className}`}
+      className={`relative inline-grid shrink-0 place-items-center rounded-full shadow-[0_10px_18px_-12px_rgba(28,19,12,0.6),inset_0_-3px_0_rgba(0,0,0,0.12)] ${className}`}
       style={{ width: size, height: size, background: c.bg, color: c.ink }}
     >
       {/* the stitching */}

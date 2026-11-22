@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, Award, Mail, Phone, User } from "lucide-react";
+import { ArrowRight, Mail, Phone, User } from "lucide-react";
 import { fetchCouncil, getCachedCouncil, toDirectImageUrl, type CouncilRow } from "@/lib/api";
 import { SectionHead } from "@/components/home/sections";
 
@@ -37,120 +37,92 @@ function toMember(row: CouncilRow, i: number): Member {
   };
 }
 
-const ACCENT = "#c9a24a";
 
 /**
- * A card that turns over: the photograph on the front, the detail on the back
- * over a blurred, darkened copy of the same photograph behind frosted glass.
- * Only the face in view is focusable, so tabbing never reaches a link that is
- * pointing away from the reader.
+ * A council member as a postage stamp that turns over: the portrait on the
+ * front with their role and name printed under it, and the way to reach them
+ * on the back. Only the face in view is focusable, so tabbing never reaches
+ * a link that is pointing away from the reader.
  */
 function FlipCard({ member }: { member: Member }) {
   const [flipped, setFlipped] = useState(false);
   const [broken, setBroken] = useState(false);
   const hasPhoto = Boolean(member.image) && !broken;
+  const turn = (next: boolean) => (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      setFlipped(next);
+    }
+  };
 
   return (
-    <div className="kz-flip aspect-[4/5] w-full" data-flipped={flipped}>
+    <div className="kz-flip aspect-[4/5.4] w-full" data-flipped={flipped}>
       <div className="kz-flip-inner">
-        {/* ── Front ── */}
+        {/* ── Front: the stamp ── */}
         <div
           role="button"
           tabIndex={flipped ? -1 : 0}
           aria-hidden={flipped}
           aria-label={`Show details for ${member.name}`}
           onClick={() => setFlipped(true)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" || e.key === " ") {
-              e.preventDefault();
-              setFlipped(true);
-            }
-          }}
-          className="kz-flip-face group cursor-pointer rounded-2xl border border-[#c9a24a]/50 bg-[#002820] shadow-[0_24px_40px_-24px_rgba(0,0,0,0.6)]"
+          onKeyDown={turn(true)}
+          className="kz-flip-face kz-stamp group flex cursor-pointer flex-col"
+          style={{ ["--stamp-bg" as string]: "#f5e9cf" }}
         >
-          {hasPhoto ? (
-            <Image
-              src={member.image}
-              alt={member.name}
-              fill
-              sizes="(max-width: 768px) 90vw, 340px"
-              className="object-cover"
-              unoptimized
-              onError={() => setBroken(true)}
-            />
-          ) : (
-            <span className="grid h-full w-full place-items-center text-[#96b4a5]">
-              <User size={48} />
+          <span className="relative block min-h-0 flex-1 overflow-hidden bg-[#1c130c]">
+            {hasPhoto ? (
+              <Image
+                src={member.image}
+                alt={member.name}
+                fill
+                sizes="(max-width: 768px) 90vw, 340px"
+                className="object-cover transition-transform duration-700 group-hover:scale-105"
+                unoptimized
+                onError={() => setBroken(true)}
+              />
+            ) : (
+              <span className="grid h-full w-full place-items-center text-[#e3a936]">
+                <User size={48} />
+              </span>
+            )}
+            <span className="kz-sign absolute left-2 top-1.5 text-[0.66rem] tracking-[0.14em] text-white [text-shadow:0_1px_2px_rgba(0,0,0,0.7)]">INDIA</span>
+            <span className="kz-sign absolute right-2 top-1.5 bg-[#f6b51e] px-1.5 py-0.5 text-[0.62rem] uppercase tracking-[0.1em] text-[#1c130c] opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+              Contact
             </span>
-          )}
-
-          <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/45 to-transparent p-5 pt-12">
-            <span className="kz-h3 block text-[#c9a24a]">{member.role || "Council"}</span>
-            <span className="mt-1 block truncate text-[1.1rem] font-bold text-white">{member.name}</span>
           </span>
-
-          <span className="absolute right-3 top-3 rounded-full bg-black/55 px-2.5 py-1 text-[0.6rem] font-bold uppercase tracking-widest text-white opacity-0 backdrop-blur-sm transition-opacity duration-300 group-hover:opacity-100">
-            View info
+          <span className="block px-1 pb-0.5 pt-3 text-[#1c130c]">
+            <span className="kz-sign block truncate text-[0.7rem] uppercase tracking-[0.12em] text-[#c8102e]">{member.role || "Council"}</span>
+            <span className="kz-serif mt-1 block truncate text-[1.3rem] leading-tight">{member.name}</span>
           </span>
         </div>
 
-        {/* ── Back ── */}
+        {/* ── Back: how to reach them ── */}
         <div
           role="button"
           tabIndex={flipped ? 0 : -1}
           aria-hidden={!flipped}
           aria-label={`Hide details for ${member.name}`}
           onClick={() => setFlipped(false)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" || e.key === " ") {
-              e.preventDefault();
-              setFlipped(false);
-            }
-          }}
-          className="kz-flip-face kz-flip-face--back cursor-pointer rounded-2xl border border-[#c9a24a]/50"
+          onKeyDown={turn(false)}
+          className="kz-flip-face kz-flip-face--back kz-stamp cursor-pointer"
+          style={{ ["--stamp-bg" as string]: "#0a3b2f" }}
         >
-          {/* The same photograph, blurred right down — it keeps the card the
-              member's own colour without competing with the text. */}
-          <span aria-hidden="true" className="absolute inset-0">
-            {hasPhoto && (
-              <Image
-                src={member.image}
-                alt=""
-                fill
-                sizes="340px"
-                className="scale-110 object-cover blur-[15px] brightness-[0.25]"
-                unoptimized
-              />
-            )}
-            <span className="absolute inset-0 bg-[#00140f]/60 backdrop-blur-xl" />
-          </span>
-
-          <div className="relative flex h-full flex-col items-center justify-center gap-5 p-5 text-center text-white">
+          <div className="kz-jaali flex h-full flex-col items-center justify-center gap-5 p-4 text-center text-[#f5e9cf]">
             <div className="flex w-full flex-col items-center">
-              <h3 className="text-[1.2rem] font-bold leading-tight">{member.name}</h3>
-              <span
-                className="mt-2 inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[0.62rem] font-bold uppercase tracking-widest"
-                style={{ color: ACCENT, borderColor: `${ACCENT}4d`, background: `${ACCENT}1a` }}
-              >
-                <Award size={11} />
-                {member.role || "Council"}
-              </span>
-              {member.tagline && (
-                <p className="mt-3 max-w-[16rem] text-[0.8rem] font-medium italic leading-relaxed text-white/80">
-                  “{member.tagline}”
-                </p>
-              )}
+              <h3 className="kz-serif text-[1.35rem] leading-tight text-[#f6b51e]">{member.name}</h3>
+              <span className="kz-sign mt-2 text-[0.68rem] uppercase tracking-[0.14em] text-[#f5e9cf]/75">{member.role || "Council"}</span>
+              {member.tagline && <p className="mt-3 max-w-[16rem] text-[0.88rem] leading-relaxed text-[#f5e9cf]/85">“{member.tagline}”</p>}
             </div>
 
-            <div className="flex w-full flex-col gap-2.5">
+            <div className="flex w-full flex-col gap-2">
               {member.phone && (
                 <a
                   href={`tel:${member.phone}`}
                   tabIndex={flipped ? 0 : -1}
                   onClick={(e) => e.stopPropagation()}
-                  className="flex items-center justify-center gap-2.5 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-[0.78rem] font-medium text-white/90 transition-colors hover:border-white/20 hover:bg-white/10"
+                  className="kz-signboard flex items-center gap-2.5 bg-[#f6b51e] py-2.5 pl-3.5 pr-7 text-left text-[0.82rem] font-semibold text-[#1c130c] transition-transform hover:translate-x-1"
                 >
-                  <Phone size={13} style={{ color: ACCENT }} className="shrink-0" />
+                  <Phone size={13} className="shrink-0" />
                   <span className="truncate">{member.phone}</span>
                 </a>
               )}
@@ -159,15 +131,13 @@ function FlipCard({ member }: { member: Member }) {
                   href={`mailto:${member.email}`}
                   tabIndex={flipped ? 0 : -1}
                   onClick={(e) => e.stopPropagation()}
-                  className="flex items-center justify-center gap-2.5 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-[0.78rem] font-medium text-white/90 transition-colors hover:border-white/20 hover:bg-white/10"
+                  className="kz-signboard flex items-center gap-2.5 bg-[#e2387a] py-2.5 pl-3.5 pr-7 text-left text-[0.82rem] font-semibold text-white transition-transform hover:translate-x-1"
                 >
-                  <Mail size={13} style={{ color: ACCENT }} className="shrink-0" />
+                  <Mail size={13} className="shrink-0" />
                   <span className="truncate">{member.email}</span>
                 </a>
               )}
-              <span className="mt-1 text-[0.6rem] font-medium tracking-widest text-white/40">
-                Click card to flip back
-              </span>
+              <span className="kz-sign mt-1 text-[0.62rem] uppercase tracking-[0.14em] text-[#f5e9cf]/45">Tap to turn back</span>
             </div>
           </div>
         </div>
@@ -199,12 +169,11 @@ export default function KzCouncil() {
     .sort((a, b) => rankOf(a.role) - rankOf(b.role));
 
   return (
-    <section id="council" className="kz-font kz-jaali relative isolate overflow-hidden bg-[#00332a] text-[#f9fbe5]">
+    <section id="council" className="kz-font kz-jaali relative isolate overflow-hidden bg-[#0a3b2f] text-[#f5e9cf]">
       
 
       <SectionHead
         dark
-        label="Student council"
         title={["Meet the people", "behind the house"]}
         intro="The students leading culture, events and community within Kaziranga House. Tap a card for contact details."
       />
@@ -218,7 +187,7 @@ export default function KzCouncil() {
       )}
 
       <div className="flex justify-center px-5 pb-20 pt-14 md:pb-28">
-        <Link href="/council" className="kz-btn kz-btn--white">
+        <Link href="/council" className="kz-btn kz-focus bg-[#f6b51e] text-[#1c130c]">
           Meet the whole council <ArrowRight size={18} />
         </Link>
       </div>

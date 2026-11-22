@@ -4,36 +4,38 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import { motion, AnimatePresence, useInView } from "framer-motion";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Image as ImageIcon, ArrowLeft, ArrowRight, Loader2, AlertTriangle, RefreshCw, Heart, Search, X, ChevronDown, Folder, Zap, Calendar, Mail } from "lucide-react";
-import { FaInstagram, FaWhatsapp, FaYoutube, FaLinkedin } from "react-icons/fa";
-import { SiLinktree } from "react-icons/si";
+import { Image as ImageIcon, ArrowLeft, ArrowRight, Loader2, AlertTriangle, RefreshCw, Heart, Search, X, ChevronDown, Folder, Zap, Calendar } from "lucide-react";
+import { FaInstagram } from "react-icons/fa";
 import { fetchGallery, fetchMeetups, getCachedGallery, getCachedMeetups, toDirectImageUrl, type GalleryRow, type MeetupRow } from "@/lib/api";
 import { useLikes, useAllLikes } from "@/hooks/useLikes";
 import { generateImageId } from "@/lib/firebase";
 import FolderComponent from "@/components/Folder";
+import KzHeader from "@/components/kz/KzHeader";
+import KzFooter from "@/components/kz/KzFooter";
+import PageHero from "@/components/kz/PageHero";
 
 
 const CATEGORIES = ["All", "Meetups", "Meme", "Sticker", "Photograph", "Screenshot", "Creativity"];
 
 // ─── Accent colours cycling on cards ─────────────────────────────────────────
 const CARD_COLORS = [
-  "bg-[#6fcf97]",
-  "bg-[#ff90e8]",
-  "bg-[#ffc900]",
-  "bg-[#00e5ff]",
+  "bg-[#e3a936]",
+  "bg-[#e2387a]",
+  "bg-[#f6b51e]",
+  "bg-[#f08a24]",
   "bg-white",
-  "bg-[#ff5757]",
-  "bg-[#9b51e0] text-white",
+  "bg-[#c8102e]",
+  "bg-[#2343b8] text-white",
 ];
 
 const getCategoryBadgeColor = (category: string) => {
   const cat = category?.trim().toLowerCase();
-  if (cat === "meetups" || cat === "meetup") return "bg-[#ffc900]";
-  if (cat === "meme") return "bg-[#6fcf97]";
-  if (cat === "sticker") return "bg-[#00e5ff]";
-  if (cat === "photograph") return "bg-[#ff90e8]";
+  if (cat === "meetups" || cat === "meetup") return "bg-[#f6b51e]";
+  if (cat === "meme") return "bg-[#e3a936]";
+  if (cat === "sticker") return "bg-[#f08a24]";
+  if (cat === "photograph") return "bg-[#e2387a]";
   if (cat === "screenshot") return "bg-white";
-  return "bg-[#ff5757]"; // Creativity
+  return "bg-[#c8102e]"; // Creativity
 };
 
 // ─── Navbar ───────────────────────────────────────────────────────────────────
@@ -66,16 +68,16 @@ function ScrapbookNavbar({
 }: ScrapbookNavbarProps) {
   if (selectedRegion) {
     return (
-      <nav className="w-full sticky top-0 z-50 py-4 px-4 bg-[#f4f0e6]/90 backdrop-blur-md">
+      <nav className="w-full sticky top-0 z-40 py-4 px-4 bg-[#f5e9cf]/90 backdrop-blur-md">
         <div className="container mx-auto max-w-7xl">
-          <div className="flex items-center justify-between border border-black/10 bg-[#fdfbf7] py-3 px-4 md:px-6 shadow-[2px_4px_12px_rgba(0,0,0,0.08)] rounded-md w-full relative">
-            <div className="absolute -top-2 left-6 w-16 h-5 bg-[#00e5ff]/50 mix-blend-multiply transform -rotate-2 z-20">
+          <div className="flex items-center justify-between border border-black/10 bg-[#fbf3df] py-3 px-4 md:px-6 shadow-[2px_4px_12px_rgba(0,0,0,0.08)] w-full relative">
+            <div className="absolute -top-2 left-6 w-16 h-5 bg-[#f08a24]/50 mix-blend-multiply transform -rotate-2 z-20">
               <div className="w-full h-full border-x-2 border-dotted border-white/30"></div>
             </div>
             
             <button
               onClick={onBackToRegions}
-              className="flex items-center gap-1.5 h-10 px-4 border border-black/10 bg-[#fdfbf7] text-black font-bold uppercase text-xs tracking-wide shadow-sm hover:-translate-y-0.5 hover:shadow-md transition-all cursor-pointer rounded-sm shrink-0"
+              className="flex items-center gap-1.5 h-10 px-4 border border-black/10 bg-[#fbf3df] text-black font-bold uppercase text-xs tracking-wide shadow-sm hover:-translate-y-0.5 hover:shadow-md transition-all cursor-pointer rounded-sm shrink-0"
             >
               <ArrowLeft size={14} />
               <span>All Regions</span>
@@ -85,7 +87,7 @@ function ScrapbookNavbar({
               {selectedRegion}
             </h2>
             
-            <div className="flex items-center gap-1.5 h-10 px-4 bg-[#ffc900]/90 border border-black/10 font-bold text-xs uppercase tracking-wide shadow-sm rounded-sm shrink-0 transform rotate-1">
+            <div className="flex items-center gap-1.5 h-10 px-4 bg-[#f6b51e]/90 border border-black/10 font-bold text-xs uppercase tracking-wide shadow-sm rounded-sm shrink-0 transform rotate-1">
               <span>{meetupCount} {meetupCount === 1 ? "Meetup" : "Meetups"}</span>
             </div>
           </div>
@@ -95,21 +97,16 @@ function ScrapbookNavbar({
   }
 
   return (
-    <nav className="w-full bg-[#f4f0e6] border-b border-black/10 sticky top-0 z-50 py-3 px-4 shadow-[0_2px_10px_rgba(0,0,0,0.05)]">
+    <nav className="w-full bg-[#f5e9cf] border-b border-black/10 sticky top-0 z-40 py-3 px-4 shadow-[0_2px_10px_rgba(0,0,0,0.05)]">
       <div className="container mx-auto flex flex-col lg:flex-row items-center justify-between gap-3 lg:gap-4 relative">
         {/* Navigation Buttons wrapper */}
         <div className="flex items-center justify-between w-full lg:w-auto gap-4">
-          <Link href="/" className="group flex items-center gap-2 h-10 px-4 border border-black/10 bg-[#fdfbf7] text-black font-bold uppercase tracking-wide shadow-sm hover:-translate-y-0.5 hover:shadow-md transition-all cursor-pointer rounded-sm transform -rotate-1">
-            <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
-            <span className="text-sm md:text-base">Home</span>
-          </Link>
-          
           {/* Mobile Meetups Button */}
           <button
             onClick={onMeetupsClick}
             className={`lg:hidden flex items-center gap-1.5 h-10 px-4 border border-black/10 font-bold uppercase text-xs tracking-wide shadow-sm active:translate-y-0.5 hover:shadow-md transition-all cursor-pointer rounded-sm transform rotate-1
               ${isMeetupsActive 
-                ? "bg-[#ffc900]/90 text-black shadow-inner" 
+                ? "bg-[#f6b51e]/90 text-black shadow-inner" 
                 : "bg-white text-black"
               }`}
           >
@@ -119,8 +116,8 @@ function ScrapbookNavbar({
         </div>
 
         {/* Category Navbar in place of GALLERY title */}
-        <div className="flex flex-wrap items-center justify-center gap-1.5 border border-black/10 bg-white p-1.5 shadow-sm rounded-md w-full sm:w-auto max-w-full relative">
-          <div className="absolute -top-2 right-12 w-12 h-4 bg-[#ff90e8]/50 mix-blend-multiply transform rotate-3 z-20">
+        <div className="flex flex-wrap items-center justify-center gap-1.5 border border-black/10 bg-white p-1.5 shadow-sm w-full sm:w-auto max-w-full relative">
+          <div className="absolute -top-2 right-12 w-12 h-4 bg-[#e2387a]/50 mix-blend-multiply transform rotate-3 z-20">
              <div className="w-full h-full border-x-2 border-dotted border-white/30"></div>
           </div>
           {/* All Button */}
@@ -132,8 +129,8 @@ function ScrapbookNavbar({
             }}
             className={`h-8 md:h-10 px-2.5 md:px-4 font-bold text-[10px] md:text-xs tracking-wide transition-all cursor-pointer rounded-sm border-b-2
               ${activeTab === "All" 
-                ? "border-[#6fcf97] text-black bg-[#f4f0e6]/50" 
-                : "border-transparent text-black/60 hover:bg-[#f4f0e6]/50 hover:text-black"
+                ? "border-[#e3a936] text-black bg-[#f5e9cf]/50" 
+                : "border-transparent text-black/60 hover:bg-[#f5e9cf]/50 hover:text-black"
               }`}
           >
             All
@@ -148,8 +145,8 @@ function ScrapbookNavbar({
             }}
             className={`h-8 md:h-10 px-2.5 md:px-4 font-bold text-[10px] md:text-xs tracking-wide transition-all cursor-pointer rounded-sm border-b-2
               ${activeTab === "Photograph" 
-                ? "border-[#ff90e8] text-black bg-[#f4f0e6]/50" 
-                : "border-transparent text-black/60 hover:bg-[#f4f0e6]/50 hover:text-black"
+                ? "border-[#e2387a] text-black bg-[#f5e9cf]/50" 
+                : "border-transparent text-black/60 hover:bg-[#f5e9cf]/50 hover:text-black"
               }`}
           >
             Photographs
@@ -164,8 +161,8 @@ function ScrapbookNavbar({
             }}
             className={`h-8 md:h-10 px-2.5 md:px-4 font-bold text-[10px] md:text-xs tracking-wide transition-all cursor-pointer rounded-sm border-b-2
               ${activeTab === "Creativity" 
-                ? "border-[#00e5ff] text-black bg-[#f4f0e6]/50" 
-                : "border-transparent text-black/60 hover:bg-[#f4f0e6]/50 hover:text-black"
+                ? "border-[#f08a24] text-black bg-[#f5e9cf]/50" 
+                : "border-transparent text-black/60 hover:bg-[#f5e9cf]/50 hover:text-black"
               }`}
           >
             Creativity
@@ -180,8 +177,8 @@ function ScrapbookNavbar({
               }}
               className={`h-8 md:h-10 px-2.5 md:px-4 font-bold text-[10px] md:text-xs tracking-wide transition-all cursor-pointer rounded-sm border-b-2 flex items-center gap-1
                 ${["Meme", "Screenshot", "Sticker"].includes(activeTab)
-                  ? "border-[#ff5757] text-black bg-[#f4f0e6]/50"
-                  : "border-transparent text-black/60 hover:bg-[#f4f0e6]/50 hover:text-black"
+                  ? "border-[#c8102e] text-black bg-[#f5e9cf]/50"
+                  : "border-transparent text-black/60 hover:bg-[#f5e9cf]/50 hover:text-black"
                 }`}
             >
               <span>
@@ -214,8 +211,8 @@ function ScrapbookNavbar({
                     }}
                     className={`w-full text-left px-4 py-2 font-bold text-xs tracking-wide rounded-sm transition-colors
                       ${activeTab === "Meme" 
-                        ? "bg-[#6fcf97]/20 text-black border-l-2 border-[#6fcf97]" 
-                        : "text-black/70 hover:bg-[#f4f0e6]"
+                        ? "bg-[#e3a936]/20 text-black border-l-2 border-[#e3a936]" 
+                        : "text-black/70 hover:bg-[#f5e9cf]"
                       }`}
                   >
                     Memes
@@ -230,8 +227,8 @@ function ScrapbookNavbar({
                     }}
                     className={`w-full text-left px-4 py-2 font-bold text-xs tracking-wide rounded-sm transition-colors
                       ${activeTab === "Screenshot" 
-                        ? "bg-[#00e5ff]/20 text-black border-l-2 border-[#00e5ff]" 
-                        : "text-black/70 hover:bg-[#f4f0e6]"
+                        ? "bg-[#f08a24]/20 text-black border-l-2 border-[#f08a24]" 
+                        : "text-black/70 hover:bg-[#f5e9cf]"
                       }`}
                   >
                     Screenshots
@@ -246,8 +243,8 @@ function ScrapbookNavbar({
                     }}
                     className={`w-full text-left px-4 py-2 font-bold text-xs tracking-wide rounded-sm transition-colors
                       ${activeTab === "Sticker" 
-                        ? "bg-[#ff90e8]/20 text-black border-l-2 border-[#ff90e8]" 
-                        : "text-black/70 hover:bg-[#f4f0e6]"
+                        ? "bg-[#e2387a]/20 text-black border-l-2 border-[#e2387a]" 
+                        : "text-black/70 hover:bg-[#f5e9cf]"
                       }`}
                   >
                     Stickers
@@ -263,7 +260,7 @@ function ScrapbookNavbar({
           onClick={onMeetupsClick}
           className={`hidden lg:flex items-center gap-1.5 h-10 px-4 border border-black/10 font-bold uppercase text-xs tracking-wide shadow-sm hover:-translate-y-0.5 hover:shadow-md transition-all cursor-pointer rounded-sm transform rotate-1
             ${isMeetupsActive 
-              ? "bg-[#ffc900]/90 text-black shadow-inner" 
+              ? "bg-[#f6b51e]/90 text-black shadow-inner" 
               : "bg-white text-black"
             }`}
         >
@@ -275,82 +272,40 @@ function ScrapbookNavbar({
   );
 }
 
-// ─── Footer ───────────────────────────────────────────────────────────────────
-function ScrapbookFooter() {
-  const socialLinks = [
-    { icon: <FaInstagram size={18} />, url: "https://www.instagram.com/kaziranga_iitm/", color: "bg-[#ff90e8]" },
-    { icon: <FaWhatsapp size={18} />, url: "https://forms.gle/Ac5Zxwn21cRMeEcy8", color: "bg-[#6fcf97]" },
-    { icon: <FaYoutube size={18} />, url: "http://www.youtube.com/@KazirangaHouse", color: "bg-[#ff5757]" },
-    { icon: <FaLinkedin size={18} />, url: "https://www.linkedin.com/company/kaziranga-iitm", color: "bg-[#00e5ff]" },
-    { icon: <SiLinktree size={18} />, url: "https://linktr.ee/KazirangaHouseBS", color: "bg-[#43E55E]" },
-  ];
-
-  return (
-    <footer className="w-full bg-[#f8f5eb] border-t border-black/10 py-12 text-black overflow-hidden relative">
-      <div className="absolute inset-0 pointer-events-none z-0 bg-[url('https://www.transparenttextures.com/patterns/handmade-paper.png')] opacity-60 mix-blend-multiply" />
-      <div className="container mx-auto px-4 relative z-10 flex flex-col items-center text-center">
-        <h2 className="font-bold text-2xl md:text-3xl tracking-tight mb-2 transform -rotate-1 relative inline-block">
-          <span className="absolute inset-0 bg-[#00e5ff]/30 transform rotate-2 -z-10 rounded-sm"></span>
-          Stay Wild.
-        </h2>
-        <div className="w-12 h-1 bg-black/20 rounded-full mb-6"></div>
-        <div className="flex flex-wrap justify-center gap-4 mb-8">
-          {socialLinks.map((link, i) => (
-            <a
-              key={i}
-              href={link.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`w-12 h-12 flex items-center justify-center text-black/80 bg-white border border-black/10 rounded-full shadow-sm hover:-translate-y-1 hover:shadow-md transition-all ${
-                i % 2 === 0 ? "transform rotate-3" : "transform -rotate-2"
-              }`}
-            >
-              <div className={`absolute inset-0 rounded-full opacity-20 ${link.color}`}></div>
-              {link.icon}
-            </a>
-          ))}
-        </div>
-        <div className="font-medium text-xs md:text-sm text-black/50 tracking-wider">
-          © {new Date().getFullYear()} Kaziranga House
-        </div>
-      </div>
-    </footer>
-  );
-}
 
 // ─── Region Colors and Helpers ──────────────────────────────────────────────
 const REGION_COLORS: Record<string, string> = {
-  bengaluru: "bg-[#6fcf97]",
-  chandigarh: "bg-[#ff90e8]",
-  chennai: "bg-[#ffc900]",
-  delhi: "bg-[#00e5ff]",
-  hyderabad: "bg-[#ff5757]",
-  kolkata: "bg-[#9b51e0] text-black",
+  bengaluru: "bg-[#e3a936]",
+  chandigarh: "bg-[#e2387a]",
+  chennai: "bg-[#f6b51e]",
+  delhi: "bg-[#f08a24]",
+  hyderabad: "bg-[#c8102e]",
+  kolkata: "bg-[#2343b8] text-white",
   mumbai: "bg-white",
-  patna: "bg-[#6fcf97]",
-  lucknow: "bg-[#ff90e8]"
+  patna: "bg-[#e3a936]",
+  lucknow: "bg-[#e2387a]"
 };
 
 function getRegionColor(region: string): string {
   const norm = region.toLowerCase().trim();
-  return REGION_COLORS[norm] || "bg-[#ffc900]";
+  return REGION_COLORS[norm] || "bg-[#f6b51e]";
 }
 
 const REGION_HEX_COLORS: Record<string, string> = {
-  bengaluru: "#6fcf97",
-  chandigarh: "#ff90e8",
-  chennai: "#ffc900",
-  delhi: "#00e5ff",
-  hyderabad: "#ff5757",
-  kolkata: "#9b51e0",
-  mumbai: "#d1d5db",
-  patna: "#6fcf97",
-  lucknow: "#ff90e8"
+  bengaluru: "#e3a936",
+  chandigarh: "#e2387a",
+  chennai: "#f6b51e",
+  delhi: "#f08a24",
+  hyderabad: "#c8102e",
+  kolkata: "#2343b8",
+  mumbai: "#ebd9b2",
+  patna: "#e3a936",
+  lucknow: "#e2387a"
 };
 
 function getRegionHexColor(region: string): string {
   const norm = region.toLowerCase().trim();
-  return REGION_HEX_COLORS[norm] || "#ffc900";
+  return REGION_HEX_COLORS[norm] || "#f6b51e";
 }
 
 // ─── Parse Meetup Date ───────────────────────────────────────────────────────
@@ -423,7 +378,7 @@ function CanvaModalEmbed({ url }: { url: string }) {
 
   if (loading) {
     return (
-      <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-[#fdfbf7]">
+      <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-[#fbf3df]">
         <Loader2 className="animate-spin text-black/40" size={28} strokeWidth={2} />
         <span className="font-bold text-xs uppercase text-black/55 tracking-wide">Resolving Poster...</span>
       </div>
@@ -446,19 +401,19 @@ function CanvaModalEmbed({ url }: { url: string }) {
       <img
         src={url.trim()}
         alt="Meetup Poster"
-        className="w-full h-full object-contain bg-[#f4f0e6]"
+        className="w-full h-full object-contain bg-[#f5e9cf]"
       />
     );
   }
 
   return (
-    <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-[#fdfbf7] gap-4">
+    <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-[#fbf3df] gap-4">
       <span className="font-bold text-sm uppercase text-black/55 tracking-wide">Poster Link Available</span>
       <a
         href={url.trim()}
         target="_blank"
         rel="noopener noreferrer"
-        className="px-6 py-3 border border-black/10 bg-[#ffc900]/90 font-bold text-sm uppercase shadow-sm hover:-translate-y-0.5 hover:shadow-md transition-all cursor-pointer rounded-sm text-black"
+        className="px-6 py-3 border border-black/10 bg-[#f6b51e]/90 font-bold text-sm uppercase shadow-sm hover:-translate-y-0.5 hover:shadow-md transition-all cursor-pointer rounded-sm text-black"
       >
         View Poster ↗
       </a>
@@ -488,9 +443,9 @@ function FolderCard({ region, count, meetups, onClick, index }: FolderCardProps)
     return (
       <div key={idx} className="w-full h-full p-1 flex flex-col relative rounded-[10px] overflow-hidden group">
         {hasImage ? (
-          <img src={posterUrl} alt="" className="w-full h-full object-cover rounded-md pointer-events-none" />
+          <img src={posterUrl} alt="" className="w-full h-full object-cover pointer-events-none" />
         ) : (
-          <div className="w-full h-full bg-black/5 rounded-md flex items-center justify-center">
+          <div className="w-full h-full bg-black/5 flex items-center justify-center">
             <span className="font-bold text-[8px] text-black/40 uppercase tracking-wider block text-center">Meetup</span>
           </div>
         )}
@@ -501,7 +456,7 @@ function FolderCard({ region, count, meetups, onClick, index }: FolderCardProps)
   return (
     <div 
       onClick={onClick}
-      className="flex flex-col items-center justify-between p-5 bg-[#fdfbf7] border border-black/10 rounded-[20px] shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group/card cursor-pointer"
+      className="flex flex-col items-center justify-between p-5 bg-[#fbf3df] border border-black/10 rounded-[20px] shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group/card cursor-pointer"
     >
       {/* Subtle background texture */}
       <div className="absolute inset-0 pointer-events-none opacity-[0.02] bg-[radial-gradient(#000_1px,transparent_1px)] [background-size:12px_12px]" />
@@ -520,7 +475,7 @@ function FolderCard({ region, count, meetups, onClick, index }: FolderCardProps)
       <div className="w-full z-10 mt-2">
         <button 
           onClick={onClick}
-          className="w-full py-3.5 bg-white border border-black/10 text-black font-bold text-xs uppercase tracking-widest rounded-xl hover:bg-black hover:text-white hover:border-black shadow-sm hover:shadow-md transition-all active:scale-[0.98]"
+          className="w-full py-3.5 bg-white border border-black/10 text-black font-bold text-xs uppercase tracking-widest hover:bg-black hover:text-white hover:border-black shadow-sm hover:shadow-md transition-all active:scale-[0.98]"
         >
           View Region
         </button>
@@ -553,10 +508,10 @@ function MeetupCard({ meetup, index, onClick }: MeetupCardProps) {
   return (
     <div 
       onClick={onClick}
-      className="relative group flex flex-col p-4 bg-white border border-black/10 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 ease-out cursor-pointer z-10"
+      className="relative group flex flex-col p-4 bg-white border border-black/10 shadow-sm hover:shadow-md transition-all duration-300 ease-out cursor-pointer z-10"
     >
       {/* Poster Image / Embed */}
-      <div className="relative w-full aspect-[3/4] bg-gray-50 border border-black/5 rounded-xl overflow-hidden mb-4">
+      <div className="relative w-full aspect-[3/4] bg-gray-50 border border-black/5 overflow-hidden mb-4">
         {loading ? (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
             <Loader2 className="animate-spin text-black/30" size={24} strokeWidth={2} />
@@ -582,7 +537,7 @@ function MeetupCard({ meetup, index, onClick }: MeetupCardProps) {
             <span className="font-medium text-sm text-black/50">Attached Photo</span>
             <button
               onClick={(e) => { e.stopPropagation(); window.open(meetup.Poster.trim(), "_blank"); }}
-              className="px-4 py-1.5 border border-black/10 bg-white font-medium text-xs shadow-sm hover:bg-gray-50 transition-colors text-black/70 rounded-md"
+              className="px-4 py-1.5 border border-black/10 bg-white font-medium text-xs shadow-sm hover:bg-gray-50 transition-colors text-black/70"
             >
               View original
             </button>
@@ -595,7 +550,7 @@ function MeetupCard({ meetup, index, onClick }: MeetupCardProps) {
         )}
 
         {/* Floating Date Badge */}
-        <div className="absolute top-3 right-3 bg-white/95 backdrop-blur-md border border-black/10 px-2.5 py-1.5 rounded-lg shadow-sm flex flex-col items-center justify-center group-hover:scale-105 transition-transform">
+        <div className="absolute top-3 right-3 bg-white/95 backdrop-blur-md border border-black/10 px-2.5 py-1.5 shadow-sm flex flex-col items-center justify-center group-hover:scale-105 transition-transform">
           <span className="font-black text-sm text-black leading-none">{day}</span>
           <span className="font-bold text-[9px] text-black/60 uppercase tracking-widest mt-1 leading-none">{monthYear?.split(' ')[0]}</span>
         </div>
@@ -627,7 +582,7 @@ function MeetupCard({ meetup, index, onClick }: MeetupCardProps) {
                 return (
                   <span 
                     key={hi} 
-                    className="font-semibold text-black/70 text-xs bg-gray-100 px-2 py-0.5 rounded-md"
+                    className="font-semibold text-black/70 text-xs bg-gray-100 px-2 py-0.5"
                     title={host}
                   >
                     {username}
@@ -645,7 +600,7 @@ function MeetupCard({ meetup, index, onClick }: MeetupCardProps) {
               href={meetup["Instagram Post"].trim()}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-pink-50 border border-pink-100 rounded-lg hover:bg-pink-100 transition-colors text-pink-600"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-pink-50 border border-pink-100 hover:bg-pink-100 transition-colors text-pink-600"
             >
               <FaInstagram size={14} />
               <span className="font-bold text-xs uppercase tracking-wider">View Memories</span>
@@ -695,14 +650,14 @@ function GalleryCard({ row, index, isTopPick }: { row: GalleryRow; index: number
       }}
       whileHover={{ scale: 1.025, rotate: index % 2 === 0 ? -0.8 : 0.8, y: -6,
         transition: { duration: 0.25, ease: "easeOut" } }}
-      className="break-inside-avoid border border-black/10 bg-[#fdfbf7] shadow-[2px_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[4px_12px_24px_rgba(0,0,0,0.15)] transition-shadow duration-200 cursor-pointer flex flex-col relative group overflow-hidden rounded-sm mb-4 sm:mb-6 md:mb-8 w-full"
+      className="break-inside-avoid border border-black/10 bg-[#fbf3df] shadow-[2px_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[4px_12px_24px_rgba(0,0,0,0.15)] transition-shadow duration-200 cursor-pointer flex flex-col relative group overflow-hidden rounded-sm mb-4 sm:mb-6 md:mb-8 w-full"
     >
       {/* Window chrome: traffic lights (left) + category badge (right) */}
-      <div className="w-full h-8 border-b border-black/10 bg-[#f4f0e6] flex items-center justify-between px-3 shrink-0">
+      <div className="w-full h-8 border-b border-black/10 bg-[#f5e9cf] flex items-center justify-between px-3 shrink-0">
         <div className="flex gap-2">
-          <div className="w-2.5 h-2.5 rounded-full border border-black/20 bg-[#ff5757]/80"></div>
-          <div className="w-2.5 h-2.5 rounded-full border border-black/20 bg-[#ffc900]/80"></div>
-          <div className="w-2.5 h-2.5 rounded-full border border-black/20 bg-[#6fcf97]/80"></div>
+          <div className="w-2.5 h-2.5 rounded-full border border-black/20 bg-[#c8102e]/80"></div>
+          <div className="w-2.5 h-2.5 rounded-full border border-black/20 bg-[#f6b51e]/80"></div>
+          <div className="w-2.5 h-2.5 rounded-full border border-black/20 bg-[#e3a936]/80"></div>
         </div>
         <span className={`inline-block px-2 py-0.5 border border-black/10 text-black/70 text-[9px] font-bold uppercase shadow-sm rounded-sm ${getCategoryBadgeColor(row.Category)}`}>
           {row.Category}
@@ -710,10 +665,10 @@ function GalleryCard({ row, index, isTopPick }: { row: GalleryRow; index: number
       </div>
 
       {/* Image Container */}
-      <div className="relative w-full bg-[#f4f0e6] overflow-hidden border-b border-black/10">
+      <div className="relative w-full bg-[#f5e9cf] overflow-hidden border-b border-black/10">
         {/* Top Pick Badge (on the image) */}
         {isTopPick && (
-          <div className="absolute top-2 right-2 z-20 bg-[#ffc900]/90 border border-black/10 px-2 py-1 shadow-sm transform rotate-2 flex items-center gap-1 font-bold text-[10px] uppercase rounded-sm backdrop-blur-sm">
+          <div className="absolute top-2 right-2 z-20 bg-[#f6b51e]/90 border border-black/10 px-2 py-1 shadow-sm transform rotate-2 flex items-center gap-1 font-bold text-[10px] uppercase rounded-sm backdrop-blur-sm">
             🔥 Top Pick
           </div>
         )}
@@ -750,7 +705,7 @@ function GalleryCard({ row, index, isTopPick }: { row: GalleryRow; index: number
         <motion.button 
           whileTap={{ scale: 0.85 }}
           onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleLike(); }}
-          className={`shrink-0 flex items-center gap-1.5 h-8 px-2.5 rounded-sm border border-black/10 font-bold text-xs shadow-sm active:translate-y-0.5 active:shadow-none transition-all cursor-pointer ${hasLiked ? "bg-[#ff5757]/90 text-white" : "bg-white text-black hover:bg-[#f4f0e6]"}`}
+          className={`shrink-0 flex items-center gap-1.5 h-8 px-2.5 rounded-sm border border-black/10 font-bold text-xs shadow-sm active:translate-y-0.5 active:shadow-none transition-all cursor-pointer ${hasLiked ? "bg-[#c8102e]/90 text-white" : "bg-white text-black hover:bg-[#f5e9cf]"}`}
         >
           <Heart size={13} className={hasLiked ? "fill-white text-white" : "text-black"} strokeWidth={hasLiked ? 0 : 2} />
           <span>{likeCount}</span>
@@ -1004,7 +959,9 @@ export default function GalleryPage() {
   }, [rows, activeTab, searchQuery, allLikes]);
 
   return (
-    <div className="min-h-screen flex flex-col font-sans selection:bg-black selection:text-white bg-[#f8f5eb] relative">
+    <div className="kz-font min-h-screen flex flex-col selection:bg-[#e2387a]/30 bg-[#f5e9cf] relative">
+      <KzHeader />
+      <PageHero ground="marigold" title={["Gallery"]} intro="Photos, memes and memories from meetups and events across India." />
       <ScrapbookNavbar 
         selectedRegion={selectedRegion} 
         onBackToRegions={() => setSelectedRegion(null)} 
@@ -1041,13 +998,13 @@ export default function GalleryPage() {
           {!loading && !error && activeTab === "Meetups" && !selectedRegion && (
             <div className="max-w-4xl mx-auto mb-8 flex justify-center gap-4">
               {/* Regions Badge */}
-              <div className="flex items-center gap-2 px-5 py-2.5 bg-[#fdfbf7] border border-black/10 font-bold uppercase tracking-wide shadow-sm text-sm md:text-base rounded-sm transform -rotate-1">
+              <div className="flex items-center gap-2 px-5 py-2.5 bg-[#fbf3df] border border-black/10 font-bold uppercase tracking-wide shadow-sm text-sm md:text-base rounded-sm transform -rotate-1">
                 <Folder size={18} className="text-black/80" />
                 <span>{uniqueRegions.length} Regions</span>
               </div>
               
               {/* Archives Badge */}
-              <div className="flex items-center gap-2 px-5 py-2.5 bg-[#ffc900]/90 border border-black/10 font-bold uppercase tracking-wide shadow-sm text-sm md:text-base rounded-sm transform rotate-1">
+              <div className="flex items-center gap-2 px-5 py-2.5 bg-[#f6b51e]/90 border border-black/10 font-bold uppercase tracking-wide shadow-sm text-sm md:text-base rounded-sm transform rotate-1">
                 <Zap size={18} className="text-black/80 fill-black/80" />
                 <span>{meetups.length} Archives</span>
               </div>
@@ -1061,7 +1018,7 @@ export default function GalleryPage() {
                 href="https://docs.google.com/forms/d/e/1FAIpQLSd-_J0oyeosBlrEkVFYDyUPvKOIhighKdzm_ngR2j4kFuAZyw/viewform?usp=header"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-1.5 h-10 px-4 border border-black/10 bg-[#ffc900]/90 text-black font-bold uppercase text-xs tracking-wide shadow-sm hover:-translate-y-0.5 hover:shadow-md transition-all cursor-pointer rounded-sm shrink-0"
+                className="flex items-center gap-1.5 h-10 px-4 border border-black/10 bg-[#f6b51e]/90 text-black font-bold uppercase text-xs tracking-wide shadow-sm hover:-translate-y-0.5 hover:shadow-md transition-all cursor-pointer rounded-sm shrink-0"
               >
                 <span>Add Post ↗</span>
               </a>
@@ -1073,8 +1030,8 @@ export default function GalleryPage() {
             <div className="flex flex-col gap-8 pt-4">
               <div className="flex flex-col items-center justify-center py-10 gap-3">
                 <div className="relative w-12 h-12 flex items-center justify-center">
-                  <div className="absolute inset-0 border-[3px] border-black/10 border-t-[#ffc900] rounded-full animate-spin"></div>
-                  <div className="absolute w-8 h-8 border-[3px] border-transparent border-t-[#6fcf97] rounded-full animate-spin [animation-direction:reverse]"></div>
+                  <div className="absolute inset-0 border-[3px] border-black/10 border-t-[#f6b51e] rounded-full animate-spin"></div>
+                  <div className="absolute w-8 h-8 border-[3px] border-transparent border-t-[#e3a936] rounded-full animate-spin [animation-direction:reverse]"></div>
                 </div>
                 <p className="font-bold uppercase text-xs tracking-wider text-black/50 animate-pulse mt-2">
                   Curating the gallery…
@@ -1087,8 +1044,8 @@ export default function GalleryPage() {
           {/* Error state */}
           {!loading && error && (
             <div className="flex flex-col items-center justify-center py-24 gap-6">
-              <div className="border border-black/10 bg-[#ff5757]/10 shadow-md p-8 md:p-12 max-w-lg w-full text-center flex flex-col items-center gap-4 rounded-sm">
-                <AlertTriangle size={52} strokeWidth={2} className="text-[#ff5757]" />
+              <div className="border border-black/10 bg-[#c8102e]/10 shadow-md p-8 md:p-12 max-w-lg w-full text-center flex flex-col items-center gap-4 rounded-sm">
+                <AlertTriangle size={52} strokeWidth={2} className="text-[#c8102e]" />
                 <h2 className="font-bold text-3xl tracking-wide text-black">Oops!</h2>
                 <p className="font-medium text-black/80 text-sm">{error}</p>
                 <button
@@ -1130,7 +1087,7 @@ export default function GalleryPage() {
                       <motion.div
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        className="text-center py-20 border border-black/10 bg-[#fdfbf7] shadow-md max-w-xl mx-auto mt-12 rounded-sm"
+                        className="text-center py-20 border border-black/10 bg-[#fbf3df] shadow-md max-w-xl mx-auto mt-12 rounded-sm"
                       >
                         <ImageIcon size={64} className="mx-auto mb-6 text-black/20" strokeWidth={1} />
                         <h2 className="text-2xl font-bold text-black/80 tracking-wide">No Meetups Found</h2>
@@ -1161,7 +1118,7 @@ export default function GalleryPage() {
                       <motion.div
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        className="text-center py-20 border border-black/10 bg-[#fdfbf7] shadow-md max-w-xl mx-auto mt-12 rounded-sm"
+                        className="text-center py-20 border border-black/10 bg-[#fbf3df] shadow-md max-w-xl mx-auto mt-12 rounded-sm"
                       >
                         <Folder size={64} className="mx-auto mb-6 text-black/20" strokeWidth={1} />
                         <h2 className="text-2xl font-bold text-black/80 tracking-wide">No Regions Match</h2>
@@ -1189,7 +1146,7 @@ export default function GalleryPage() {
                     key="empty"
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className="text-center py-20 border border-black/10 bg-[#fdfbf7] shadow-md max-w-xl mx-auto mt-12 rounded-sm"
+                    className="text-center py-20 border border-black/10 bg-[#fbf3df] shadow-md max-w-xl mx-auto mt-12 rounded-sm"
                   >
                     <ImageIcon size={64} className="mx-auto mb-6 text-black/20" strokeWidth={1} />
                     <h2 className="text-2xl font-bold text-black/80 tracking-wide">No Matching Items</h2>
@@ -1233,7 +1190,7 @@ export default function GalleryPage() {
 
                 {/* Poster side */}
                 <div className="w-full lg:w-[45%] flex items-center justify-center p-6 lg:p-10 bg-gray-50 border-b lg:border-b-0 lg:border-r border-black/5 shrink-0 max-h-[40vh] lg:max-h-none">
-                  <div className="relative h-full lg:h-auto lg:w-full aspect-[3/4] max-w-[280px] lg:max-w-none rounded-xl overflow-hidden shadow-lg bg-white border border-black/5">
+                  <div className="relative h-full lg:h-auto lg:w-full aspect-[3/4] max-w-[280px] lg:max-w-none overflow-hidden shadow-lg bg-white border border-black/5">
                     <CanvaModalEmbed url={selectedMeetup.Poster} />
                   </div>
                 </div>
@@ -1243,7 +1200,7 @@ export default function GalleryPage() {
                   
                   {/* Region Label */}
                   <div className="mb-4">
-                    <span className="inline-block px-3 py-1 bg-green-100 text-green-800 text-xs font-bold uppercase tracking-widest rounded-md">
+                    <span className="inline-block px-3 py-1 bg-green-100 text-green-800 text-xs font-bold uppercase tracking-widest">
                       {selectedMeetup.Region} Region
                     </span>
                   </div>
@@ -1256,8 +1213,8 @@ export default function GalleryPage() {
                   </div>
 
                   {/* Date & Time */}
-                  <div className="mb-8 flex items-start gap-4 p-4 lg:p-5 bg-gray-50 rounded-xl border border-black/5">
-                    <div className="flex flex-col items-center justify-center bg-white border border-black/10 rounded-lg px-4 py-2 shadow-sm shrink-0">
+                  <div className="mb-8 flex items-start gap-4 p-4 lg:p-5 bg-gray-50 border border-black/5">
+                    <div className="flex flex-col items-center justify-center bg-white border border-black/10 px-4 py-2 shadow-sm shrink-0">
                       <span className="font-black text-2xl leading-none text-black">{day}</span>
                       <span className="font-bold text-[10px] uppercase tracking-widest mt-1 text-black/60">{monthYear?.split(' ')[0]}</span>
                     </div>
@@ -1289,7 +1246,7 @@ export default function GalleryPage() {
                                   href={`https://instagram.com/${username}`}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-sm font-semibold text-black rounded-lg transition-colors"
+                                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-sm font-semibold text-black transition-colors"
                                 >
                                   <FaInstagram size={14} className="text-pink-600" />
                                   <span>@{username}</span>
@@ -1310,7 +1267,7 @@ export default function GalleryPage() {
                          href={selectedMeetup["Instagram Post"].trim()}
                          target="_blank"
                          rel="noopener noreferrer"
-                         className="w-full flex items-center justify-center gap-2 py-3.5 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold text-sm tracking-widest uppercase shadow-md hover:shadow-lg transition-all rounded-xl"
+                         className="w-full flex items-center justify-center gap-2 py-3.5 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold text-sm tracking-widest uppercase shadow-md hover:shadow-lg transition-all"
                       >
                         <FaInstagram size={16} />
                         <span>View Memories on Instagram</span>
@@ -1324,7 +1281,7 @@ export default function GalleryPage() {
         })()}
       </AnimatePresence>
 
-      <ScrapbookFooter />
+      <KzFooter />
     </div>
   );
 }

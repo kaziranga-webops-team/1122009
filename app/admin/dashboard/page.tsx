@@ -134,7 +134,6 @@ export default function AdminDashboardPage() {
 
       <div className="space-y-8">
         <SectionHeading
-          eyebrow="Admin control"
           title="Event operations"
           description="Manage event lifecycles, review participant data and generate export reports."
           size="lg"

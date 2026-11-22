@@ -7,6 +7,7 @@ import { ArrowRight, ArrowUpRight, BookOpen, CalendarDays, HeartHandshake, Crown
 import { FaInstagram, FaWhatsapp, FaYoutube } from "react-icons/fa";
 import Ambient from "@/components/kz/Ambient";
 import { JOIN_URL } from "@/components/kz/KzHeader";
+import { ChapterTitle } from "@/components/kz/Motifs";
 import { Rhino } from "@/components/kz/Scene";
 import { vars } from "@/components/kz/util";
 
@@ -63,37 +64,26 @@ export function RevealWords({ lines, className = "", as: Tag = "h2" }: { lines: 
   );
 }
 
-/** Heading left, short intro right — the section opener used across the site. */
+/** The chapter opener used across the site: a hanging title, then a short intro. */
 export function SectionHead({
-  label,
   title,
   intro,
   dark = false,
 }: {
-  label?: string;
   title: string[] | React.ReactNode;
   intro?: React.ReactNode;
   dark?: boolean;
 }) {
   return (
-    <div className="mx-auto grid max-w-[90rem] gap-6 px-5 pb-10 pt-20 sm:px-8 md:px-12 md:pb-14 md:pt-28 lg:grid-cols-[1.3fr_1fr] lg:items-end">
-      <div>
-        {label && (
-          <Reveal>
-            <p className={`kz-eyebrow mb-5 ${dark ? "kz-eyebrow--light" : ""}`}>{label}</p>
-          </Reveal>
-        )}
-        {Array.isArray(title) ? (
-          <RevealWords lines={title as string[]} className="kz-h2" />
-        ) : (
-          <Reveal>
-            <h2 className="kz-h2">{title}</h2>
-          </Reveal>
-        )}
-      </div>
+    <div className="mx-auto max-w-[90rem] px-5 pb-10 pt-20 sm:px-8 md:px-12 md:pb-14 md:pt-28">
+      <Reveal>
+        <ChapterTitle className={dark ? "text-[#f6b51e]" : ""} offset={dark ? "#c8102e" : undefined}>
+          {Array.isArray(title) ? (title as string[]).join(" ") : title}
+        </ChapterTitle>
+      </Reveal>
       {intro && (
-        <Reveal i={2}>
-          <p className={`kz-lead max-w-xl ${dark ? "text-[#c9d8c9]" : "text-[#3f5a52]"}`}>{intro}</p>
+        <Reveal i={2} className="mt-6">
+          <p className={`kz-lead max-w-xl ${dark ? "text-[#e9dcc0]" : "text-[#5e4a35]"}`}>{intro}</p>
         </Reveal>
       )}
     </div>
@@ -212,7 +202,7 @@ function FogTransition() {
   return (
     <div ref={ref} aria-hidden="true" className="relative z-[1] -mb-[2px] -mt-px h-[clamp(19rem,34vw,30rem)] overflow-hidden">
       {/* the air: deep forest at the top, misty sage, then cream */}
-      <div className="absolute inset-0 bg-[linear-gradient(180deg,#00332a_0%,#164a3e_18%,#4f7d6f_38%,#9dbcad_56%,#d9e6d2_72%,#f9fbe5_86%)]" />
+      <div className="absolute inset-0 bg-[linear-gradient(180deg,#0a3b2f_0%,#164a3e_18%,#4f7d6f_38%,#9dbcad_56%,#d9e6d2_72%,#f5e9cf_86%)]" />
 
       {/* warm morning light through the haze */}
       <motion.div
@@ -243,7 +233,7 @@ function FogTransition() {
         <path d={CANOPY_FAR} fill="#1d5446" />
       </motion.svg>
       <motion.svg style={{ y: canopyNear }} viewBox="0 0 1440 170" preserveAspectRatio="none" className="absolute inset-x-0 -top-[4%] h-[40%] w-full">
-        <path d={CANOPY_NEAR} fill="#00332a" />
+        <path d={CANOPY_NEAR} fill="#0a3b2f" />
       </motion.svg>
 
       <Ambient birds={4} specks={0} seed={19} sky={[42, 62]} />
@@ -259,7 +249,7 @@ function FogTransition() {
       </div>
 
       {/* a last cream fade over everything, so the edge into the next section is invisible */}
-      <div className="absolute inset-x-0 bottom-0 h-[22%] bg-[linear-gradient(180deg,rgba(249,251,229,0),#f9fbe5_85%)]" />
+      <div className="absolute inset-x-0 bottom-0 h-[22%] bg-[linear-gradient(180deg,rgba(249,251,229,0),#f5e9cf_85%)]" />
     </div>
   );
 }
@@ -273,13 +263,10 @@ export function AboutIntro() {
   return (
     <section
       id="about"
-      className="kz-font relative z-10 -mt-[clamp(2rem,4vw,3.5rem)] scroll-mt-[var(--kz-header-h)] rounded-t-[clamp(2rem,4vw,3.5rem)] bg-[#00332a] text-[#f9fbe5] shadow-[0_-24px_50px_-26px_rgba(0,20,15,0.55)]"
+      className="kz-font relative z-10 -mt-[clamp(2rem,4vw,3.5rem)] scroll-mt-[var(--kz-header-h)] rounded-t-[clamp(2rem,4vw,3.5rem)] bg-[#0a3b2f] text-[#f5e9cf] shadow-[0_-24px_50px_-26px_rgba(0,20,15,0.55)]"
     >
       <div className="kz-jaali rounded-t-[inherit]">
         <div className="mx-auto max-w-[90rem] px-5 pb-12 pt-14 sm:px-8 md:px-12 md:pb-16 md:pt-20">
-          <Reveal>
-            <p className="kz-eyebrow kz-eyebrow--light mb-7">About us</p>
-          </Reveal>
           <div className="grid gap-10 lg:grid-cols-[1.5fr_1fr] lg:items-end">
             <p ref={textRef} className="kz-serif text-[clamp(1.55rem,3vw,2.7rem)] font-medium leading-[1.25]">
               {reduce
@@ -287,10 +274,10 @@ export function AboutIntro() {
                 : words.map((w, i) => <FillWord key={i} word={w} progress={fill} range={[i / words.length, (i + 1) / words.length]} />)}
             </p>
             <Reveal i={1} className="lg:pb-2">
-              <p className="kz-lead max-w-md text-[#c9d8c9]">
+              <p className="kz-lead max-w-md text-[#e9dcc0]">
                 Kaziranga House is one of the student houses of the IIT Madras BS Degree — 5,000+ members who meet up, study, compete and build things together.
               </p>
-              <Link href="/council" className="group mt-6 inline-flex items-center gap-2 font-semibold text-[#ecd394]">
+              <Link href="/council" className="group mt-6 inline-flex items-center gap-2 font-semibold text-[#f2c66b]">
                 Meet the people who run it
                 <ArrowRight size={17} className="transition-transform duration-300 group-hover:translate-x-1" />
               </Link>
@@ -302,15 +289,15 @@ export function AboutIntro() {
               <li key={v.label}>
                 <Reveal i={i} className="h-full">
                   <div
-                    className="group relative h-full overflow-hidden rounded-[1.5rem] p-6 text-[#002820] transition-[transform,box-shadow] duration-500 [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-1 hover:shadow-[0_24px_40px_-24px_rgba(0,0,0,0.55)]"
+                    className="group relative h-full overflow-hidden rounded-[1.5rem] p-6 text-[#1c130c] transition-[transform,box-shadow] duration-500 [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-1 hover:shadow-[0_24px_40px_-24px_rgba(0,0,0,0.55)]"
                     style={{ background: v.bg }}
                   >
                     <span aria-hidden="true" className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-white/40 transition-transform duration-700 group-hover:scale-125" />
-                    <span className="relative grid h-12 w-12 place-items-center rounded-full bg-[#006255] text-[#f9fbe5]">
+                    <span className="relative grid h-12 w-12 place-items-center rounded-full bg-[#0f5e48] text-[#f5e9cf]">
                       <v.Icon size={21} strokeWidth={1.7} />
                     </span>
                     <h3 className="kz-serif relative mt-5 text-[1.25rem]">{v.label}</h3>
-                    <p className="kz-body relative mt-2 text-[#2f4a43]">{v.text}</p>
+                    <p className="kz-body relative mt-2 text-[#4a3a29]">{v.text}</p>
                   </div>
                 </Reveal>
               </li>
@@ -329,16 +316,16 @@ export function AboutIntro() {
 const STEPS = [
   { n: "01", title: "Say hi", text: "Fill the two-minute form and get added to the house WhatsApp groups.", cta: "Join the community", href: JOIN_URL, external: true, Icon: FaWhatsapp, tag: "only 2 minutes!", bg: "#dcebd8", dark: false, tilt: -2.4, delay: "0s" },
   { n: "02", title: "Show up", text: "Find a meetup in your city — chai, treks and long conversations.", cta: "Find a meetup", href: "/meetups", external: false, Icon: MapPin, tag: "bring a friend :)", bg: "#c6e3cf", dark: false, tilt: 1.8, delay: "-1.9s" },
-  { n: "03", title: "Jump in", text: "Catch a guest session, enter Aarohan, or help run the next event.", cta: "See events", href: "/events", external: false, Icon: PartyPopper, tag: "pick anything!", bg: "#006255", dark: true, tilt: -1.4, delay: "-3.3s" },
+  { n: "03", title: "Jump in", text: "Catch a guest session, enter Aarohan, or help run the next event.", cta: "See events", href: "/events", external: false, Icon: PartyPopper, tag: "pick anything!", bg: "#0f5e48", dark: true, tilt: -1.4, delay: "-3.3s" },
 ];
 
 /** A little wooden clothes peg that clips each card to the rope. */
 function Peg() {
   return (
-    <svg aria-hidden="true" viewBox="0 0 22 48" className="absolute left-1/2 top-[-34px] z-20 h-12 w-[22px] -translate-x-1/2 drop-shadow-[0_3px_2px_rgba(0,40,32,0.25)]">
+    <svg aria-hidden="true" viewBox="0 0 22 48" className="absolute left-1/2 top-[-34px] z-20 h-12 w-[22px] -translate-x-1/2 drop-shadow-[0_3px_2px_rgba(28,19,12,0.25)]">
       <rect x="2.5" y="1" width="17" height="46" rx="3.5" fill="#d7b46a" />
       <rect x="2.5" y="1" width="8.5" height="46" rx="3.5" fill="#e6c98a" />
-      <rect x="10.3" y="1" width="1.4" height="46" fill="#8a6522" />
+      <rect x="10.3" y="1" width="1.4" height="46" fill="#9c5d14" />
       <circle cx="11" cy="17" r="3.4" fill="none" stroke="#6b4e17" strokeWidth="1.6" />
     </svg>
   );
@@ -351,17 +338,14 @@ export function StartHere() {
   const draw = useTransform(scrollYProgress, [0, 1], [reduce ? 1 : 0, 1]);
 
   return (
-    <section ref={ref} id="start" className="kz-font relative scroll-mt-[var(--kz-header-h)] bg-[#f9fbe5] pb-20 pt-4 text-[#002820] md:pb-28">
+    <section ref={ref} id="start" className="kz-font relative scroll-mt-[var(--kz-header-h)] bg-[#f5e9cf] pb-20 pt-4 text-[#1c130c] md:pb-28">
       <div className="mx-auto max-w-[90rem] px-5 sm:px-8 md:px-12">
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
-            <Reveal>
-              <p className="kz-eyebrow mb-5">New here?</p>
-            </Reveal>
             <RevealWords lines={["Three steps", "into the house"]} className="kz-h2" />
           </div>
           <Reveal i={2}>
-            <p className="kz-lead max-w-sm text-[#3f5a52]">No applications, no fees. Most members are in a group chat within the hour.</p>
+            <p className="kz-lead max-w-sm text-[#5e4a35]">No applications, no fees. Most members are in a group chat within the hour.</p>
           </Reveal>
         </div>
 
@@ -371,7 +355,7 @@ export function StartHere() {
             <motion.path
               d="M-30 4Q90 40 200 24Q400 58 600 24Q800 58 1000 24Q1110 40 1230 4"
               fill="none"
-              stroke="#8a6522"
+              stroke="#9c5d14"
               strokeWidth="2.6"
               strokeLinecap="round"
               style={{ pathLength: draw }}
@@ -405,30 +389,30 @@ export function StartHere() {
                       <Wrapper
                         href={s.href}
                         {...(s.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-                        className="group relative flex h-full min-h-[17.5rem] flex-col justify-between overflow-hidden rounded-[1.5rem] p-7 shadow-[0_22px_36px_-26px_rgba(0,40,32,0.6)] transition-[transform,box-shadow] duration-500 [transition-timing-function:cubic-bezier(0.34,1.4,0.64,1)] hover:-translate-y-1.5 hover:scale-[1.02] hover:shadow-[0_30px_46px_-26px_rgba(0,40,32,0.6)] md:p-8"
-                        style={{ background: s.bg, color: s.dark ? "#f9fbe5" : "#002820" }}
+                        className="group relative flex h-full min-h-[17.5rem] flex-col justify-between overflow-hidden rounded-[1.5rem] p-7 shadow-[0_22px_36px_-26px_rgba(28,19,12,0.6)] transition-[transform,box-shadow] duration-500 [transition-timing-function:cubic-bezier(0.34,1.4,0.64,1)] hover:-translate-y-1.5 hover:scale-[1.02] hover:shadow-[0_30px_46px_-26px_rgba(28,19,12,0.6)] md:p-8"
+                        style={{ background: s.bg, color: s.dark ? "#f5e9cf" : "#1c130c" }}
                       >
                         <span
                           aria-hidden="true"
                           className={`absolute -bottom-16 -right-12 h-44 w-44 rounded-full transition-transform duration-700 group-hover:scale-125 ${s.dark ? "bg-white/[0.07]" : "bg-white/40"}`}
                         />
                         <span className="relative flex items-center justify-between">
-                          <span className={`kz-serif text-[2.6rem] leading-none ${s.dark ? "text-[#ecd394]" : "text-[#8a6522]"}`}>{s.n}</span>
-                          <span className="grid h-12 w-12 place-items-center rounded-full bg-[#f9fbe5] text-[#006255] transition-transform duration-500 group-hover:rotate-[-12deg] group-hover:scale-110">
+                          <span className={`kz-serif text-[2.6rem] leading-none ${s.dark ? "text-[#f2c66b]" : "text-[#9c5d14]"}`}>{s.n}</span>
+                          <span className="grid h-12 w-12 place-items-center rounded-full bg-[#f5e9cf] text-[#0f5e48] transition-transform duration-500 group-hover:rotate-[-12deg] group-hover:scale-110">
                             <s.Icon size={20} />
                           </span>
                         </span>
                         <span className="relative">
                           <h3 className="kz-serif text-[1.7rem]">{s.title}</h3>
-                          <p className={`kz-body mt-2 ${s.dark ? "text-[#d5e3d9]" : "text-[#2f4a43]"}`}>{s.text}</p>
+                          <p className={`kz-body mt-2 ${s.dark ? "text-[#e9dcc0]" : "text-[#4a3a29]"}`}>{s.text}</p>
                           <span className="mt-6 flex flex-wrap items-end justify-between gap-x-4 gap-y-1">
-                            <span className={`inline-flex items-center gap-2 whitespace-nowrap text-sm font-bold ${s.dark ? "text-[#f9fbe5]" : "text-[#006255]"}`}>
+                            <span className={`inline-flex items-center gap-2 whitespace-nowrap text-sm font-bold ${s.dark ? "text-[#f5e9cf]" : "text-[#0f5e48]"}`}>
                               {s.cta}
                               <ArrowRight size={16} className="transition-transform duration-300 group-hover:translate-x-1" />
                             </span>
                             {/* a handwritten note, like one scribbled on the card */}
                             <span
-                              className={`inline-block -rotate-[5deg] whitespace-nowrap text-[1.3rem] leading-none [font-family:Caveat,cursive] ${s.dark ? "text-[#ecd394]" : "text-[#6b4e17]"}`}
+                              className={`inline-block -rotate-[5deg] whitespace-nowrap text-[1.3rem] leading-none [font-family:Caveat,cursive] ${s.dark ? "text-[#f2c66b]" : "text-[#6b4e17]"}`}
                             >
                               {s.tag}
                             </span>
@@ -452,22 +436,21 @@ export function StartHere() {
 // The site's four doors, in the logo's greens with the original circle design.
 // Dark cards carry cream text and a brass number; the light one, ink.
 const CELLS = [
-  { title: "Meetups", href: "/meetups", Icon: Users, bg: "#006255", dark: true, text: "In-person meetups in cities across India, and the photos to remember them by." },
-  { title: "Events", href: "/events", Icon: CalendarDays, bg: "#00332a", dark: true, text: "Guest sessions, Community Day, Aarohan and Curiosity Hour — live and recorded." },
+  { title: "Meetups", href: "/meetups", Icon: Users, bg: "#0f5e48", dark: true, text: "In-person meetups in cities across India, and the photos to remember them by." },
+  { title: "Events", href: "/events", Icon: CalendarDays, bg: "#0a3b2f", dark: true, text: "Guest sessions, Community Day, Aarohan and Curiosity Hour — live and recorded." },
   { title: "Study Zone", href: "/study", Icon: BookOpen, bg: "#96b4a5", dark: false, text: "Planners, resources and revision sessions for the IIT Madras BS Degree." },
   { title: "Kaziranga Tak", href: "/tak", Icon: Mic, bg: "#1f4d43", dark: true, text: "Short videos and stories about what's happening in the house." },
 ];
 
 export function WhatWeDo() {
   return (
-    <section id="what-we-do" className="kz-font bg-[#f9fbe5] text-[#002820]">
+    <section id="what-we-do" className="kz-font bg-[#f5e9cf] text-[#1c130c]">
       <div className="mx-auto max-w-[90rem] px-5 sm:px-8 md:px-12">
         <div className="kz-rule">
           <span className="text-[0.7rem]">◆</span>
         </div>
       </div>
       <SectionHead
-        label="What we do"
         title={["Everything", "the house does"]}
         intro="From weekend meetups to guest sessions and study plans — here is where the 5,000+ members of Kaziranga House spend their time together."
       />
@@ -476,8 +459,8 @@ export function WhatWeDo() {
           <Reveal key={c.title} i={i}>
             <Link
               href={c.href}
-              className="kz-jaali group relative flex h-full min-h-[19rem] flex-col justify-between overflow-hidden rounded-[1.6rem] p-7 transition-[transform,box-shadow] duration-500 [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-1.5 hover:shadow-[0_28px_46px_-28px_rgba(0,40,32,0.6)] md:p-8"
-              style={{ backgroundColor: c.bg, color: c.dark ? "#f9fbe5" : "#002820" }}
+              className="kz-jaali group relative flex h-full min-h-[19rem] flex-col justify-between overflow-hidden rounded-[1.6rem] p-7 transition-[transform,box-shadow] duration-500 [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-1.5 hover:shadow-[0_28px_46px_-28px_rgba(28,19,12,0.6)] md:p-8"
+              style={{ backgroundColor: c.bg, color: c.dark ? "#f5e9cf" : "#1c130c" }}
             >
               <span aria-hidden="true" className="absolute -right-16 -top-16 h-52 w-52 rounded-full bg-white/10 transition-transform duration-700 group-hover:scale-[1.3]" />
               <span aria-hidden="true" className="absolute -bottom-20 -left-10 h-40 w-40 rounded-full bg-black/[0.06] transition-transform duration-700 group-hover:translate-x-5" />
@@ -490,7 +473,7 @@ export function WhatWeDo() {
                 </span>
               </span>
               <span className="relative">
-                <span className={`text-[0.72rem] font-bold tracking-[0.2em] ${c.dark ? "text-[#ecd394]" : "text-[#3d2c0c]"}`}>0{i + 1}</span>
+                <span className={`text-[0.72rem] font-bold tracking-[0.2em] ${c.dark ? "text-[#f2c66b]" : "text-[#3d2c0c]"}`}>0{i + 1}</span>
                 <h3 className="kz-serif mt-2 text-[1.65rem]">{c.title}</h3>
                 <p className="kz-body mt-2 opacity-85">{c.text}</p>
               </span>
@@ -506,23 +489,22 @@ export function WhatWeDo() {
 /* ═══ Join: a calm closing panel with Kaz, and the ways in ═════════ */
 
 const JOIN_CELLS = [
-  { title: "WhatsApp community", text: "Fill the short form and get added to the house groups.", href: JOIN_URL, Icon: FaWhatsapp, cta: "Join the groups", bg: "#006255", dark: true, red: false },
+  { title: "WhatsApp community", text: "Fill the short form and get added to the house groups.", href: JOIN_URL, Icon: FaWhatsapp, cta: "Join the groups", bg: "#0f5e48", dark: true, red: false },
   { title: "Instagram", text: "Meetup photos, event posters and Kaziranga Tak reels.", href: INSTAGRAM, Icon: FaInstagram, cta: "Follow us", bg: "#dcebd8", dark: false, red: false },
-  { title: "YouTube", text: "Recorded guest sessions and Curiosity Hour talks.", href: YOUTUBE, Icon: FaYoutube, cta: "Watch sessions", bg: "#00332a", dark: true, red: true },
+  { title: "YouTube", text: "Recorded guest sessions and Curiosity Hour talks.", href: YOUTUBE, Icon: FaYoutube, cta: "Watch sessions", bg: "#0a3b2f", dark: true, red: true },
 ];
 
 export function JoinFinale() {
   return (
-    <section id="join" className="kz-font relative overflow-hidden bg-[#f9fbe5] pb-20 pt-20 text-[#002820] md:pb-28 md:pt-28">
+    <section id="join" className="kz-font relative overflow-hidden bg-[#f5e9cf] pb-20 pt-20 text-[#1c130c] md:pb-28 md:pt-28">
       <div className="mx-auto max-w-[90rem] px-5 sm:px-8 md:px-12">
         <Reveal>
-          <div className="kz-corners relative isolate overflow-hidden rounded-[2rem] border border-[#002820]/10 bg-[#eef1dc] md:rounded-[2.5rem]">
+          <div className="kz-corners relative isolate overflow-hidden rounded-[2rem] border border-[#1c130c]/10 bg-[#ebd9b2] md:rounded-[2.5rem]">
             <div className="grid items-center gap-4 p-8 sm:p-12 lg:grid-cols-[1.15fr_1fr] lg:gap-10 lg:p-16">
               <div className="relative z-10">
-                <p className="kz-eyebrow">Join us</p>
-                <RevealWords lines={["Be a part of", "Kaziranga House."]} className="kz-h2 mt-5" />
+                <RevealWords lines={["Be a part of", "Kaziranga House."]} className="kz-h2" />
                 <Reveal i={2}>
-                  <p className="kz-lead mt-6 max-w-lg text-[#3f5a52]">
+                  <p className="kz-lead mt-6 max-w-lg text-[#5e4a35]">
                     Every IIT Madras BS student in the house is welcome. Say hello, come to a meetup, or help run the next event — 5,000+ members are already in.
                   </p>
                 </Reveal>
@@ -541,9 +523,9 @@ export function JoinFinale() {
               {/* Kaz on his rock, in front of a pale sun ringed in brass */}
               <div className="relative mx-auto w-full max-w-[26rem]">
                 <div className="relative aspect-square">
-                  <span aria-hidden="true" className="absolute inset-[14%] rounded-full bg-[#f9fbe5]" />
+                  <span aria-hidden="true" className="absolute inset-[14%] rounded-full bg-[#f5e9cf]" />
                   <svg aria-hidden="true" viewBox="0 0 100 100" className="kz-spin absolute inset-[4%] h-[92%] w-[92%]" style={vars({ "--d": "90s" })}>
-                    <circle cx="50" cy="50" r="48" fill="none" stroke="#c9a24a" strokeWidth="0.35" strokeDasharray="0.8 2.4" />
+                    <circle cx="50" cy="50" r="48" fill="none" stroke="#e3a936" strokeWidth="0.35" strokeDasharray="0.8 2.4" />
                   </svg>
                   <div className="absolute inset-x-[8%] bottom-[12%]">
                     <Rhino />
@@ -561,26 +543,26 @@ export function JoinFinale() {
                 href={c.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group relative flex h-full flex-col justify-between gap-8 overflow-hidden rounded-[1.5rem] p-6 transition-[transform,box-shadow] duration-500 [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-1 hover:shadow-[0_24px_40px_-28px_rgba(0,40,32,0.55)] md:p-7"
-                style={{ background: c.bg, color: c.dark ? "#f9fbe5" : "#002820" }}
+                className="group relative flex h-full flex-col justify-between gap-8 overflow-hidden rounded-[1.5rem] p-6 transition-[transform,box-shadow] duration-500 [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-1 hover:shadow-[0_24px_40px_-28px_rgba(28,19,12,0.55)] md:p-7"
+                style={{ background: c.bg, color: c.dark ? "#f5e9cf" : "#1c130c" }}
               >
                 <span aria-hidden="true" className={`absolute -right-10 -top-10 h-36 w-36 rounded-full transition-transform duration-700 group-hover:scale-125 ${c.dark ? "bg-white/[0.07]" : "bg-white/40"}`} />
                 <span className="relative flex items-center justify-between">
                   {/* YouTube keeps its red: it tells people at a glance this is where the videos are */}
-                  <span className={`grid h-12 w-12 place-items-center rounded-full ${c.red ? "bg-[#c10021] text-white" : "bg-[#f9fbe5] text-[#006255]"}`}>
+                  <span className={`grid h-12 w-12 place-items-center rounded-full ${c.red ? "bg-[#c8102e] text-white" : "bg-[#f5e9cf] text-[#0f5e48]"}`}>
                     <c.Icon size={20} />
                   </span>
                   <ArrowUpRight size={18} className="opacity-70 transition-transform duration-500 group-hover:rotate-45" />
                 </span>
                 <span className="relative">
                   <h3 className="kz-serif text-[1.35rem]">{c.title}</h3>
-                  <p className={`kz-body mt-1.5 ${c.dark ? "text-[#d5e3d9]" : "text-[#2f4a43]"}`}>{c.text}</p>
+                  <p className={`kz-body mt-1.5 ${c.dark ? "text-[#e9dcc0]" : "text-[#4a3a29]"}`}>{c.text}</p>
                   {c.red ? (
                     <span className="kz-btn kz-btn--sm kz-btn--red mt-5">
                       <FaYoutube size={15} /> {c.cta}
                     </span>
                   ) : (
-                    <span className={`mt-5 inline-flex items-center gap-2 text-sm font-bold ${c.dark ? "text-[#f9fbe5]" : "text-[#006255]"}`}>
+                    <span className={`mt-5 inline-flex items-center gap-2 text-sm font-bold ${c.dark ? "text-[#f5e9cf]" : "text-[#0f5e48]"}`}>
                       {c.cta}
                       <ArrowRight size={15} className="transition-transform duration-300 group-hover:translate-x-1" />
                     </span>

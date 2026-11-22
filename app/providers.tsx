@@ -12,11 +12,10 @@ import { Toaster } from "@/components/ui/toaster";
 import { ToastProvider } from "@/components/portal/ui/Toast";
 import { AuthProvider } from "@/context/AuthContext";
 import Navbar from "@/components/Navbar";
-import BackgroundAudio from "@/components/BackgroundAudio";
 
 // Routes that render their own header, so the global Navbar is hidden.
 // "/" is the illustrated homepage — it ships its own KzHeader.
-const NAVBAR_HIDDEN = ["/", "/gallery", "/events", "/council", "/meetups", "/communities"];
+const NAVBAR_HIDDEN = ["/", "/gallery", "/events", "/council", "/meetups", "/communities", "/resources", "/hub", "/study", "/tak"];
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(() => new QueryClient());
@@ -33,7 +32,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
     pathname === "/notifications" ||
     pathname === "/profile";
 
-  const showNavbar = !NAVBAR_HIDDEN.includes(pathname) && !isPortalRoute;
+  const showNavbar = !NAVBAR_HIDDEN.includes(pathname) && !pathname.startsWith("/hub/") && !isPortalRoute;
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -75,8 +74,6 @@ export default function Providers({ children }: { children: React.ReactNode }) {
               </AnimatePresence>
 
               {children}
-
-              {!isPortalRoute && <BackgroundAudio />}
               <Toaster />
             </ReactLenis>
           </AuthProvider>

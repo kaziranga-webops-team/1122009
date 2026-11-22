@@ -104,13 +104,14 @@ export default function MeetupsPage() {
   );
 
   return (
-    <div className="kz-font min-h-screen bg-[#f9fbe5] text-[#002820] selection:bg-[#c10021]/20">
+    <div className="kz-font min-h-screen bg-[#f5e9cf] text-[#1c130c] selection:bg-[#c8102e]/20">
       <KzHeader />
       <main className="pt-[var(--kz-header-h)]">
         {/* ═══ The sea ═══ */}
         <section
           ref={seaRef}
-          className="kz-sea relative isolate scroll-mt-[var(--kz-header-h)] overflow-hidden"
+          className="kz-halftone relative isolate scroll-mt-[var(--kz-header-h)] overflow-hidden bg-[#2343b8] text-[#f5e9cf]"
+          style={{ ["--dot" as string]: "rgba(10,20,80,0.5)" }}
         >
           <Ambient birds={3} specks={0} seed={11} sky={[4, 28]} />
 
@@ -164,7 +165,7 @@ export default function MeetupsPage() {
 
           {/* The shoreline: the sea ends in a wave, not a ruled edge. */}
           <svg aria-hidden="true" viewBox="0 0 1440 40" preserveAspectRatio="none" className="relative block h-6 w-full sm:h-10">
-            <path d="M0 40V24c120-16 240-16 360 0s240 16 360 0 240-16 360 0 240 16 360 0V40z" fill="#f9fbe5" />
+            <path d="M0 40V24c120-16 240-16 360 0s240 16 360 0 240-16 360 0 240 16 360 0V40z" fill="#f5e9cf" />
           </svg>
         </section>
 
@@ -200,8 +201,7 @@ function IndiaHead({
   const ready = !loading || meetups > 0;
   return (
     <motion.div {...swap}>
-      <p className="kz-label kz-mark text-[#c10021]">House meetups</p>
-      <h1 className="kz-display mt-4 text-[clamp(2.6rem,5.4vw,5.2rem)]">
+      <h1 className="kz-display kz-offset text-[clamp(2.6rem,5.4vw,5.2rem)] text-[#f6b51e]" style={{ ["--offset" as string]: "#e2387a" }}>
         {ready && cities ? (
           <>
             We&rsquo;ve met up in <span className="whitespace-nowrap">{cities} cities</span>
@@ -209,9 +209,9 @@ function IndiaHead({
         ) : (
           "We meet up all over India"
         )}
-        <span className="text-[#c10021]">.</span>
+        <span className="text-[#f5e9cf]">.</span>
       </h1>
-      <p className="kz-lead mt-5 max-w-md text-[#1d3d35]">
+      <p className="kz-lead mt-5 max-w-md text-[#f5e9cf]/90">
         {ready && meetups ? `${meetups} meetups across ${states} states so far, ` : "Meetups across India, "}
         each one started by a member who asked who else lived nearby. Tap a pin to see one, or pick a state.
       </p>
@@ -235,15 +235,15 @@ function StateHead({
       <button
         type="button"
         onClick={onBack}
-        className="kz-label inline-flex items-center gap-2 text-[#006255] transition-colors hover:text-[#002820]"
+        className="kz-label inline-flex items-center gap-2 text-[#f6b51e] transition-colors hover:text-[#f5e9cf]"
       >
         <ArrowLeft size={14} /> All of India
       </button>
-      <h1 className="kz-display mt-4 text-[clamp(2.6rem,5.4vw,5.2rem)]">
+      <h1 className="kz-display kz-offset mt-4 text-[clamp(2.6rem,5.4vw,5.2rem)] text-[#f6b51e]" style={{ ["--offset" as string]: "#e2387a" }}>
         {name ?? "This state"}
-        <span className="text-[#c10021]">.</span>
+        <span className="text-[#f5e9cf]">.</span>
       </h1>
-      <p className="kz-lead mt-5 max-w-md text-[#1d3d35]">
+      <p className="kz-lead mt-5 max-w-md text-[#f5e9cf]/90">
         {count
           ? `${count} meetup${count === 1 ? "" : "s"} in ${cities} cit${cities === 1 ? "y" : "ies"}. Tap a pin, or a meetup below, to see it.`
           : "No meetups here yet. If you live here, yours could be the first pin."}
@@ -259,22 +259,22 @@ function StateHead({
 function StateChips({ states, loading, onPick }: { states: States; loading: boolean; onPick: (key: string) => void }) {
   return (
     <div>
-      <p className="kz-label text-[0.68rem] text-[#1d3d35]/70">Pick a state</p>
+      <p className="kz-label text-[0.68rem] text-[#f5e9cf]/75">Pick a state</p>
       <ul className="-mx-4 mt-3 flex gap-2 overflow-x-auto px-4 pb-2 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0">
         {loading && states.length === 0
           ? Array.from({ length: 8 }).map((_, i) => (
-              <li key={i} className="h-9 w-28 shrink-0 animate-pulse rounded-full bg-[#002820]/[0.07]" />
+              <li key={i} className="h-9 w-28 shrink-0 animate-pulse bg-[#f5e9cf]/20" />
             ))
           : states.map((s) => (
               <li key={s.key} className="shrink-0">
                 <button
                   type="button"
                   onClick={() => onPick(s.key)}
-                  className="group inline-flex items-center gap-2 rounded-full border border-[#002820]/15 bg-[#f9fbe5]/85 py-1.5 pl-2 pr-3 text-[0.8rem] font-semibold shadow-[0_1px_0_rgba(0,40,32,0.08)] transition-colors hover:border-[#002820] hover:bg-[#002820] hover:text-[#f9fbe5] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#002820]"
+                  className="group inline-flex items-center gap-2 border-2 border-[#1c130c] bg-[#f5e9cf] py-1.5 pl-2 pr-3 text-[0.82rem] font-semibold text-[#1c130c] transition-colors hover:bg-[#f6b51e] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#f6b51e]"
                 >
-                  <span className="h-3.5 w-3.5 rounded-[4px] ring-1 ring-[#002820]/15" style={{ background: landFill(s.items.length) }} />
+                  <span className="h-3.5 w-3.5 ring-1 ring-[#1c130c]/40" style={{ background: landFill(s.items.length) }} />
                   {s.name}
-                  <span className="tabular-nums text-[#3f5a52] group-hover:text-[#f9fbe5]/70">{s.items.length}</span>
+                  <span className="tabular-nums text-[#5e4a35]">{s.items.length}</span>
                 </button>
               </li>
             ))}
@@ -296,7 +296,7 @@ function CityList({
 }) {
   if (!pins.length) {
     return (
-      <a href={JOIN_URL} target="_blank" rel="noopener noreferrer" className="kz-btn kz-btn--ink kz-btn--sm">
+      <a href={JOIN_URL} target="_blank" rel="noopener noreferrer" className="kz-btn kz-btn--sm bg-[#f6b51e] text-[#1c130c]">
         Join the house <ArrowRight size={15} />
       </a>
     );
@@ -307,14 +307,14 @@ function CityList({
       aria-label={`Meetups in ${name ?? "this state"}`}
       // On a laptop the list scrolls inside the first screen, so the map
       // never moves while it is being read.
-      className="rounded-2xl bg-[#f9fbe5]/90 p-2 shadow-[0_1px_0_rgba(0,40,32,0.08)] ring-1 ring-[#002820]/10 lg:max-h-[min(40vh,26rem)] lg:overflow-y-auto"
+      className="border-2 border-[#1c130c] bg-[#f5e9cf] p-2 text-[#1c130c] lg:max-h-[min(40vh,26rem)] lg:overflow-y-auto"
     >
       {cities.map((c) => (
         <section key={c.key} className="px-2 py-2">
           <h2 className="flex items-center gap-2 pb-1">
-            <MapPin size={13} className="text-[#c10021]" />
+            <MapPin size={13} className="text-[#c8102e]" />
             <span className="kz-h3 text-[0.74rem]">{c.name}</span>
-            <span className="ml-auto text-[0.74rem] font-bold tabular-nums text-[#3f5a52]">{c.items.length}</span>
+            <span className="ml-auto text-[0.74rem] font-bold tabular-nums text-[#5e4a35]">{c.items.length}</span>
           </h2>
           <ul>
             {[...c.items].sort(newestFirst).map((m) => (
@@ -326,12 +326,12 @@ function CityList({
                   onFocus={() => onHover(m.key)}
                   onBlur={() => onHover(null)}
                   onClick={() => onShow(m.key)}
-                  className="group flex w-full items-baseline gap-3 rounded-lg px-2 py-1.5 text-left transition-colors hover:bg-[#002820]/[0.05]"
+                  className="group flex w-full items-baseline gap-3 px-2 py-1.5 text-left transition-colors hover:bg-[#f6b51e]/40"
                 >
-                  <span className="w-[5.4rem] shrink-0 text-[0.7rem] font-bold tabular-nums text-[#c10021]">
+                  <span className="kz-sign w-[5.4rem] shrink-0 text-[0.72rem] tabular-nums text-[#c8102e]">
                     {formatMeetupDate(m.date)}
                   </span>
-                  <span className="min-w-0 flex-1 truncate text-[0.86rem] font-semibold group-hover:text-[#006255]">{m.venue}</span>
+                  <span className="min-w-0 flex-1 truncate text-[0.88rem] font-semibold">{m.venue}</span>
                 </button>
               </li>
             ))}
@@ -343,9 +343,9 @@ function CityList({
 }
 
 function Credits({ className = "", missing }: { className?: string; missing: number }) {
-  const link = "underline decoration-[#002820]/30 underline-offset-2 hover:decoration-[#002820]";
+  const link = "underline decoration-[#f5e9cf]/40 underline-offset-2 hover:decoration-[#f5e9cf]";
   return (
-    <p className={`max-w-md text-[0.66rem] font-medium leading-relaxed text-[#1d3d35]/70 ${className}`}>
+    <p className={`max-w-md text-[0.7rem] leading-relaxed text-[#f5e9cf]/70 ${className}`}>
       {missing > 0 && (
         <>
           {missing} meetup{missing === 1 ? " has" : "s have"} no location yet and {missing === 1 ? "is" : "are"} not shown.{" "}
@@ -369,9 +369,8 @@ function Credits({ className = "", missing }: { className?: string; missing: num
 function PosterStrip({ pins, onShow }: { pins: MeetupPin[]; onShow: (key: string) => void }) {
   if (!pins.length) return null;
   return (
-    <section className="bg-[#f9fbe5]">
+    <section className="bg-[#f5e9cf]">
       <SectionHead
-        label="Latest meetups"
         title={
           <>
             The latest
@@ -382,7 +381,7 @@ function PosterStrip({ pins, onShow }: { pins: MeetupPin[]; onShow: (key: string
         intro={
           <>
             Every meetup gets a poster. Tap one to find it on the map, or{" "}
-            <Link href="/gallery?tab=meetups" className="font-semibold text-[#006255] underline-offset-4 hover:underline">
+            <Link href="/gallery?tab=meetups" className="font-semibold text-[#c8102e] underline underline-offset-4">
               see every poster by region
             </Link>
             .
@@ -410,7 +409,7 @@ function PosterCard({ m, onShow }: { m: MeetupPin; onShow: (key: string) => void
       aria-label={`${m.venue}, ${formatMeetupDate(m.date)} — show on the map`}
       className="group block w-full text-left outline-none"
     >
-      <span className="relative block aspect-[4/5] overflow-hidden rounded-2xl bg-[#dcebd8] shadow-[0_10px_24px_-14px_rgba(0,40,32,0.5)] ring-1 ring-[#002820]/10 transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:-translate-y-1.5 group-hover:-rotate-1 group-focus-visible:ring-2 group-focus-visible:ring-[#002820]">
+      <span className="relative block aspect-[4/5] overflow-hidden border-2 border-[#1c130c] bg-[#ebd9b2] transition-[transform,box-shadow] duration-300 group-hover:-translate-x-1 group-hover:-translate-y-1 group-hover:shadow-[6px_6px_0_#c8102e] group-focus-visible:shadow-[6px_6px_0_#c8102e]">
         {src && !failed ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -422,22 +421,22 @@ function PosterCard({ m, onShow }: { m: MeetupPin; onShow: (key: string) => void
             className="absolute inset-0 h-full w-full object-cover"
           />
         ) : (
-          <span className="absolute inset-0 grid place-items-center bg-[#006255] p-6 text-center">
+          <span className="kz-cloth absolute inset-0 grid place-items-center bg-[#c8102e] p-6 text-center">
             <span className="kz-h3 text-white/85">{m.city}</span>
           </span>
         )}
-        <span className="absolute bottom-3 left-3 inline-flex items-center gap-1.5 rounded-full bg-[#002820]/85 px-2.5 py-1 text-[0.68rem] font-semibold text-[#f9fbe5] opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-visible:opacity-100">
+        <span className="kz-sign kz-signboard absolute bottom-3 left-0 inline-flex items-center gap-1.5 bg-[#f6b51e] py-1.5 pl-3 pr-6 text-[0.68rem] uppercase tracking-[0.1em] text-[#1c130c] opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-visible:opacity-100">
           <MapPin size={12} /> Show on map
         </span>
       </span>
       <span className="mt-4 flex items-center gap-2">
         {isUpcoming(m) && (
-          <span className="kz-label rounded-full bg-[#c10021] px-2 py-0.5 text-[0.56rem] text-white">Upcoming</span>
+          <span className="kz-label bg-[#c8102e] px-2 py-0.5 text-[0.6rem] text-white">Upcoming</span>
         )}
-        <span className="kz-label text-[0.62rem] text-[#c10021]">{formatMeetupDate(m.date)}</span>
+        <span className="kz-label text-[0.62rem] text-[#c8102e]">{formatMeetupDate(m.date)}</span>
       </span>
-      <span className="mt-1.5 line-clamp-2 block text-[0.95rem] font-semibold leading-snug">{m.venue}</span>
-      <span className="mt-1 block text-[0.78rem] font-medium text-[#3f5a52]">{[m.city, m.state].filter(Boolean).join(", ")}</span>
+      <span className="kz-serif mt-1.5 line-clamp-2 block text-[1.1rem] leading-snug">{m.venue}</span>
+      <span className="mt-1 block text-[0.78rem] font-medium text-[#5e4a35]">{[m.city, m.state].filter(Boolean).join(", ")}</span>
     </button>
   );
 }
@@ -446,16 +445,15 @@ function PosterCard({ m, onShow }: { m: MeetupPin; onShow: (key: string) => void
 
 function HostBand() {
   return (
-    <section className="bg-[#006255] text-white">
+    <section className="kz-cloth bg-[#c8102e] text-[#f5e9cf]">
       <div className="mx-auto flex max-w-[90rem] flex-col items-start gap-8 px-5 py-16 sm:px-8 md:flex-row md:items-end md:justify-between md:px-12 md:py-20">
         <div>
-          <p className="kz-label text-white/70">No pin near you?</p>
-          <h2 className="kz-h2 mt-4 max-w-[14ch]">Put your city on the map</h2>
-          <p className="kz-lead mt-5 max-w-xl text-white/80">
+          <h2 className="kz-h2 kz-offset max-w-[14ch] text-[#f6b51e]" style={{ ["--offset" as string]: "#1c130c" }}>Put your city on the map</h2>
+          <p className="kz-lead mt-5 max-w-xl text-[#f5e9cf]/90">
             Every pin above started with one member asking who else lived nearby. Join the house and start the next one.
           </p>
         </div>
-        <a href={JOIN_URL} target="_blank" rel="noopener noreferrer" className="kz-btn kz-btn--white shrink-0">
+        <a href={JOIN_URL} target="_blank" rel="noopener noreferrer" className="kz-btn kz-focus shrink-0 bg-[#f6b51e] text-[#1c130c]">
           Join the house <ArrowRight size={18} />
         </a>
       </div>

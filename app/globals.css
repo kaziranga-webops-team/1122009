@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,800;1,400;1,500&family=Inter:wght@400;500;600;700&family=Cinzel+Decorative:wght@400;700;900&family=Caveat:wght@400;500;600;700&family=Kalam:wght@300;400;700&family=Montserrat:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,800;1,400;1,500&family=Inter:wght@400;500;600;700&family=Cinzel+Decorative:wght@400;700;900&family=Caveat:wght@400;500;600;700&family=Kalam:wght@300;400;700&family=Montserrat:wght@400;500;600;700;800&family=Mukta:wght@300;400;500;600;700&family=Yatra+One&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 @plugin "@tailwindcss/typography";
@@ -2057,16 +2057,6 @@ section {
     radial-gradient(ellipse 45% 40% at 38% 95%, rgba(30, 86, 49, 0.08), transparent 70%),
     radial-gradient(ellipse 35% 45% at 95% 5%, rgba(217, 138, 43, 0.06), transparent 70%),
     #f8f9f4;
-}
-
-/* Letter-spaced caps for the eyebrow and the pillars list */
-.hero-eyebrow {
-  font-family: 'Inter', sans-serif;
-  font-size: 0.64rem;
-  font-weight: 600;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
-  color: #3d5a48;
 }
 
 /* Light, large serif headline with one italic accent word */

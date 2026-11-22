@@ -37,26 +37,26 @@ export const GROUPS: { value: CommunityGroup; label: string }[] = [
   { value: "ideas", label: "Ideas & purpose" },
 ];
 
-const CREAM = "#f9fbe5";
-const INK = "#002820";
+const CREAM = "#f5e9cf";
+const INK = "#1c130c";
 
 export const COMMUNITIES: Community[] = [
-  { slug: "anveshan", name: "Anveshan", focus: "Science & research", line: "For the curious — papers, experiments and research conversations.", group: "tech", Icon: FlaskConical, bg: "#006255", ink: CREAM },
-  { slug: "binary-minds", name: "Binary Minds", focus: "Technical", line: "Coding, building and the house's technical events.", group: "tech", Icon: Code2, bg: "#c6e3cf", ink: INK },
-  { slug: "codest", name: "Codest", focus: "Cybersecurity", line: "Cybersecurity, from the basics to hacking challenges.", group: "tech", Icon: ShieldCheck, bg: "#00332a", ink: CREAM },
-  { slug: "thunder", name: "Thunder", focus: "Electronics & robotics", line: "Circuits, sensors and robots you can actually build.", group: "tech", Icon: Bot, bg: "#ecd394", ink: INK },
+  { slug: "anveshan", name: "Anveshan", focus: "Science & research", line: "For the curious — papers, experiments and research conversations.", group: "tech", Icon: FlaskConical, bg: "#2343b8", ink: CREAM },
+  { slug: "binary-minds", name: "Binary Minds", focus: "Technical", line: "Coding, building and the house's technical events.", group: "tech", Icon: Code2, bg: "#f6b51e", ink: INK },
+  { slug: "codest", name: "Codest", focus: "Cybersecurity", line: "Cybersecurity, from the basics to hacking challenges.", group: "tech", Icon: ShieldCheck, bg: "#1c130c", ink: "#f6b51e" },
+  { slug: "thunder", name: "Thunder", focus: "Electronics & robotics", line: "Circuits, sensors and robots you can actually build.", group: "tech", Icon: Bot, bg: "#c8102e", ink: CREAM },
 
-  { slug: "rangmanch", name: "Rangmanch", focus: "Singing & dancing", line: "Singing, dancing and every stage the house puts up.", group: "stage", Icon: Music, bg: "#d4ebbe", ink: INK },
-  { slug: "srijan", name: "Srijan", focus: "Art & craft", line: "Drawing, painting, craft and making things by hand.", group: "stage", Icon: Palette, bg: "#1f4d43", ink: CREAM },
-  { slug: "snap-sphere", name: "Snap Sphere", focus: "Photography", line: "Photo walks, edits and contests like Photopia.", group: "stage", Icon: Camera, bg: "#96b4a5", ink: INK, aliases: ["Snap Spear"] },
+  { slug: "rangmanch", name: "Rangmanch", focus: "Singing & dancing", line: "Singing, dancing and every stage the house puts up.", group: "stage", Icon: Music, bg: "#e2387a", ink: CREAM },
+  { slug: "srijan", name: "Srijan", focus: "Art & craft", line: "Drawing, painting, craft and making things by hand.", group: "stage", Icon: Palette, bg: "#0f5e48", ink: CREAM },
+  { slug: "snap-sphere", name: "Snap Sphere", focus: "Photography", line: "Photo walks, edits and contests like Photopia.", group: "stage", Icon: Camera, bg: "#f6b51e", ink: INK, aliases: ["Snap Spear"] },
 
-  { slug: "avatar-esports", name: "Avatar Esports", focus: "Esports", line: "BGMI, Free Fire and the house's gaming squads.", group: "games", Icon: Gamepad2, bg: "#006255", ink: CREAM, aliases: ["Booyah Brigade", "Erangel Elite"] },
-  { slug: "grandmasters-guild", name: "The Grandmasters Guild", focus: "Chess", line: "Chess, from first openings to tournament nights.", group: "games", Icon: Crown, bg: "#dcebd8", ink: INK, aliases: ["Grandmaster Guild", "Grandmasters Guild"] },
+  { slug: "avatar-esports", name: "Avatar Esports", focus: "Esports", line: "BGMI, Free Fire and the house's gaming squads.", group: "games", Icon: Gamepad2, bg: "#2343b8", ink: CREAM, aliases: ["Booyah Brigade", "Erangel Elite"] },
+  { slug: "grandmasters-guild", name: "The Grandmasters Guild", focus: "Chess", line: "Chess, from first openings to tournament nights.", group: "games", Icon: Crown, bg: "#1c130c", ink: "#f6b51e", aliases: ["Grandmaster Guild", "Grandmasters Guild"] },
 
-  { slug: "kaziranga-forum", name: "The Kaziranga Forum", focus: "Debate", line: "Debates and discussions — arguing it out, politely.", group: "ideas", Icon: MessagesSquare, bg: "#ecd394", ink: INK, aliases: ["Kazi Forum", "Kaziranga Forum"] },
-  { slug: "kazi-street", name: "Kazi Street", focus: "Finance & business", line: "Markets, money and business analytics.", group: "ideas", Icon: TrendingUp, bg: "#00332a", ink: CREAM },
-  { slug: "parakram", name: "Parakram", focus: "Defence", line: "For anyone drawn to the armed forces and national defence.", group: "ideas", Icon: Shield, bg: "#c6e3cf", ink: INK },
-  { slug: "divine-quest", name: "Divine Quest", focus: "Spirituality", line: "Reflection, bhajans and conversations about the inner life.", group: "ideas", Icon: Sun, bg: "#1f4d43", ink: CREAM },
+  { slug: "kaziranga-forum", name: "The Kaziranga Forum", focus: "Debate", line: "Debates and discussions — arguing it out, politely.", group: "ideas", Icon: MessagesSquare, bg: "#c8102e", ink: CREAM, aliases: ["Kazi Forum", "Kaziranga Forum"] },
+  { slug: "kazi-street", name: "Kazi Street", focus: "Finance & business", line: "Markets, money and business analytics.", group: "ideas", Icon: TrendingUp, bg: "#0a3b2f", ink: CREAM },
+  { slug: "parakram", name: "Parakram", focus: "Defence", line: "For anyone drawn to the armed forces and national defence.", group: "ideas", Icon: Shield, bg: "#9c5d14", ink: CREAM },
+  { slug: "divine-quest", name: "Divine Quest", focus: "Spirituality", line: "Reflection, bhajans and conversations about the inner life.", group: "ideas", Icon: Sun, bg: "#f08a24", ink: INK },
 ];
 
 const norm = (s: string) => s.toLowerCase().replace(/^the\s+/, "").replace(/[^a-z]/g, "");

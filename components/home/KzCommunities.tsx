@@ -18,14 +18,15 @@ function Row({ items, reverse = false, d }: { items: Community[]; reverse?: bool
             <Link
               href="/communities"
               tabIndex={i >= items.length ? -1 : 0}
-              className="kz-focus group flex items-center gap-3 rounded-full border border-[#002820]/10 bg-[#eef1dc] py-2 pl-2 pr-6 transition-[transform,background-color,border-color] duration-300 hover:-translate-y-1 hover:border-[#006255]/30 hover:bg-[#f4f6e3]"
+              className="kz-focus group flex items-center gap-3 py-2 pl-2 pr-6 outline-2 -outline-offset-[5px] outline-current transition-transform duration-300 hover:-translate-y-1 hover:rotate-[-1.5deg]"
+              style={{ background: c.bg, color: c.ink, outlineStyle: "solid" }}
             >
               <span className="transition-transform duration-500 [transition-timing-function:cubic-bezier(0.34,1.6,0.64,1)] group-hover:-rotate-12">
                 <CommunityPatch c={c} size={52} />
               </span>
               <span>
                 <span className="kz-serif block whitespace-nowrap text-[1.12rem] leading-tight">{c.name}</span>
-                <span className="block whitespace-nowrap text-[0.72rem] font-semibold text-[#3f5a52]">{c.focus}</span>
+                <span className="kz-sign block whitespace-nowrap text-[0.66rem] uppercase tracking-[0.12em] opacity-80">{c.focus}</span>
               </span>
             </Link>
           </li>
@@ -42,9 +43,8 @@ function Row({ items, reverse = false, d }: { items: Community[]; reverse?: bool
 export default function KzCommunities() {
   const half = Math.ceil(COMMUNITIES.length / 2);
   return (
-    <section id="communities" className="kz-font bg-[#f9fbe5] pb-20 text-[#002820] md:pb-28">
+    <section id="communities" className="kz-font bg-[#f5e9cf] pb-20 text-[#1c130c] md:pb-28">
       <SectionHead
-        label="Communities"
         title={["Find your", "people"]}
         intro={`${COMMUNITIES.length} communities inside the house — from chess and cybersecurity to dance, debate and robotics.`}
       />

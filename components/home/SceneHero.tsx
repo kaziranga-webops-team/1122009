@@ -37,7 +37,7 @@ export default function SceneHero() {
   const cueOpacity = useTransform(p, [0, 0.1], [1, 0]);
 
   return (
-    <section ref={ref} id="hero" className="kz-font kz-sky relative h-[100svh] min-h-[560px] overflow-hidden text-[#002820]">
+    <section ref={ref} id="hero" className="kz-font kz-sky relative h-[100svh] min-h-[560px] overflow-hidden text-[#1c130c]">
       {/* ── the painted scene ── */}
       <motion.div style={{ y: sceneY }} className="absolute inset-x-0 bottom-0 top-[var(--kz-header-h)]">
         <div className="kz-frame">
@@ -72,19 +72,19 @@ export default function SceneHero() {
         className="pointer-events-none absolute inset-x-0 top-[var(--kz-header-h)] z-20 mx-auto flex w-full max-w-4xl flex-col items-center px-5 pt-[clamp(1.25rem,6svh,4.5rem)] text-center sm:px-8"
       >
         {/* sized by width AND height, so short wide screens don't push the copy down onto Kaz */}
-        <h1 className="kz-display text-[clamp(2.3rem,min(4.4vw,8.2svh),4.6rem)] text-[#002820] [text-shadow:0_2px_30px_rgba(236,252,255,0.6)]">
+        <h1 className="kz-display text-[clamp(2.3rem,min(4.4vw,8.2svh),4.6rem)] text-[#1c130c] [text-shadow:0_2px_30px_rgba(236,252,255,0.6)]">
           <span className="block">
             <WordRise text="We are" />
           </span>
           <span className="block">
             <WordRise text="Kaziranga House" start={2} />
-            <span className="kz-pop inline-block text-[#c10021]" style={vars({ "--delay": "0.95s" })}>
+            <span className="kz-pop inline-block text-[#c8102e]" style={vars({ "--delay": "0.95s" })}>
               .
             </span>
           </span>
         </h1>
         <p
-          className="kz-rise mt-[clamp(0.7rem,2svh,1.2rem)] max-w-[32rem] text-[clamp(0.9rem,min(1.05vw,2svh),1.02rem)] font-medium leading-relaxed text-[#163a31]"
+          className="kz-rise mt-[clamp(0.7rem,2svh,1.2rem)] max-w-[32rem] text-[clamp(0.9rem,min(1.05vw,2svh),1.02rem)] font-medium leading-relaxed text-[#2a1d12]"
           style={vars({ "--i": 4 })}
         >
           {subtitle}
@@ -106,7 +106,7 @@ export default function SceneHero() {
         style={{ opacity: cueOpacity }}
         className="pointer-events-none absolute bottom-[calc(clamp(2rem,4vw,3.5rem)+1.25rem)] left-1/2 z-20 hidden -translate-x-1/2 md:block"
       >
-        <span className="flex h-11 w-7 justify-center rounded-full border-2 border-white/90 pt-2 shadow-[0_4px_20px_rgba(0,40,32,0.25)]">
+        <span className="flex h-11 w-7 justify-center rounded-full border-2 border-white/90 pt-2 shadow-[0_4px_20px_rgba(28,19,12,0.25)]">
           <span className="kz-scroll-dot block h-2 w-1.5 rounded-full bg-white" />
         </span>
       </motion.div>

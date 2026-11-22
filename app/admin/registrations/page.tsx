@@ -111,7 +111,6 @@ export default function ClassicAdminRegistrationsPage() {
 
       <div className="space-y-7">
         <SectionHeading
-          eyebrow="Admin control"
           title="Registrations"
           description="Search and filter participants, inspect their submitted details, and export CSV reports."
           size="lg"

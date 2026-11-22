@@ -209,7 +209,6 @@ export default function AccessDeniedPage() {
         <Modal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
-          eyebrow="Verification"
           title="Request access"
           subtitle="House management will review and approve your account."
         >

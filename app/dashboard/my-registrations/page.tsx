@@ -322,7 +322,6 @@ export default function MyRegistrationsPage() {
   return (
     <div className="space-y-8">
       <SectionHeading
-        eyebrow="Your seat at the arena"
         title="My registrations"
         description="Track confirmed entries, manage your team, and submit your work before the deadline."
         size="lg"

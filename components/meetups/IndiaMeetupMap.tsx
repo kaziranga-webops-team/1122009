@@ -38,16 +38,16 @@ const CLUSTER_PX = 36;
 
 const EASE = [0.65, 0, 0.35, 1] as const;
 
-const INK = "#002820";
-const CREAM = "#f9fbe5";
+const INK = "#1c130c";
+const CREAM = "#f5e9cf";
 
 /** The slab's side, a shade under the darkest land, and its bottom edge. */
-const WALL = "#2a5d50";
-const WALL_EDGE = "#173f35";
+const WALL = "#9c5d14";
+const WALL_EDGE = "#5e3510";
 /** Where a lifted state came out of the slab. */
-const CAVITY = "#1f4a3f";
+const CAVITY = "#7a4510";
 /** The rest of India while one state is lifted out. */
-const PALE = "#dde7cd";
+const PALE = "#efe1bd";
 const FEATHER_MASK =
   "linear-gradient(to right, transparent, #000 9%, #000 91%, transparent), linear-gradient(to bottom, transparent, #000 8%, #000 92%, transparent)";
 const FEATHER: React.CSSProperties = {
@@ -66,10 +66,10 @@ const LIFT_WALL = [2, 4, 6, 8];
 /** Land colour by how many meetups a state has had. Three flat steps read as a
  *  choropleth without a gradient key to decode. */
 export function landFill(count: number): string {
-  if (count >= 10) return "#4f8a7a";
-  if (count >= 3) return "#7ea898";
-  if (count >= 1) return "#a9c6b5";
-  return "#e4ebce";
+  if (count >= 10) return "#f08a24";
+  if (count >= 3) return "#f6b51e";
+  if (count >= 1) return "#f9d98a";
+  return "#f5e9cf";
 }
 
 type StateShape = {
@@ -462,7 +462,7 @@ export default function IndiaMeetupMap({
       ref={stageRef}
       // No box and no sea of its own: the page section is the sea, so India
       // sits in open water rather than in a framed chart.
-      className={`kz-font relative select-none text-[#002820] ${className}`}
+      className={`kz-font relative select-none text-[#1c130c] ${className}`}
       style={{ aspectRatio: `${W} / ${H}` }}
     >
       {geo && (
@@ -509,7 +509,7 @@ export default function IndiaMeetupMap({
               const hot = !focus && hoverState === s.key;
               // Zoomed in, the rest of India goes pale so the state reads;
               // once the state has lifted out, its place in the slab is a hole.
-              const fill = isFocus ? (raised ? CAVITY : CREAM) : focus ? PALE : hot ? "#006255" : landFill(n);
+              const fill = isFocus ? (raised ? CAVITY : CREAM) : focus ? PALE : hot ? "#e2387a" : landFill(n);
               return (
                 <path
                   key={s.key}
@@ -558,7 +558,7 @@ export default function IndiaMeetupMap({
                   <path
                     key={d.id}
                     d={d.d}
-                    fill={hoverDistrict === d.name ? "#c8dccf" : d.hasMeetup ? "#dcebd8" : "transparent"}
+                    fill={hoverDistrict === d.name ? "#f6b51e" : d.hasMeetup ? "#f9d98a" : "transparent"}
                     stroke={INK}
                     strokeOpacity={0.22}
                     strokeWidth={0.8}
@@ -643,7 +643,7 @@ export default function IndiaMeetupMap({
               return (
                 <span key={g.id} className="absolute" style={{ ...pct(x, y), marginTop: -rise }}>
                   <span
-                    className="absolute whitespace-nowrap text-[0.7rem] font-bold leading-none text-[#002820] [text-shadow:0_0_3px_#f9fbe5,0_0_3px_#f9fbe5,0_0_2px_#f9fbe5,0_0_1px_#f9fbe5]"
+                    className="absolute whitespace-nowrap text-[0.7rem] font-bold leading-none text-[#1c130c] [text-shadow:0_0_3px_#f5e9cf,0_0_3px_#f5e9cf,0_0_2px_#f5e9cf,0_0_1px_#f5e9cf]"
                     style={{
                       // Near the right edge the label goes on the left, or the map clips it.
                       ...(x / W > 0.8 ? { right: size / 2 + 4 } : { left: size / 2 + 4 }),
@@ -689,24 +689,24 @@ export default function IndiaMeetupMap({
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -10 }}
                 onClick={() => onFocus(null)}
-                className="pointer-events-auto inline-flex shrink-0 items-center gap-1.5 rounded-full bg-[#002820] px-3.5 py-2 text-[0.78rem] font-semibold text-[#f9fbe5] shadow-sm transition-colors hover:bg-[#006255]"
+                className="pointer-events-auto inline-flex shrink-0 items-center gap-1.5 bg-[#1c130c] px-3.5 py-2 text-[0.8rem] font-semibold text-[#f6b51e] transition-colors hover:bg-[#c8102e] hover:text-[#f5e9cf]"
               >
                 <ArrowLeft size={15} /> India
               </motion.button>
             )}
           </AnimatePresence>
           {chip && (
-            <div className="min-w-0 rounded-2xl bg-[#f9fbe5]/95 px-3.5 py-2 shadow-sm">
+            <div className="min-w-0 border-2 border-[#1c130c] bg-[#f5e9cf] px-3.5 py-2">
               <p className="truncate text-[0.85rem] font-bold leading-tight">{chip.title}</p>
-              <p className="truncate text-[0.7rem] font-semibold text-[#3f5a52]">{chip.sub}</p>
+              <p className="truncate text-[0.7rem] font-semibold text-[#5e4a35]">{chip.sub}</p>
             </div>
           )}
         </div>
       </div>
 
       {!focus && geo && (
-        <div className="pointer-events-none absolute bottom-3 left-3 rounded-2xl bg-[#f9fbe5]/95 px-3.5 py-2.5 shadow-sm sm:bottom-5 sm:left-5">
-          <p className="kz-label mb-1.5 text-[0.56rem] text-[#3f5a52]">Meetups per state</p>
+        <div className="pointer-events-none absolute bottom-3 left-3 border-2 border-[#1c130c] bg-[#f5e9cf] px-3.5 py-2.5 sm:bottom-5 sm:left-5">
+          <p className="kz-label mb-1.5 text-[0.56rem] text-[#5e4a35]">Meetups per state</p>
           <div className="flex items-center gap-3 text-[0.68rem] font-semibold">
             {[
               ["1–2", 1],
@@ -725,11 +725,11 @@ export default function IndiaMeetupMap({
       {!geo && (
         <div className="absolute inset-0 grid place-items-center">
           {failed ? (
-            <p className="kz-body max-w-xs px-6 text-center text-[#3f5a52]">
+            <p className="kz-body max-w-xs px-6 text-center text-[#5e4a35]">
               The map could not load. Every meetup is still in the list.
             </p>
           ) : (
-            <p className="inline-flex items-center gap-2 text-[0.85rem] font-semibold text-[#3f5a52]">
+            <p className="inline-flex items-center gap-2 text-[0.85rem] font-semibold text-[#5e4a35]">
               <Loader2 size={16} className="animate-spin" /> Drawing India…
             </p>
           )}
@@ -758,10 +758,10 @@ function Pin({
     <span className="relative block" style={{ width: size, height: h }}>
       {/* The newest meetup in the house breathes, so the map has a "now". */}
       {pulse && (
-        <span className="absolute bottom-0 left-1/2 h-3 w-3 -translate-x-1/2 translate-y-1/2 rounded-full bg-[#c10021] opacity-60 motion-safe:animate-ping" />
+        <span className="absolute bottom-0 left-1/2 h-3 w-3 -translate-x-1/2 translate-y-1/2 rounded-full bg-[#c8102e] opacity-60 motion-safe:animate-ping" />
       )}
       <span
-        className={`absolute bottom-0 left-1/2 h-1.5 -translate-x-1/2 translate-y-1/2 rounded-full bg-[#002820]/30 blur-[1px] transition-all duration-300 ${
+        className={`absolute bottom-0 left-1/2 h-1.5 -translate-x-1/2 translate-y-1/2 rounded-full bg-[#1c130c]/30 blur-[1px] transition-all duration-300 ${
           lifted ? "w-4 opacity-60" : "w-3 opacity-100"
         }`}
       />
@@ -769,13 +769,13 @@ function Pin({
         viewBox="0 0 24 32"
         width={size}
         height={h}
-        className={`relative block origin-bottom drop-shadow-[0_2px_2px_rgba(0,40,32,0.25)] transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:-translate-y-1 group-hover:scale-110 group-focus-visible:-translate-y-1 group-focus-visible:scale-110 ${
+        className={`relative block origin-bottom drop-shadow-[0_2px_2px_rgba(28,19,12,0.25)] transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:-translate-y-1 group-hover:scale-110 group-focus-visible:-translate-y-1 group-focus-visible:scale-110 ${
           lifted ? "-translate-y-1 scale-110" : ""
         }`}
       >
         <path
           d="M12 31.2s10.4-10 10.4-18.6a10.4 10.4 0 1 0-20.8 0C1.6 21.2 12 31.2 12 31.2z"
-          fill={active ? INK : "#c10021"}
+          fill={active ? INK : "#c8102e"}
           stroke="#fff"
           strokeWidth={1.8}
           className="transition-[fill] duration-200"
@@ -788,7 +788,7 @@ function Pin({
           <circle cx="12" cy="12.6" r="3.8" fill={CREAM} />
         )}
       </svg>
-      <span className="pointer-events-none absolute inset-0 rounded-full ring-[#002820] group-focus-visible:ring-2" />
+      <span className="pointer-events-none absolute inset-0 rounded-full ring-[#1c130c] group-focus-visible:ring-2" />
     </span>
   );
 }
@@ -855,7 +855,7 @@ function CardSlot({
       onClick={(e) => e.stopPropagation()}
     >
       {g.cities.length > 1 && (
-        <p className="mb-1.5 inline-block rounded-full bg-[#002820] px-2.5 py-1 text-[0.65rem] font-bold text-[#f9fbe5]">
+        <p className="kz-sign mb-1.5 inline-block bg-[#1c130c] px-2.5 py-1 text-[0.68rem] text-[#f6b51e]">
           {g.cities.map((c) => c.name).join(" · ")}
         </p>
       )}

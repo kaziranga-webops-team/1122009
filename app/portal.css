@@ -416,7 +416,7 @@
   box-shadow: 0 24px 50px -28px rgba(0, 0, 0, 0.45);
   -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
 .dn-title { color: var(--hero-ink); }
-.dn-eyebrow, .dn-accent { color: var(--hero-accent); }
+.dn-accent { color: var(--hero-accent); }
 .dn-sub { color: var(--hero-muted); }
 .dn-btn { font-weight: 800; text-decoration: none; transition: filter 0.2s ease, background-color 0.2s ease; }
 .dn-btn-primary { background-color: var(--hero-btn); color: var(--hero-btn-ink); }

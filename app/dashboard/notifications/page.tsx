@@ -163,7 +163,6 @@ export default function NotificationsPage() {
   return (
     <div className="space-y-7 max-w-3xl mx-auto pb-12">
       <SectionHeading
-        eyebrow="Activity"
         title="Everything you've missed"
         description="Event publications, registration confirmations, team invitations and announcements."
         size="lg"

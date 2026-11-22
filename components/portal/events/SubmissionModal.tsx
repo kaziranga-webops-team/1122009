@@ -117,7 +117,6 @@ export const SubmissionModal: React.FC<SubmissionModalProps> = ({ isOpen, onClos
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      eyebrow="Deliverable"
       title={event.name || 'Project submission'}
       subtitle="Provide or update your submission links and notes."
       maxWidth="lg"
