@@ -30,6 +30,19 @@ service cloud.firestore {
       return getUserRole() == 'SUPER_ADMIN';
     }
 
+    // Admins and Regional Coordinators run every event.
+    function isEventManager() {
+      return getUserRole() in ['ADMIN', 'SUPER_ADMIN', 'RC'];
+    }
+
+    // A community head runs the events (and sees the registrations) tagged
+    // with a community they lead.
+    function leadsCommunity(slug) {
+      return getUserRole() == 'COMMUNITY_HEAD'
+        && slug is string
+        && slug in getUserData().get('communitySlugs', []);
+    }
+
     function isOwner(userId) {
       return isAuthenticated() && request.auth.uid == userId;
     }
@@ -49,7 +62,7 @@ service cloud.firestore {
 
     // Fields only an admin may set on a user profile.
     function privilegedUserFields() {
-      return ['role', 'email', 'uid', 'createdAt', 'isAccessRevoked', 'revokedAt', 'revokedBy', 'councilMemberId'];
+      return ['role', 'email', 'uid', 'createdAt', 'isAccessRevoked', 'revokedAt', 'revokedBy', 'councilMemberId', 'communitySlugs'];
     }
 
     // ─── Users ──────────────────────────────────────────────────────────────
@@ -67,7 +80,7 @@ service cloud.firestore {
           request.resource.data.role == 'USER'
           || (request.resource.data.role == 'SUPER_ADMIN' && isFoundingAdmin())
         )
-        && !request.resource.data.keys().hasAny(['isAccessRevoked', 'revokedAt', 'revokedBy', 'councilMemberId']);
+        && !request.resource.data.keys().hasAny(['isAccessRevoked', 'revokedAt', 'revokedBy', 'councilMemberId', 'communitySlugs']);
 
       // Owners edit their own profile but never their role, email or access state.
       allow update: if (
@@ -118,17 +131,28 @@ service cloud.firestore {
       return resource.data.status in ['PUBLISHED', 'CLOSED', 'COMPLETED'];
     }
 
+    // A head may create and edit their community's events, but cannot move
+    // an event to a community they do not lead.
+    function headOwnsEvent() {
+      return leadsCommunity(resource.data.get('communitySlug', null))
+        && leadsCommunity(request.resource.data.get('communitySlug', null));
+    }
+
     match /{path=**}/events/{eventId} {
-      allow read: if isAuthenticated() && (isVisibleStatus() || isAdmin());
-      allow create: if isAdmin();
-      allow update: if isAdmin() || (isAuthenticated() && isSeatCountStep());
+      allow read: if isAuthenticated() && (
+        isVisibleStatus() || isEventManager() || leadsCommunity(resource.data.get('communitySlug', null))
+      );
+      allow create: if isEventManager() || leadsCommunity(request.resource.data.get('communitySlug', null));
+      allow update: if isEventManager() || headOwnsEvent() || (isAuthenticated() && isSeatCountStep());
       allow delete: if isSuperAdmin();
     }
 
     match /{path=**}/subEvents/{subEventId} {
-      allow read: if isAuthenticated() && (isVisibleStatus() || isAdmin());
-      allow create: if isAdmin();
-      allow update: if isAdmin() || (isAuthenticated() && isSeatCountStep());
+      allow read: if isAuthenticated() && (
+        isVisibleStatus() || isEventManager() || leadsCommunity(resource.data.get('communitySlug', null))
+      );
+      allow create: if isEventManager() || leadsCommunity(request.resource.data.get('communitySlug', null));
+      allow update: if isEventManager() || headOwnsEvent() || (isAuthenticated() && isSeatCountStep());
       allow delete: if isSuperAdmin();
     }
 
@@ -143,14 +167,25 @@ service cloud.firestore {
     }
 
     match /{path=**}/registrations/{registrationId} {
-      allow read: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow read: if isAuthenticated() && (
+        resource.data.userId == request.auth.uid
+        || isEventManager()
+        || leadsCommunity(resource.data.get('communitySlug', null))
+      );
 
       allow create: if isAuthenticated()
         && request.resource.data.userId == request.auth.uid
         && request.resource.data.status in ['CONFIRMED', 'WAITLISTED']
         && request.resource.data.emailSnapshot.lower() == myEmail();
 
-      allow update: if isAdmin() || (
+      // Organisers may manage registrations (confirm, waitlist, cancel) but
+      // never reassign one to another event or person.
+      allow update: if (
+        (isEventManager() || leadsCommunity(resource.data.get('communitySlug', null)))
+        && request.resource.data.userId == resource.data.userId
+        && request.resource.data.eventId == resource.data.eventId
+        && request.resource.data.get('communitySlug', null) == resource.data.get('communitySlug', null)
+      ) || (
         isAuthenticated()
         && resource.data.userId == request.auth.uid
         && request.resource.data.userId == resource.data.userId
@@ -203,7 +238,8 @@ service cloud.firestore {
         || (resource.data.userId == 'SUPER_ADMIN' && isSuperAdmin())
       );
 
-      allow create: if isAdmin() || (
+      // Admins and RCs announce event changes (published, removed, rescheduled).
+      allow create: if isEventManager() || (
         isAuthenticated()
         && request.resource.data.userId == request.auth.uid
         && request.resource.data.get('isGlobal', false) == false

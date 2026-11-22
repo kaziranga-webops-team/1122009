@@ -16,6 +16,7 @@ import { getRegistrationRef, getEventRef, DEFAULT_TENURE_ID, DEFAULT_MAIN_EVENT_
 import { TeamStatusPanel } from './TeamStatusPanel';
 import { formatDate } from '@/lib/portal/utils/formatDate';
 import { cn } from '@/lib/utils';
+import { REGIONS } from '@/lib/portal/regions';
 import { isValidUrl, normalizeUrl } from '@/lib/portal/utils/urlValidation';
 
 interface RegistrationModalProps {
@@ -124,17 +125,7 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
   }, [user, phone, region, level, programme]);
 
   const availableRegions = useMemo(() => {
-    const defaultList = [
-      'Bengaluru',
-      'Chandigarh',
-      'Chennai',
-      'Delhi',
-      'Hyderabad',
-      'Kolkata',
-      'Lucknow',
-      'Mumbai',
-      'Patna',
-    ];
+    const defaultList: string[] = [...REGIONS];
     const list = [...defaultList];
     if (user?.region && !list.includes(user.region)) list.push(user.region);
     if (existingRegistration?.regionSnapshot && !list.includes(existingRegistration.regionSnapshot)) {
@@ -496,6 +487,7 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
             mainEventId: event.mainEventId || DEFAULT_MAIN_EVENT_ID,
             tenureId: event.tenureId || DEFAULT_TENURE_ID,
             eventTitle: event.name,
+            communitySlug: event.communitySlug ?? null,
             userId: user.uid,
             nameSnapshot: user.name,
             emailSnapshot: user.email,
@@ -745,7 +737,7 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
           {/* 2. Participant Profile Card */}
           <div className="p-4 rounded-2xl bg-surface-raised dark:bg-surface-sunken border border-hairline space-y-3 shadow-xs">
             <div className="flex items-center justify-between pb-2 border-b border-hairline">
-              <span className="inline-flex items-center gap-1.5 text-caption font-display font-bold uppercase tracking-wider text-ink">
+              <span className="inline-flex items-center gap-1.5 text-caption font-display font-semibold text-ink">
                 <User className="w-3.5 h-3.5 text-brand dark:text-accent" />
                 Participant Information
               </span>
@@ -758,7 +750,7 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
                   <User className="w-3.5 h-3.5" />
                 </div>
                 <div className="min-w-0">
-                  <span className="text-micro uppercase font-bold tracking-wider text-ink-faint block">Full Name</span>
+                  <span className="text-micro font-semibold text-ink-faint block">Full Name</span>
                   <span className="font-bold text-ink text-caption truncate block">{user.name}</span>
                 </div>
               </div>
@@ -769,7 +761,7 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
                   <Mail className="w-3.5 h-3.5" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <span className="text-micro uppercase font-bold tracking-wider text-ink-faint block">Student Email</span>
+                  <span className="text-micro font-semibold text-ink-faint block">Student Email</span>
                   <span className="font-mono text-ink text-caption break-all block">{user.email}</span>
                 </div>
               </div>
@@ -780,7 +772,7 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
                   <Phone className="w-3.5 h-3.5" />
                 </div>
                 <div className="min-w-0">
-                  <span className="text-micro uppercase font-bold tracking-wider text-ink-faint block">WhatsApp Number</span>
+                  <span className="text-micro font-semibold text-ink-faint block">WhatsApp Number</span>
                   <span className="font-mono font-medium text-ink text-caption">{phone}</span>
                 </div>
               </div>
@@ -791,7 +783,7 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
                   <GraduationCap className="w-3.5 h-3.5" />
                 </div>
                 <div className="min-w-0">
-                  <span className="text-micro uppercase font-bold tracking-wider text-ink-faint block">Academic Profile</span>
+                  <span className="text-micro font-semibold text-ink-faint block">Academic Profile</span>
                   <span className="font-medium text-ink text-caption truncate block">
                     {[region, level, programme].filter(Boolean).join(' • ') || 'Standard profile'}
                   </span>
@@ -804,7 +796,7 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
           {(isInitiator || isJoiningTeam || existingRegistration?.teamRole) && (
             <div className="p-4 rounded-2xl bg-surface-raised dark:bg-surface-sunken border border-hairline space-y-3 shadow-xs">
               <div className="flex items-center justify-between pb-2 border-b border-hairline">
-                <span className="inline-flex items-center gap-1.5 text-caption font-display font-bold uppercase tracking-wider text-ink">
+                <span className="inline-flex items-center gap-1.5 text-caption font-display font-semibold text-ink">
                   <Users className="w-3.5 h-3.5 text-accent" />
                   Team Configuration
                 </span>
@@ -816,14 +808,14 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
               <div className="space-y-3 pt-0.5">
                 {teamName.trim() && (
                   <div className="flex items-center justify-between p-2.5 rounded-xl bg-surface-sunken/60 dark:bg-white/[0.03]">
-                    <span className="text-micro uppercase font-bold tracking-wider text-ink-faint">Team Name</span>
+                    <span className="text-micro font-semibold text-ink-faint">Team Name</span>
                     <span className="font-display font-bold text-ink text-caption">{teamName}</span>
                   </div>
                 )}
 
                 {teammateEmails.length > 0 && (
                   <div>
-                    <span className="text-micro uppercase font-bold tracking-wider text-ink-faint block mb-2">
+                    <span className="text-micro font-semibold text-ink-faint block mb-2">
                       Invited Teammates ({teammateEmails.length})
                     </span>
                     <div className="flex flex-wrap gap-2">
@@ -846,7 +838,7 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
           {/* 4. Custom Questions Answers (if any) */}
           {event.customQuestions && event.customQuestions.length > 0 && (
             <div className="p-4 rounded-2xl bg-surface-raised dark:bg-surface-sunken border border-hairline space-y-3 shadow-xs">
-              <span className="inline-flex items-center gap-1.5 text-caption font-display font-bold uppercase tracking-wider text-ink pb-2 border-b border-hairline block">
+              <span className="inline-flex items-center gap-1.5 text-caption font-display font-semibold text-ink pb-2 border-b border-hairline block">
                 <BookOpen className="w-3.5 h-3.5 text-brand dark:text-accent" />
                 Questions &amp; Responses
               </span>
@@ -868,7 +860,7 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
           {/* 5. During-Registration Submissions (if any) */}
           {hasDuringSubmissions && (
             <div className="p-4 rounded-2xl bg-surface-raised dark:bg-surface-sunken border border-hairline space-y-3 shadow-xs">
-              <span className="inline-flex items-center gap-1.5 text-caption font-display font-bold uppercase tracking-wider text-ink pb-2 border-b border-hairline block">
+              <span className="inline-flex items-center gap-1.5 text-caption font-display font-semibold text-ink pb-2 border-b border-hairline block">
                 <ExternalLink className="w-3.5 h-3.5 text-accent" />
                 Event Submissions
               </span>
@@ -1196,7 +1188,7 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
           {isInitiator && !existingRegistration && (
             <div className="space-y-3 pt-4 border-t border-hairline">
               <div className="flex items-center justify-between">
-                <h3 className="text-caption font-bold text-ink uppercase tracking-wider flex items-center gap-1.5">
+                <h3 className="text-caption font-semibold text-ink flex items-center gap-1.5">
                   <Users className="w-3.5 h-3.5 text-ink-faint" />
                   Invite Teammates
                 </h3>

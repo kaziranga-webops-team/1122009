@@ -31,10 +31,10 @@ export const ContentTabs: React.FC = () => {
             href={`/admin/content/${r}`}
             aria-current={active ? 'page' : undefined}
             className={cn(
-              'shrink-0 rounded-full px-4 py-2 text-caption font-display font-bold transition-colors',
+              'shrink-0 rounded-md px-2.5 h-7 inline-flex items-center text-[0.8125rem] transition-colors',
               active
-                ? 'bg-brand text-brand-contrast'
-                : 'bg-surface-raised border border-hairline text-ink-muted hover:text-ink hover:border-hairline-strong'
+                ? 'bg-surface-sunken text-ink font-semibold'
+                : 'text-ink-muted font-medium hover:text-ink'
             )}
           >
             {RESOURCE_LABELS[r].title}

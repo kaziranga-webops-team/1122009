@@ -90,8 +90,38 @@ export function canUsePortalAdmin(role: UserRole | undefined): boolean {
   return role === 'ADMIN' || role === 'SUPER_ADMIN' || role === 'RC';
 }
 
+/** Who may create and run events: the portal admins, plus community heads. */
+export function canOrganiseEvents(role: UserRole | undefined): boolean {
+  return canUsePortalAdmin(role) || role === 'COMMUNITY_HEAD';
+}
+
+/** The organiser screens a community head shares with the admins. */
+const ORGANISER_PATHS = ['/admin/events', '/admin/registrations'];
+
+/** May this role open the given /admin path at all? */
+export function canOpenAdminPath(role: UserRole | undefined, pathname: string): boolean {
+  if (canUsePortalAdmin(role)) return true;
+  if (role !== 'COMMUNITY_HEAD') return false;
+  return ORGANISER_PATHS.some((p) => pathname === p || pathname.startsWith(p + "/"));
+}
+
+/**
+ * May this identity run the given community's events, registrations, results
+ * and page? Admins and RCs may run every community; a community head only
+ * the ones they lead.
+ */
+export function canManageCommunity(
+  scope: { role: UserRole | undefined; communitySlugs?: string[] },
+  slug: string | null | undefined
+): boolean {
+  if (!slug) return false;
+  if (canUsePortalAdmin(scope.role)) return true;
+  return scope.role === 'COMMUNITY_HEAD' && (scope.communitySlugs ?? []).includes(slug);
+}
+
 export const ROLE_LABELS: Record<UserRole, string> = {
   USER: 'Member',
+  COMMUNITY_HEAD: 'Community Head',
   RC: 'Regional Coordinator',
   ADMIN: 'Admin',
   SUPER_ADMIN: 'Super Admin',

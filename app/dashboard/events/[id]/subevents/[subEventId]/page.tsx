@@ -223,7 +223,7 @@ export default function SubEventDetailPage() {
     if (!event) return;
     const shareData = {
       title: event.name,
-      text: `Check out ${event.name} on Kaziranga Event Arena!`,
+      text: `Check out ${event.name} on the Kaziranga House portal`,
       url: window.location.href,
     };
     if (typeof navigator !== 'undefined' && navigator.share) {
@@ -323,7 +323,7 @@ export default function SubEventDetailPage() {
     <div className="flex items-start gap-3">
       <Icon className="w-4 h-4 text-ink-faint shrink-0 mt-0.5" aria-hidden />
       <div className="min-w-0 space-y-0.5">
-        <dt className="text-eyebrow uppercase font-display text-ink-faint">{label}</dt>
+        <dt className="text-[0.75rem] font-medium text-ink-faint">{label}</dt>
         <dd className="text-caption text-ink font-medium break-words">{children}</dd>
       </div>
     </div>
@@ -381,7 +381,7 @@ export default function SubEventDetailPage() {
         {/* ─── Main column ─── */}
         <div className="xl:col-span-2 space-y-6 min-w-0">
           <Card elevation={1} className="p-6 sm:p-8 space-y-5">
-            <h2 className="ed-eyebrow">About this activity</h2>
+            <h2 className="ed-subhead">About this activity</h2>
             <div
               className="prose prose-sm dark:prose-invert max-w-none
                 text-body text-ink-muted leading-relaxed break-words
@@ -410,7 +410,7 @@ export default function SubEventDetailPage() {
 
           {event.hasGuests && event.guests && event.guests.length > 0 && (
             <Card elevation={1} className="p-6 sm:p-8 space-y-5">
-              <h2 className="ed-eyebrow">Guests &amp; speakers</h2>
+              <h2 className="ed-subhead">Guests &amp; speakers</h2>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {event.guests.map((guest, gIdx) => (
@@ -482,7 +482,7 @@ export default function SubEventDetailPage() {
         <div className="xl:col-span-1 xl:sticky xl:top-[calc(var(--navbar-height)+1.5rem)] space-y-4">
           <Card elevation={2}>
             <div className="px-5 pt-5 pb-4">
-              <h3 className="ed-eyebrow">Key details</h3>
+              <h3 className="ed-subhead">Key details</h3>
             </div>
 
             <dl className="px-5 pb-5 space-y-4">

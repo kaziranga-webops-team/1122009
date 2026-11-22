@@ -8,13 +8,22 @@
 // ─────────────────────────────────────────────────────────────────────────────
 import { NextResponse } from 'next/server';
 import { adminAuth, adminDb } from '@/lib/portal/firebase/admin';
+import { effectiveScope, VIEW_AS_COMMUNITY_HEADER, VIEW_AS_HEADER } from '@/lib/portal/roles';
 import type { UserRole } from '@/types/portal';
 
 export interface AuthedUser {
   uid: string;
   email: string;
   name: string;
+  /**
+   * The role this request acts with. Normally the user's own; lower when they
+   * are viewing the portal as another role. Permission checks use this.
+   */
   role: UserRole;
+  /** The role on the user's profile, regardless of any "view as". */
+  realRole: UserRole;
+  /** Communities this request may run, when acting as a community head. */
+  communitySlugs: string[];
   /** The council_members row this user may edit, when they are an RC. */
   councilMemberId: string | null;
 }
@@ -65,12 +74,25 @@ export async function requireUser(req: Request): Promise<AuthedUser> {
   const data = snap.data() as Record<string, unknown>;
   if (data.isAccessRevoked === true) throw new ApiError(403, 'Your access has been revoked.');
 
+  const realRole = (data.role as UserRole) || 'USER';
+  const realCommunities = Array.isArray(data.communitySlugs) ? (data.communitySlugs as string[]) : [];
+
+  // "View as" can only lower what this request may do: effectiveScope ignores
+  // any role the real one is not allowed to switch into.
+  const scope = effectiveScope(
+    { role: realRole, communitySlugs: realCommunities },
+    req.headers.get(VIEW_AS_HEADER),
+    req.headers.get(VIEW_AS_COMMUNITY_HEADER)
+  );
+
   return {
     uid,
     email: email || String(data.email || ''),
     name: String(data.name || ''),
-    role: (data.role as UserRole) || 'USER',
-    councilMemberId: (data.councilMemberId as string | null) ?? null,
+    role: scope.role,
+    realRole,
+    communitySlugs: scope.communitySlugs,
+    councilMemberId: scope.role === realRole ? ((data.councilMemberId as string | null) ?? null) : null,
   };
 }
 
@@ -94,7 +116,13 @@ export async function writeAudit(entry: {
       action: entry.action,
       target: entry.target,
       timestamp: new Date().toISOString(),
-      metadata: entry.metadata ?? {},
+      metadata: {
+        ...(entry.metadata ?? {}),
+        // Actions taken while viewing as another role say so in the record.
+        ...(entry.actor.role !== entry.actor.realRole
+          ? { actingAs: entry.actor.role, realRole: entry.actor.realRole }
+          : {}),
+      },
     });
   } catch (e) {
     // An audit write must never fail the action the user asked for.

@@ -73,7 +73,7 @@ export const CountdownTimer: React.FC<CountdownTimerProps> = ({
             <div className="text-title font-display font-black text-ink nums leading-none">
               {String(unit.value).padStart(2, '0')}
             </div>
-            <div className="text-[0.625rem] uppercase tracking-eyebrow font-display font-bold text-ink-faint mt-1.5">
+            <div className="text-[0.625rem] font-medium text-ink-faint mt-1.5">
               {unit.label}
             </div>
           </div>

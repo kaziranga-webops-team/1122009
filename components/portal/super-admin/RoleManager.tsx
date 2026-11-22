@@ -5,6 +5,7 @@ import { auth, db, isMockMode } from '@/lib/firebase';
 import { doc, updateDoc, setDoc } from 'firebase/firestore';
 import { mockStore } from '@/lib/portal/firebase/mockStore';
 import { formatRoleName } from '@/lib/portal/utils/roleFormatter';
+import { COMMUNITIES } from '@/lib/communities';
 import {
   Shield,
   Crown,
@@ -36,8 +37,11 @@ const ROLE_PRIORITY: Record<UserRole, number> = {
   SUPER_ADMIN: 1,
   ADMIN: 2,
   RC: 3,
-  USER: 4,
+  COMMUNITY_HEAD: 4,
+  USER: 5,
 };
+
+const sameSet = (a: string[], b: string[]) => a.length === b.length && a.every((x) => b.includes(x));
 
 type SortOption =
   | 'default'
@@ -59,6 +63,7 @@ export const RoleManager: React.FC<RoleManagerProps> = ({ users, onRoleUpdated }
   const [sortBy, setSortBy] = useState<SortOption>('default');
   const [targetUser, setTargetUser] = useState<UserProfile | null>(null);
   const [selectedRole, setSelectedRole] = useState<UserRole>('USER');
+  const [selectedCommunities, setSelectedCommunities] = useState<string[]>([]);
   const [isUpdating, setIsUpdating] = useState(false);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
@@ -149,13 +154,21 @@ export const RoleManager: React.FC<RoleManagerProps> = ({ users, onRoleUpdated }
   const handleOpenModal = (user: UserProfile) => {
     setTargetUser(user);
     setSelectedRole(user.role);
+    setSelectedCommunities(user.communitySlugs ?? []);
     setSuccessMsg(null);
   };
 
   const handleConfirmRoleChange = async () => {
     if (!targetUser || !currentUser) return;
 
-    if (selectedRole === targetUser.role) {
+    // A community head leads at least one community; other roles lead none.
+    const communitySlugs = selectedRole === 'COMMUNITY_HEAD' ? selectedCommunities : [];
+    if (selectedRole === 'COMMUNITY_HEAD' && communitySlugs.length === 0) {
+      toast.error('Choose a community', 'Pick at least one community this person will lead.');
+      return;
+    }
+
+    if (selectedRole === targetUser.role && sameSet(communitySlugs, targetUser.communitySlugs ?? [])) {
       setTargetUser(null);
       return;
     }
@@ -182,6 +195,7 @@ export const RoleManager: React.FC<RoleManagerProps> = ({ users, onRoleUpdated }
               body: JSON.stringify({
                 targetUserId: targetUser.uid,
                 newRole: selectedRole,
+                communitySlugs,
                 actorUserId: currentUser.uid,
                 actorEmail: currentUser.email,
               }),
@@ -205,6 +219,7 @@ export const RoleManager: React.FC<RoleManagerProps> = ({ users, onRoleUpdated }
           const userDocRef = doc(db, 'users', targetUser.uid);
           await updateDoc(userDocRef, {
             role: selectedRole,
+            communitySlugs,
             updatedAt: timestamp,
           });
 
@@ -275,8 +290,24 @@ export const RoleManager: React.FC<RoleManagerProps> = ({ users, onRoleUpdated }
         </Badge>
       );
     }
+    if (role === 'RC') {
+      return (
+        <Badge tone="brand" size="sm">
+          <MapPin className="w-3 h-3" aria-hidden />
+          Regional Coordinator
+        </Badge>
+      );
+    }
+    if (role === 'COMMUNITY_HEAD') {
+      return (
+        <Badge tone="brand" size="sm">
+          <UsersRound className="w-3 h-3" aria-hidden />
+          Community Head
+        </Badge>
+      );
+    }
     return (
-      <Badge tone="brand" size="sm">
+      <Badge tone="neutral" size="sm">
         <Shield className="w-3 h-3" aria-hidden />
         Member
       </Badge>
@@ -338,7 +369,7 @@ export const RoleManager: React.FC<RoleManagerProps> = ({ users, onRoleUpdated }
         filters={
           <div className="space-y-4">
             <div className="space-y-1.5">
-              <label className="block text-micro font-display font-bold uppercase tracking-wider text-ink-muted">
+              <label className="block text-micro font-display font-semibold text-ink-muted">
                 Role
               </label>
               <FilterSelect
@@ -349,6 +380,7 @@ export const RoleManager: React.FC<RoleManagerProps> = ({ users, onRoleUpdated }
                   { value: 'SUPER_ADMIN', label: 'Super Admins' },
                   { value: 'ADMIN', label: 'Admins' },
                   { value: 'RC', label: 'Regional Coordinators' },
+                  { value: 'COMMUNITY_HEAD', label: 'Community Heads' },
                   { value: 'USER', label: 'Members' },
                 ]}
                 icon={<Filter />}
@@ -359,7 +391,7 @@ export const RoleManager: React.FC<RoleManagerProps> = ({ users, onRoleUpdated }
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-hairline">
               <div className="space-y-1.5">
-                <label className="block text-micro font-display font-bold uppercase tracking-wider text-ink-muted">
+                <label className="block text-micro font-display font-semibold text-ink-muted">
                   Academic Level
                 </label>
                 <FilterSelect
@@ -376,7 +408,7 @@ export const RoleManager: React.FC<RoleManagerProps> = ({ users, onRoleUpdated }
               </div>
 
               <div className="space-y-1.5">
-                <label className="block text-micro font-display font-bold uppercase tracking-wider text-ink-muted">
+                <label className="block text-micro font-display font-semibold text-ink-muted">
                   Region
                 </label>
                 <FilterSelect
@@ -394,7 +426,7 @@ export const RoleManager: React.FC<RoleManagerProps> = ({ users, onRoleUpdated }
             </div>
 
             <div className="space-y-1.5 pt-2 border-t border-hairline">
-              <label className="block text-micro font-display font-bold uppercase tracking-wider text-ink-muted">
+              <label className="block text-micro font-display font-semibold text-ink-muted">
                 Sort Order
               </label>
               <FilterSelect
@@ -493,7 +525,7 @@ export const RoleManager: React.FC<RoleManagerProps> = ({ users, onRoleUpdated }
             )}
 
             <div className="space-y-2.5">
-              <label className="block text-caption font-bold uppercase tracking-wider text-ink-muted font-display">
+              <label className="block text-caption font-semibold text-ink-muted font-display">
                 Select Role:
               </label>
 
@@ -523,6 +555,58 @@ export const RoleManager: React.FC<RoleManagerProps> = ({ users, onRoleUpdated }
                   </div>
                 </div>
               </label>
+
+              {/* COMMUNITY_HEAD Role Option */}
+              <div
+                className={`p-3.5 rounded-xl border transition-all ${selectedRole === 'COMMUNITY_HEAD'
+                    ? 'border-brand bg-brand-soft ring-2 ring-brand/20'
+                    : 'border-hairline hover:bg-surface-raised'
+                  }`}
+              >
+                <label className="flex items-start gap-3 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="roleOption"
+                    value="COMMUNITY_HEAD"
+                    checked={selectedRole === 'COMMUNITY_HEAD'}
+                    onChange={() => setSelectedRole('COMMUNITY_HEAD')}
+                    className="mt-0.5 text-brand focus:ring-brand/30"
+                  />
+                  <div className="space-y-0.5">
+                    <div className="font-display font-bold text-ink flex items-center gap-1.5">
+                      <UsersRound className="w-3.5 h-3.5 text-brand" />
+                      <span>Community Head</span>
+                    </div>
+                    <div className="text-caption text-ink-muted leading-relaxed">
+                      Runs the communities chosen below: their page, events, registrations and
+                      results. A community can have several heads.
+                    </div>
+                  </div>
+                </label>
+                {selectedRole === 'COMMUNITY_HEAD' && (
+                  <fieldset className="mt-3 grid grid-cols-1 gap-1.5 pl-7 sm:grid-cols-2">
+                    <legend className="sr-only">Communities this person leads</legend>
+                    {COMMUNITIES.map((c) => {
+                      const checked = selectedCommunities.includes(c.slug);
+                      return (
+                        <label key={c.slug} className="flex items-center gap-2 text-caption text-ink cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={checked}
+                            onChange={() =>
+                              setSelectedCommunities((cur) =>
+                                checked ? cur.filter((s) => s !== c.slug) : [...cur, c.slug]
+                              )
+                            }
+                            className="text-brand focus:ring-brand/30"
+                          />
+                          {c.name}
+                        </label>
+                      );
+                    })}
+                  </fieldset>
+                )}
+              </div>
 
               {/* RC Role Option */}
               <label

@@ -7,9 +7,10 @@ import { useAuth } from '@/context/AuthContext';
 import { EventItem, MainEvent } from '@/types/portal';
 import { isMockMode, db } from '@/lib/firebase';
 import { mockStore } from '@/lib/portal/firebase/mockStore';
-import { getDocs, updateDoc, deleteDoc, doc, collection, setDoc } from 'firebase/firestore';
+import { getDocs, updateDoc, deleteDoc } from 'firebase/firestore';
+import { organiserEventsQuery, postNotice } from '@/lib/portal/organiser';
+import { communityBySlug } from '@/lib/communities';
 import {
-  getAllEventsGroupRef,
   getEventRef,
   getMainEventsCollectionRef,
   DEFAULT_TENURE_ID,
@@ -74,9 +75,10 @@ export default function AdminEventsPage() {
       setLoading(false);
     } else {
       try {
-        const snap = await getDocs(getAllEventsGroupRef());
+        const eventsQuery = organiserEventsQuery(user);
         const items: EventItem[] = [];
-        snap.forEach((d) => {
+        const snap = eventsQuery ? await getDocs(eventsQuery) : null;
+        snap?.forEach((d) => {
           if (d.ref.path.includes('tenures/')) {
             items.push({ id: d.id, ...d.data() } as EventItem);
           }
@@ -134,9 +136,7 @@ export default function AdminEventsPage() {
       });
 
       if (!wasPublished && willBePublished) {
-        const notifDoc = doc(collection(db, 'notifications'));
-        await setDoc(notifDoc, {
-          id: notifDoc.id,
+        await postNotice(user.role, {
           userId: 'GLOBAL',
           title: evt.hasBeenPublished ? 'Event Re-Published' : 'New Event Published',
           message: evt.hasBeenPublished
@@ -144,21 +144,15 @@ export default function AdminEventsPage() {
             : `${eventName} is now open for registration.`,
           type: 'EVENT',
           linkUrl: `/dashboard/events/${eventId}`,
-          read: false,
           isGlobal: true,
-          createdAt: new Date().toISOString(),
         });
       } else if (wasPublished && !willBePublished) {
-        const notifDoc = doc(collection(db, 'notifications'));
-        await setDoc(notifDoc, {
-          id: notifDoc.id,
+        await postNotice(user.role, {
           userId: 'GLOBAL',
           title: 'Event Removed',
           message: `${eventName} has been removed from published events.`,
           type: 'WARNING',
-          read: false,
           isGlobal: true,
-          createdAt: new Date().toISOString(),
         });
       }
 
@@ -194,16 +188,12 @@ export default function AdminEventsPage() {
         await deleteDoc(docRef);
 
         if (evt.status === 'PUBLISHED') {
-          const notifDoc = doc(collection(db, 'notifications'));
-          await setDoc(notifDoc, {
-            id: notifDoc.id,
+          await postNotice(user.role, {
             userId: 'GLOBAL',
             title: 'Event Removed',
             message: `${deletedName} has been removed from published events.`,
             type: 'WARNING',
-            read: false,
             isGlobal: true,
-            createdAt: new Date().toISOString(),
           });
         }
 
@@ -273,7 +263,6 @@ export default function AdminEventsPage() {
       <div className="space-y-7">
         <SectionHeading
           title="Event management"
-          description="Create, edit, publish or close registration for Kaziranga House events."
           size="lg"
           as="h1"
           actions={
@@ -307,7 +296,7 @@ export default function AdminEventsPage() {
           filters={
             <div className="space-y-4">
               <div className="space-y-1.5">
-                <label className="block text-micro font-display font-bold uppercase tracking-wider text-ink-muted">
+                <label className="block text-micro font-display font-semibold text-ink-muted">
                   Festival
                 </label>
                 <FilterSelect
@@ -324,7 +313,7 @@ export default function AdminEventsPage() {
               </div>
 
               <div className="space-y-1.5 pt-2 border-t border-hairline">
-                <label className="block text-micro font-display font-bold uppercase tracking-wider text-ink-muted">
+                <label className="block text-micro font-display font-semibold text-ink-muted">
                   Status
                 </label>
                 <FilterSelect
@@ -354,11 +343,11 @@ export default function AdminEventsPage() {
         ) : groups.length === 0 ? (
           <EmptyState
             icon={<CalendarX2 />}
-            title={events.length === 0 ? 'No events yet' : 'Nothing in this festival'}
+            title={events.length === 0 ? 'No events yet' : 'Nothing matches these filters'}
             description={
               events.length === 0
-                ? 'Create your first competition to start taking registrations.'
-                : 'Try a different festival, or create an event under this one.'
+                ? 'Create an event to start taking registrations.'
+                : 'Try a different festival or status.'
             }
             action={
               <Link href="/admin/events/new">
@@ -404,7 +393,8 @@ export default function AdminEventsPage() {
                           <AdminEventRow
                             event={evt}
                             onStatusChange={handleStatusChange}
-                            onDelete={handleDeleteEvent}
+                            onDelete={user?.role === 'SUPER_ADMIN' ? handleDeleteEvent : undefined}
+                            communityName={evt.communitySlug ? communityBySlug(evt.communitySlug)?.name : undefined}
                           />
                         </StaggerItem>
                       ))}

@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
@@ -31,6 +32,8 @@ export const BrandSeal: React.FC<{ className?: string }> = ({ className = 'w-11 
   );
 };
 
+const COLLAPSE_KEY = 'kz-sidebar-collapsed';
+
 /** Wordmark + strapline, shared by the sidebar and the mobile drawer. */
 export const BrandLockup: React.FC = () => (
   <span className="flex items-center gap-3 min-w-0">
@@ -39,9 +42,7 @@ export const BrandLockup: React.FC = () => (
       <span className="block font-display font-extrabold text-[1.125rem] leading-[1.1] tracking-[-0.01em] text-ink">
         Kaziranga House
       </span>
-      <span className="block mt-[5px] text-[0.6875rem] font-bold uppercase tracking-[0.14em] text-ink-muted">
-        Rhinos · Event Arena
-      </span>
+      <span className="block mt-[3px] text-[0.75rem] font-semibold text-ink-muted">Member portal</span>
     </span>
   </span>
 );
@@ -54,6 +55,24 @@ export const BrandLockup: React.FC = () => (
 export const Sidebar: React.FC = () => {
   const pathname = usePathname();
   const { user } = useAuth();
+  const [collapsed, setCollapsed] = useState(false);
+
+  // Remembered per browser. Read after mount so the server render and the
+  // first client render agree.
+  useEffect(() => {
+    try {
+      setCollapsed(localStorage.getItem(COLLAPSE_KEY) === '1');
+    } catch {}
+  }, []);
+
+  const toggle = () => {
+    setCollapsed((was) => {
+      try {
+        localStorage.setItem(COLLAPSE_KEY, was ? '0' : '1');
+      } catch {}
+      return !was;
+    });
+  };
 
   if (!user) return null;
 
@@ -61,19 +80,21 @@ export const Sidebar: React.FC = () => {
 
   return (
     <aside
-      className="hidden lg:flex shrink-0 w-[var(--sidebar-width)]
-        sticky top-4 h-[calc(100dvh-2rem)] z-30"
+      className={`hidden lg:flex shrink-0 sticky top-4 h-[calc(100dvh-2rem)] z-30
+        transition-[width] duration-300 ease-editorial
+        ${collapsed ? 'w-[64px]' : 'w-[var(--sidebar-width)]'}`}
     >
       <div
-        className="flex flex-col w-full h-full min-h-0 gap-7 rounded-[20px] px-3.5 py-5
-          bg-surface-raised border border-hairline shadow-e-1"
+        className={`flex flex-col w-full h-full min-h-0 gap-7 rounded-[20px] py-5
+          bg-surface-raised border border-hairline shadow-e-1 overflow-hidden
+          ${collapsed ? 'px-2.5' : 'px-3.5'}`}
       >
         <Link
           href="/dashboard"
           aria-label="Kaziranga House — dashboard"
-          className="shrink-0 px-1.5 rounded-xl"
+          className={`shrink-0 rounded-xl ${collapsed ? 'self-center' : 'px-1.5'}`}
         >
-          <BrandLockup />
+          {collapsed ? <BrandSeal /> : <BrandLockup />}
         </Link>
 
         <nav
@@ -86,9 +107,29 @@ export const Sidebar: React.FC = () => {
               section={section}
               pathname={pathname}
               isFirst={i === 0}
+              collapsed={collapsed}
             />
           ))}
         </nav>
+
+        <button
+          type="button"
+          onClick={toggle}
+          aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          className={`shrink-0 flex items-center gap-3 min-h-10 rounded-xl text-[0.875rem] font-medium
+            text-ink-muted hover:text-ink hover:bg-surface-sunken/60 transition-colors
+            ${collapsed ? 'justify-center' : 'px-3'}`}
+        >
+          {collapsed ? (
+            <PanelLeftOpen className="w-5 h-5" aria-hidden />
+          ) : (
+            <>
+              <PanelLeftClose className="w-5 h-5" aria-hidden />
+              <span>Collapse</span>
+            </>
+          )}
+        </button>
       </div>
     </aside>
   );

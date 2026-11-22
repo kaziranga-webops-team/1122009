@@ -1,8 +1,9 @@
 /**
  * RC = Regional Coordinator: runs events and maintains their own council
- * profile, but touches nothing else. See lib/portal/permissions.ts.
+ * profile. COMMUNITY_HEAD runs one or more of the house's communities.
+ * See lib/portal/permissions.ts and lib/portal/roles.ts.
  */
-export type UserRole = 'USER' | 'RC' | 'ADMIN' | 'SUPER_ADMIN';
+export type UserRole = 'USER' | 'COMMUNITY_HEAD' | 'RC' | 'ADMIN' | 'SUPER_ADMIN';
 
 export interface UserProfile {
   uid: string;
@@ -19,6 +20,8 @@ export interface UserProfile {
   avatarUrl?: string;
   /** Links an RC to the public council_members row they may edit. */
   councilMemberId?: string | null;
+  /** Communities (slugs from lib/communities.ts) a COMMUNITY_HEAD runs. */
+  communitySlugs?: string[];
   isAccessRevoked?: boolean;
   revokedAt?: string;
   revokedBy?: string;
@@ -110,6 +113,8 @@ export interface EventItem {
   maximumTeamSize: number | null;
   rulebookUrl: string | null;
   coverImageUrl: string | null;
+  /** The community running this event, if any; its heads may manage it. */
+  communitySlug?: string | null;
   status: EventStatus;
   hasBeenPublished?: boolean;
   createdBy: string; // userId
@@ -143,6 +148,8 @@ export interface Registration {
   eventId: string;
   subEventId?: string | null;
   eventTitle?: string;
+  /** Copied from the event, so the community's heads can see who registered. */
+  communitySlug?: string | null;
   userId: string;
   nameSnapshot: string;
   emailSnapshot: string;

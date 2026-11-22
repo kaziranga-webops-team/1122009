@@ -7,6 +7,7 @@ import { Navbar } from './Navbar';
 import { Sidebar } from './Sidebar';
 import { BottomNav } from './BottomNav';
 import { DemoRoleSwitcher } from './DemoRoleSwitcher';
+import { ViewAsBanner } from './ViewAsSwitcher';
 import { CommandPalette } from './CommandPalette';
 import { PageTransition } from '@/components/portal/ui/Motion';
 
@@ -47,6 +48,7 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) 
   return (
     <div className="ed-app relative z-[1] min-h-screen flex flex-col bg-surface">
       <DemoRoleSwitcher />
+      <ViewAsBanner />
       <CommandPalette
         isOpen={isCommandPaletteOpen}
         onClose={() => setIsCommandPaletteOpen(false)}

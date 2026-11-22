@@ -165,7 +165,7 @@ export const TeamInvitationCard: React.FC<TeamInvitationCardProps> = ({
           <div key={label} className="flex items-start gap-3">
             <Icon className="w-4 h-4 text-ink-faint shrink-0 mt-0.5" aria-hidden />
             <div className="min-w-0">
-              <dt className="text-eyebrow uppercase font-display text-ink-faint">{label}</dt>
+              <dt className="text-[0.75rem] font-medium text-ink-faint">{label}</dt>
               <dd
                 className={`text-caption text-ink font-medium break-words ${
                   mono ? 'font-mono' : ''

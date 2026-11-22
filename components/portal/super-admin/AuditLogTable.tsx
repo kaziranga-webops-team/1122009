@@ -200,7 +200,7 @@ export const AuditLogTable: React.FC<AuditLogTableProps> = ({ logs }) => {
         }
         filters={
           <div className="space-y-2">
-            <label className="block text-micro font-display font-bold uppercase tracking-wider text-ink-muted">
+            <label className="block text-micro font-display font-semibold text-ink-muted">
               Action Category
             </label>
             <FilterSelect

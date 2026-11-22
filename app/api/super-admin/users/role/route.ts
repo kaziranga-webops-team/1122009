@@ -1,10 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server';
 import type { UserRole } from '@/types/portal';
 import { adminAuth, adminDb } from '@/lib/portal/firebase/admin';
+import { ALL_ROLES } from '@/lib/portal/roles';
+import { COMMUNITIES } from '@/lib/communities';
 
 export const runtime = 'nodejs';
 
-const VALID_ROLES: UserRole[] = ['USER', 'ADMIN', 'SUPER_ADMIN'];
+const VALID_ROLES: UserRole[] = ALL_ROLES;
+const COMMUNITY_SLUGS = new Set(COMMUNITIES.map((c) => c.slug));
+
+/** Known community slugs only, each once; a community head must lead at least one. */
+function cleanCommunitySlugs(role: UserRole, raw: unknown): string[] | null {
+  if (role !== 'COMMUNITY_HEAD') return [];
+  const list = Array.isArray(raw) ? raw.filter((s): s is string => typeof s === 'string' && COMMUNITY_SLUGS.has(s)) : [];
+  const unique = Array.from(new Set(list));
+  return unique.length ? unique : null;
+}
+
+const sameSet = (a: string[], b: string[]) => a.length === b.length && a.every((x) => b.includes(x));
+
+const arrayOfStrings = (values: string[]) => ({ arrayValue: { values: values.map((v) => ({ stringValue: v })) } });
+
+const readFirestoreStrings = (doc: any, field: string): string[] =>
+  (doc?.fields?.[field]?.arrayValue?.values || []).map((v: any) => v?.stringValue).filter(Boolean);
 
 const getProjectId = () => process.env.FIREBASE_PROJECT_ID || process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'kazi-event-portal';
 
@@ -40,6 +58,7 @@ const updateRoleWithFirestoreRest = async (
   token: string,
   targetUserId: string,
   newRole: UserRole,
+  communitySlugs: string[],
   actorInfo?: { actorUserId?: string; actorEmail?: string }
 ) => {
   const projectId = getProjectId();
@@ -62,7 +81,7 @@ const updateRoleWithFirestoreRest = async (
   const targetDoc = await targetResponse.json();
   const oldRole = readFirestoreString(targetDoc, 'role') as UserRole;
 
-  if (oldRole === newRole) {
+  if (oldRole === newRole && sameSet(communitySlugs, readFirestoreStrings(targetDoc, 'communitySlugs'))) {
     return NextResponse.json({
       success: true,
       oldRole,
@@ -96,10 +115,11 @@ const updateRoleWithFirestoreRest = async (
             name: `projects/${projectId}/databases/(default)/documents/users/${targetUserId}`,
             fields: {
               role: stringValue(newRole),
+              communitySlugs: arrayOfStrings(communitySlugs),
               updatedAt: stringValue(timestamp),
             },
           },
-          updateMask: { fieldPaths: ['role', 'updatedAt'] },
+          updateMask: { fieldPaths: ['role', 'communitySlugs', 'updatedAt'] },
         },
         {
           update: {
@@ -111,7 +131,7 @@ const updateRoleWithFirestoreRest = async (
               action: stringValue('USER_ROLE_CHANGED'),
               target: stringValue(`${targetName} (${targetEmail})`),
               timestamp: stringValue(timestamp),
-              metadata: mapValue({ oldRole, newRole }),
+              metadata: mapValue({ oldRole, newRole, communitySlugs: communitySlugs.join(', ') }),
             },
           },
           currentDocument: { exists: false },
@@ -155,7 +175,8 @@ const updateRoleWithFirestoreRest = async (
 
 export async function POST(req: NextRequest) {
   let token = '';
-  let payload: { targetUserId?: string; newRole?: UserRole; actorUserId?: string; actorEmail?: string } = {};
+  let payload: { targetUserId?: string; newRole?: UserRole; communitySlugs?: unknown; actorUserId?: string; actorEmail?: string } = {};
+  let communitySlugs: string[] = [];
 
   try {
     const authHeader = req.headers.get('authorization') || '';
@@ -177,8 +198,14 @@ export async function POST(req: NextRequest) {
 
     const validatedRole = newRole as UserRole;
 
+    const cleaned = cleanCommunitySlugs(validatedRole, payload.communitySlugs);
+    if (!cleaned) {
+      return NextResponse.json({ success: false, error: 'Choose at least one community for a Community Head' }, { status: 400 });
+    }
+    communitySlugs = cleaned;
+
     if (!adminDb || !adminAuth) {
-      return updateRoleWithFirestoreRest(token, targetUserId, validatedRole, { actorUserId, actorEmail });
+      return updateRoleWithFirestoreRest(token, targetUserId, validatedRole, communitySlugs, { actorUserId, actorEmail });
     }
 
     const decodedToken = await adminAuth.verifyIdToken(token);
@@ -219,7 +246,7 @@ export async function POST(req: NextRequest) {
       const target = targetSnap.data();
       const oldRole = target?.role as UserRole | undefined;
 
-      if (oldRole === validatedRole) {
+      if (oldRole === validatedRole && sameSet(communitySlugs, (target?.communitySlugs as string[]) ?? [])) {
         return {
           oldRole,
           newRole: validatedRole,
@@ -235,6 +262,7 @@ export async function POST(req: NextRequest) {
 
       transaction.update(targetRef, {
         role: validatedRole,
+        communitySlugs,
         updatedAt: timestamp,
       });
 
@@ -245,7 +273,7 @@ export async function POST(req: NextRequest) {
         action: 'ROLE_CHANGED',
         target: `${targetName} (${targetEmail})`,
         timestamp,
-        metadata: { oldRole, newRole: validatedRole },
+        metadata: { oldRole, newRole: validatedRole, communitySlugs },
       });
 
       transaction.set(notificationRef, {
@@ -272,7 +300,7 @@ export async function POST(req: NextRequest) {
     console.error('Role update error:', err);
 
     if (parseErrorStatus(err) === 'credentials' && payload.targetUserId && payload.newRole) {
-      return updateRoleWithFirestoreRest(token, payload.targetUserId, payload.newRole, {
+      return updateRoleWithFirestoreRest(token, payload.targetUserId, payload.newRole, communitySlugs, {
         actorUserId: payload.actorUserId,
         actorEmail: payload.actorEmail,
       });

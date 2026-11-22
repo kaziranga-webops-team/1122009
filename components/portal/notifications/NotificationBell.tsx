@@ -146,7 +146,7 @@ export const NotificationBell: React.FC = () => {
               {displayNotifications.length === 0 ? (
                 <div className="px-4 py-8 text-center space-y-2">
                   <BellOff className="w-5 h-5 mx-auto text-ink-faint" aria-hidden />
-                  <p className="text-micro text-ink-muted">All quiet in the arena.</p>
+                  <p className="text-micro text-ink-muted">No notifications yet.</p>
                 </div>
               ) : (
                 displayNotifications.map((item) => {

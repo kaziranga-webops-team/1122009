@@ -95,12 +95,12 @@ export const KazirangaLogo: React.FC<KazirangaLogoProps> = ({
           {variant === 'full' && (
             <span
               className={cn(
-                'font-display font-bold uppercase leading-none mt-1.5 tracking-eyebrow',
+                'font-medium leading-none mt-1.5',
                 taglineColor,
                 tagline[size]
               )}
             >
-              Rhinos · Event Arena
+              Member portal
             </span>
           )}
         </span>

@@ -237,7 +237,7 @@ export function ContentManager({ resource }: { resource: ContentResource }) {
               <thead>
                 <tr className="border-b border-hairline bg-surface-sunken/60">
                   {config.columns.map((c) => (
-                    <th key={c.name} className="px-4 py-3 text-eyebrow uppercase text-ink-faint whitespace-nowrap">
+                    <th key={c.name} className="px-4 py-2.5 text-[0.75rem] font-semibold text-ink-muted whitespace-nowrap">
                       {c.label}
                     </th>
                   ))}
@@ -322,7 +322,6 @@ export function ContentManager({ resource }: { resource: ContentResource }) {
         isOpen={editing !== null}
         onClose={() => (saving ? undefined : setEditing(null))}
         title={editing === 'new' ? `New ${labels.singular}` : `Edit ${labels.singular}`}
-        subtitle="Changes appear on the website straight away."
         maxWidth="3xl"
         footer={
           <div className="flex items-center justify-end gap-2">

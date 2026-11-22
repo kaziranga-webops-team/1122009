@@ -25,12 +25,13 @@ import { useAuth } from '@/context/AuthContext';
 import { isMockMode } from '@/lib/firebase';
 import { mockStore } from '@/lib/portal/firebase/mockStore';
 import { cn } from '@/lib/utils';
+import { canOrganiseEvents, canUsePortalAdmin } from '@/lib/portal/permissions';
 import { EASE_EDITORIAL } from '@/components/portal/ui/Motion';
 
 interface CommandItem {
   id: string;
   label: string;
-  category: 'Navigation' | 'Admin Suite' | 'Super Admin' | 'Quick Actions' | 'Competitions';
+  category: 'Navigation' | 'Organise' | 'House admin' | 'Quick Actions' | 'Competitions';
   icon: React.ElementType;
   hint?: string;
   onSelect: () => void;
@@ -86,10 +87,10 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
       },
       {
         id: 'nav-events',
-        label: 'Events & Festivals Arena',
+        label: 'Events',
         category: 'Navigation',
         icon: Calendar,
-        hint: 'All house competitions',
+        hint: 'Browse and register',
         onSelect: () => {
           router.push('/dashboard/events');
           onClose();
@@ -135,23 +136,25 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
     ];
 
     // Admin commands
-    if (user.role === 'ADMIN' || user.role === 'SUPER_ADMIN') {
-      items.push(
-        {
+    if (canUsePortalAdmin(user.role)) {
+      items.push({
           id: 'admin-dash',
-          label: 'Admin Operations Dashboard',
-          category: 'Admin Suite',
+          label: 'Admin overview',
+          category: 'Organise',
           icon: LayoutDashboard,
           onSelect: () => {
             router.push('/admin/dashboard');
             onClose();
           },
           keywords: ['control', 'management'],
-        },
+        });
+    }
+    if (canOrganiseEvents(user.role)) {
+      items.push(
         {
           id: 'admin-events',
-          label: 'Manage House Events',
-          category: 'Admin Suite',
+          label: 'Events you run',
+          category: 'Organise',
           icon: Calendar,
           onSelect: () => {
             router.push('/admin/events');
@@ -160,8 +163,8 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
         },
         {
           id: 'admin-regs',
-          label: 'All Participant Registrations',
-          category: 'Admin Suite',
+          label: 'Registrations',
+          category: 'Organise',
           icon: ClipboardList,
           onSelect: () => {
             router.push('/admin/registrations');
@@ -171,10 +174,10 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
         },
         {
           id: 'admin-new-event',
-          label: 'Create New Event',
+          label: 'New event',
           category: 'Quick Actions',
           icon: PlusCircle,
-          hint: 'Draft a competition',
+          hint: 'Draft an event',
           onSelect: () => {
             router.push('/admin/events/new');
             onClose();
@@ -189,7 +192,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
         {
           id: 'super-dash',
           label: 'Super Admin Command Centre',
-          category: 'Super Admin',
+          category: 'House admin',
           icon: Shield,
           onSelect: () => {
             router.push('/super-admin/dashboard');
@@ -199,7 +202,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
         {
           id: 'super-allowed',
           label: 'Allowed Users Registry',
-          category: 'Super Admin',
+          category: 'House admin',
           icon: FileSpreadsheet,
           onSelect: () => {
             router.push('/super-admin/allowed-users');
@@ -209,7 +212,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
         {
           id: 'super-members',
           label: 'House Members Directory & Roles',
-          category: 'Super Admin',
+          category: 'House admin',
           icon: Users,
           onSelect: () => {
             router.push('/super-admin/roles');
@@ -219,7 +222,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
         {
           id: 'super-logs',
           label: 'Security Audit Logs',
-          category: 'Super Admin',
+          category: 'House admin',
           icon: History,
           onSelect: () => {
             router.push('/super-admin/audit-logs');
@@ -263,7 +266,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
         label: 'Sign Out',
         category: 'Quick Actions',
         icon: LogOut,
-        hint: 'Log out of arena',
+        hint: 'Sign out of the portal',
         onSelect: () => {
           onClose();
           logout();
@@ -456,7 +459,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
                     <kbd className="font-mono font-bold">↵</kbd> select
                   </span>
                 </div>
-                <span>Kaziranga House Arena</span>
+                <span>Kaziranga House</span>
               </div>
             </motion.div>
           </div>

@@ -5,9 +5,11 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { EventForm } from '@/components/portal/admin/EventForm';
-import { isMockMode, db } from '@/lib/firebase';
+import { isMockMode } from '@/lib/firebase';
+import { postNotice } from '@/lib/portal/organiser';
+import { canOrganiseEvents } from '@/lib/portal/permissions';
 import { mockStore } from '@/lib/portal/firebase/mockStore';
-import { setDoc, doc, collection } from 'firebase/firestore';
+import { setDoc } from 'firebase/firestore';
 import { getEventRef, DEFAULT_TENURE_ID } from '@/lib/portal/firebase/paths';
 import { Card } from '@/components/portal/ui/Card';
 import { Calendar, ArrowLeft } from 'lucide-react';
@@ -20,7 +22,7 @@ export default function ClassicCreateEventPage() {
   const toast = useToast();
   const [isLoading, setIsLoading] = useState(false);
 
-  if (!user || user.role === 'USER') {
+  if (!user || !canOrganiseEvents(user.role)) {
     return null;
   }
 
@@ -64,17 +66,13 @@ export default function ClassicCreateEventPage() {
         await setDoc(docRef, newEvent);
 
         if (isPublished) {
-          const notifDoc = doc(collection(db, 'notifications'));
-          await setDoc(notifDoc, {
-            id: notifDoc.id,
+          await postNotice(user.role, {
             userId: 'GLOBAL',
             title: 'New Event Published',
             message: `${newEvent.name} is now open for registration.`,
             type: 'EVENT',
             linkUrl: `/dashboard/events/${eventId}`,
-            read: false,
             isGlobal: true,
-            createdAt: new Date().toISOString(),
           });
         }
       }
@@ -97,11 +95,8 @@ export default function ClassicCreateEventPage() {
         <div>
           <h1 className="text-2xl font-black text-ink flex items-center gap-2">
             <Calendar className="w-6 h-6 text-ink-muted" />
-            <span>Create Event</span>
+            <span>New event</span>
           </h1>
-          <p className="text-caption text-ink-muted mt-0.5">
-            Configure details, schedule, deliverables, and registration settings.
-          </p>
         </div>
       </div>
 

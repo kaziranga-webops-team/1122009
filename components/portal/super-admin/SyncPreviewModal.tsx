@@ -72,7 +72,7 @@ export const SyncPreviewModal: React.FC<SyncPreviewModalProps> = ({
             <div className="text-xl font-display font-black text-signal-live">
               {result.validRows.length}
             </div>
-            <div className="text-micro text-signal-live uppercase tracking-wider font-bold mt-0.5">
+            <div className="text-micro text-signal-live font-semibold mt-0.5">
               Valid IITM Emails
             </div>
           </div>
@@ -81,7 +81,7 @@ export const SyncPreviewModal: React.FC<SyncPreviewModalProps> = ({
             <div className="text-xl font-display font-black text-signal-warn">
               {result.duplicateCount}
             </div>
-            <div className="text-micro text-signal-warn uppercase tracking-wider font-bold mt-0.5">
+            <div className="text-micro text-signal-warn font-semibold mt-0.5">
               Duplicates Cleaned
             </div>
           </div>
@@ -90,7 +90,7 @@ export const SyncPreviewModal: React.FC<SyncPreviewModalProps> = ({
             <div className="text-xl font-display font-black text-signal-danger">
               {result.invalidRows.length}
             </div>
-            <div className="text-micro text-signal-danger uppercase tracking-wider font-bold mt-0.5">
+            <div className="text-micro text-signal-danger font-semibold mt-0.5">
               Invalid Excluded
             </div>
           </div>

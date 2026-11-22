@@ -8,6 +8,8 @@ import { UserRole } from '@/types/portal';
  */
 export const ROLE_DISPLAY_NAMES: Record<string, string> = {
   USER: 'Member',
+  COMMUNITY_HEAD: 'Community Head',
+  RC: 'Regional Coordinator',
   ADMIN: 'Admin',
   SUPER_ADMIN: 'Super Admin',
 };

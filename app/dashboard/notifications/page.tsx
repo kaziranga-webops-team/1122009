@@ -164,7 +164,6 @@ export default function NotificationsPage() {
     <div className="space-y-7 max-w-3xl mx-auto pb-12">
       <SectionHeading
         title="Everything you've missed"
-        description="Event publications, registration confirmations, team invitations and announcements."
         size="lg"
         as="h1"
         actions={
@@ -206,7 +205,7 @@ export default function NotificationsPage() {
           filters={
             <div className="space-y-4">
               <div className="space-y-1.5">
-                <label className="block text-micro font-display font-bold uppercase tracking-wider text-ink-muted">
+                <label className="block text-micro font-display font-semibold text-ink-muted">
                   Read Status
                 </label>
                 <FilterSelect
@@ -224,7 +223,7 @@ export default function NotificationsPage() {
               </div>
 
               <div className="space-y-1.5 pt-2 border-t border-hairline">
-                <label className="block text-micro font-display font-bold uppercase tracking-wider text-ink-muted">
+                <label className="block text-micro font-display font-semibold text-ink-muted">
                   Notification Category
                 </label>
                 <FilterSelect
@@ -253,7 +252,7 @@ export default function NotificationsPage() {
       {notifications.length === 0 ? (
         <EmptyState
           icon={<BellOff />}
-          title="All quiet in the arena"
+          title="No notifications yet"
           description="Notifications about your events, team invitations, and registrations will appear here."
         />
       ) : filteredNotifications.length === 0 ? (

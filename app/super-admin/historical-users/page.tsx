@@ -194,7 +194,7 @@ export default function ArchivedUsersPage() {
         }
         filters={
           <div className="space-y-1.5">
-            <label className="block text-micro font-display font-bold uppercase tracking-wider text-ink-muted">
+            <label className="block text-micro font-display font-semibold text-ink-muted">
               Account History Status
             </label>
             <FilterSelect

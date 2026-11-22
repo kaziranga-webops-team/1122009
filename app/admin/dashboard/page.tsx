@@ -135,7 +135,6 @@ export default function AdminDashboardPage() {
       <div className="space-y-8">
         <SectionHeading
           title="Event operations"
-          description="Manage event lifecycles, review participant data and generate export reports."
           size="lg"
           as="h1"
           actions={
@@ -217,7 +216,7 @@ export default function AdminDashboardPage() {
               <div className="space-y-6">
                 {eventGroups.map((group) => (
                   <div key={group.id} className="space-y-2.5">
-                    <h3 className="ed-eyebrow">{group.name}</h3>
+                    <h3 className="ed-subhead">{group.name}</h3>
 
                     <Card elevation={1} className="divide-y divide-hairline">
                       {group.items.slice(0, 5).map((evt) => (

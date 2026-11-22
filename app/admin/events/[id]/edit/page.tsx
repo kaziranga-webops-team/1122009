@@ -5,11 +5,12 @@ import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { EventItem } from '@/types/portal';
 import { EventForm } from '@/components/portal/admin/EventForm';
-import { isMockMode, db } from '@/lib/firebase';
+import { isMockMode } from '@/lib/firebase';
+import { organiserEventsQuery, postNotice, canBroadcast } from '@/lib/portal/organiser';
+import { canOrganiseEvents } from '@/lib/portal/permissions';
 import { mockStore } from '@/lib/portal/firebase/mockStore';
-import { updateDoc, query, where, getDocs, doc, collection, setDoc } from 'firebase/firestore';
+import { updateDoc, query, where, getDocs } from 'firebase/firestore';
 import {
-  getAllEventsGroupRef,
   getAllRegistrationsGroupRef,
   getEventRef,
   DEFAULT_TENURE_ID,
@@ -32,7 +33,7 @@ export default function EditEventPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    if (user && user.role === 'USER') {
+    if (user && !canOrganiseEvents(user.role)) {
       router.replace('/dashboard');
       return;
     }
@@ -44,10 +45,12 @@ export default function EditEventPage() {
         setLoading(false);
       } else {
         try {
-          const q = query(getAllEventsGroupRef(), where('id', '==', eventId));
-          const snap = await getDocs(q);
-          if (!snap.empty) {
-            setEvent({ id: snap.docs[0].id, ...snap.docs[0].data() } as EventItem);
+          const scoped = organiserEventsQuery(user);
+          if (scoped) {
+            const q = user?.role === 'COMMUNITY_HEAD' ? scoped : query(scoped, where('id', '==', eventId));
+            const snap = await getDocs(q);
+            const match = snap.docs.find((d) => d.id === eventId || d.data().id === eventId);
+            if (match) setEvent({ id: match.id, ...match.data() } as EventItem);
           }
         } catch (err) {
           console.error('Error fetching event:', err);
@@ -60,7 +63,7 @@ export default function EditEventPage() {
     fetchEvent();
   }, [eventId, user, router]);
 
-  if (!user || user.role === 'USER') return null;
+  if (!user || !canOrganiseEvents(user.role)) return null;
 
   if (loading) {
     return <div className="p-8 text-center text-caption text-ink-faint">Loading event data...</div>;
@@ -102,9 +105,7 @@ export default function EditEventPage() {
         });
 
         if (!wasPublished && willBePublished) {
-          const notifDoc = doc(collection(db, 'notifications'));
-          await setDoc(notifDoc, {
-            id: notifDoc.id,
+          await postNotice(user.role, {
             userId: 'GLOBAL',
             title: event.hasBeenPublished ? 'Event Re-Published' : 'New Event Published',
             message: event.hasBeenPublished
@@ -112,21 +113,15 @@ export default function EditEventPage() {
               : `${eventData.name || event.name} is now open for registration.`,
             type: 'EVENT',
             linkUrl: `/dashboard/events/${eventId}`,
-            read: false,
             isGlobal: true,
-            createdAt: new Date().toISOString(),
           });
         } else if (wasPublished && !willBePublished) {
-          const notifDoc = doc(collection(db, 'notifications'));
-          await setDoc(notifDoc, {
-            id: notifDoc.id,
+          await postNotice(user.role, {
             userId: 'GLOBAL',
             title: 'Event Removed',
             message: `${eventData.name || event.name} has been removed from published events.`,
             type: 'WARNING',
-            read: false,
             isGlobal: true,
-            createdAt: new Date().toISOString(),
           });
         }
 
@@ -135,7 +130,7 @@ export default function EditEventPage() {
           (eventData.endDateTime && eventData.endDateTime !== event.endDateTime) ||
           (eventData.venue && eventData.venue !== event.venue);
 
-        if (wasPublished && willBePublished && scheduleOrVenueChanged) {
+        if (wasPublished && willBePublished && scheduleOrVenueChanged && canBroadcast(user.role)) {
           try {
             const regsSnap = await getDocs(
               query(
@@ -147,16 +142,12 @@ export default function EditEventPage() {
             const userIds = Array.from(new Set(regsSnap.docs.map((d) => d.data().userId)));
             await Promise.all(
               userIds.map((uid) => {
-                const notifDoc = doc(collection(db, 'notifications'));
-                return setDoc(notifDoc, {
-                  id: notifDoc.id,
+                return postNotice(user.role, {
                   userId: uid,
                   title: 'Event Details Updated',
                   message: `The venue/schedule for "${eventData.name || event.name}" has been updated. Check the event page for details.`,
                   type: 'INFO',
                   linkUrl: `/dashboard/events/${eventId}`,
-                  read: false,
-                  createdAt: new Date().toISOString(),
                 });
               })
             );

@@ -17,13 +17,17 @@ export const NavLink: React.FC<{
   accent?: boolean;
   badge?: number;
   onNavigate?: () => void;
-}> = ({ href, label, icon: Icon, isActive, badge, onNavigate }) => (
+  /** Icon-only, for the collapsed sidebar; the label becomes a tooltip. */
+  collapsed?: boolean;
+}> = ({ href, label, icon: Icon, isActive, badge, onNavigate, collapsed = false }) => (
   <Link
     href={href}
     onClick={onNavigate}
     aria-current={isActive ? 'page' : undefined}
+    title={collapsed ? label : undefined}
     className={cn(
-      'group relative flex items-center gap-3 min-h-11 px-3 rounded-xl text-[0.9375rem]',
+      'group relative flex items-center min-h-11 rounded-xl text-[0.9375rem]',
+      collapsed ? 'justify-center px-0' : 'gap-3 px-3',
       'transition-all duration-200 ease-editorial',
       isActive
         ? 'bg-surface-sunken text-ink font-bold shadow-xs'
@@ -44,8 +48,11 @@ export const NavLink: React.FC<{
       strokeWidth={isActive ? 2.2 : 1.8}
       aria-hidden
     />
-    <span className="truncate flex-1">{label}</span>
-    {typeof badge === 'number' && badge > 0 && (
+    <span className={collapsed ? 'sr-only' : 'truncate flex-1'}>{label}</span>
+    {collapsed && typeof badge === 'number' && badge > 0 && (
+      <span className="absolute top-2 right-3 w-2 h-2 rounded-full bg-accent" aria-hidden />
+    )}
+    {!collapsed && typeof badge === 'number' && badge > 0 && (
       <span
         aria-label={`${badge} unread`}
         className="ml-auto inline-flex items-center justify-center min-w-[1.25rem] px-1.5 py-0.5
@@ -62,13 +69,15 @@ export const NavSectionBlock: React.FC<{
   pathname: string;
   onNavigate?: () => void;
   isFirst?: boolean;
-}> = ({ section, pathname, onNavigate, isFirst = false }) => {
+  collapsed?: boolean;
+}> = ({ section, pathname, onNavigate, isFirst = false, collapsed = false }) => {
   const { unreadCount } = useNotifications();
 
   return (
-    <div className={cn('flex flex-col gap-1', !isFirst && 'pt-[22px]')}>
+    <div className={cn('flex flex-col gap-1', !isFirst && (collapsed ? 'pt-3 mt-3 border-t border-hairline' : 'pt-5'))}>
+      {!collapsed && (
       <div className="flex items-center justify-between gap-2 px-3 pb-1.5">
-        <h4 className="text-[0.6875rem] font-bold uppercase tracking-[0.14em] text-ink-faint">
+        <h4 className="text-[0.6875rem] font-semibold text-ink-faint">
           {section.label}
         </h4>
         {section.action && (
@@ -83,6 +92,7 @@ export const NavSectionBlock: React.FC<{
           </Link>
         )}
       </div>
+      )}
       {section.items.map((item) => (
         <NavLink
           key={item.href}
@@ -93,6 +103,7 @@ export const NavSectionBlock: React.FC<{
           accent={section.accent}
           badge={item.href.endsWith('/notifications') && unreadCount > 0 ? unreadCount : undefined}
           onNavigate={onNavigate}
+          collapsed={collapsed}
         />
       ))}
     </div>
@@ -115,7 +126,7 @@ export const SocialRow: React.FC<{ className?: string }> = ({ className }) => (
             social.hover
           )}
         >
-          <Icon className="w-[17px] h-[17px]" />
+          <Icon className="w-4 h-4" />
         </a>
       );
     })}

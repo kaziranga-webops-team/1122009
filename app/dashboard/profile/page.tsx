@@ -20,6 +20,7 @@ import { SectionHeading } from '@/components/portal/ui/Section';
 import { Reveal } from '@/components/portal/ui/Motion';
 import { ConfirmModal } from '@/components/portal/ui/ConfirmModal';
 import { BrandSeal } from '@/components/portal/layout/Sidebar';
+import { REGIONS } from '@/lib/portal/regions';
 import {
   Lock,
   Crown,
@@ -117,17 +118,7 @@ export default function ProfilePage() {
 
   // Available options
   const availableRegions = useMemo(() => {
-    const defaultList = [
-      'Bengaluru',
-      'Chandigarh',
-      'Chennai',
-      'Delhi',
-      'Hyderabad',
-      'Kolkata',
-      'Lucknow',
-      'Mumbai',
-      'Patna',
-    ];
+    const defaultList: string[] = [...REGIONS];
     const list = [...defaultList];
     if (user?.region && !list.includes(user.region)) list.push(user.region);
     if (region && !list.includes(region)) list.push(region);
@@ -432,7 +423,7 @@ export default function ProfilePage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 pt-6 border-t border-hairline">
             {/* Metric 1: Completeness */}
             <div className="p-3.5 rounded-xl bg-surface-sunken border border-hairline space-y-1">
-              <span className="text-micro uppercase font-bold tracking-wider text-ink-faint block">
+              <span className="text-micro font-semibold text-ink-faint block">
                 Profile Readiness
               </span>
               <div className="flex items-center justify-between">
@@ -463,7 +454,7 @@ export default function ProfilePage() {
               className="p-3.5 rounded-xl bg-surface-sunken border border-hairline space-y-1 hover:border-hairline-strong transition-colors block group"
             >
               <div className="flex items-center justify-between">
-                <span className="text-micro uppercase font-bold tracking-wider text-ink-faint">
+                <span className="text-micro font-semibold text-ink-faint">
                   Events Joined
                 </span>
                 <ArrowRight className="w-3.5 h-3.5 text-ink-faint group-hover:text-ink transition-transform group-hover:translate-x-0.5" />
@@ -478,11 +469,11 @@ export default function ProfilePage() {
 
             {/* Metric 3: House Affiliation */}
             <div className="p-3.5 rounded-xl bg-surface-sunken border border-hairline space-y-1">
-              <span className="text-micro uppercase font-bold tracking-wider text-ink-faint block">
-                House &amp; Chapter
+              <span className="text-micro font-semibold text-ink-muted block">
+                House
               </span>
               <span className="text-body font-display font-extrabold text-ink block truncate">
-                Kaziranga Rhinos
+                Kaziranga House
               </span>
               <span className="text-micro text-ink-muted block truncate">
                 IIT Madras BS Degree
@@ -491,7 +482,7 @@ export default function ProfilePage() {
 
             {/* Metric 4: Region */}
             <div className="p-3.5 rounded-xl bg-surface-sunken border border-hairline space-y-1">
-              <span className="text-micro uppercase font-bold tracking-wider text-ink-faint block">
+              <span className="text-micro font-semibold text-ink-faint block">
                 Assigned Region
               </span>
               <span className="text-body font-display font-extrabold text-ink block truncate flex items-center gap-1">
@@ -622,7 +613,7 @@ export default function ProfilePage() {
               {/* Identity Snapshot (Google SSO locked) */}
               <div className="p-4 rounded-xl bg-surface-sunken border border-hairline space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-micro uppercase font-bold tracking-wider text-ink-faint flex items-center gap-1.5">
+                  <span className="text-micro font-semibold text-ink-faint flex items-center gap-1.5">
                     <Lock className="w-3 h-3 text-ink-faint" />
                     Managed by IIT Madras Google Workspace
                   </span>
@@ -764,9 +755,6 @@ export default function ProfilePage() {
                 <h2 className="font-display font-extrabold text-title text-ink">
                   Kaziranga Digital House Pass
                 </h2>
-                <p className="text-caption text-ink-muted mt-0.5">
-                  Your official digital credential for Kaziranga House events, regional entry, and sports arenas.
-                </p>
               </div>
 
               <div className="flex items-center gap-2">
@@ -797,11 +785,11 @@ export default function ProfilePage() {
                   <div className="flex items-center gap-3">
                     <BrandSeal className="w-12 h-12" />
                     <div>
-                      <span className="block text-[0.625rem] font-bold uppercase tracking-[0.18em] text-brand">
+                      <span className="block text-[0.75rem] font-semibold text-ink-muted">
                         Indian Institute of Technology Madras
                       </span>
                       <span className="block font-display font-extrabold text-body text-ink leading-tight">
-                        Kaziranga House • Rhinos
+                        Kaziranga House
                       </span>
                     </div>
                   </div>
@@ -826,7 +814,7 @@ export default function ProfilePage() {
                     )}
 
                     <div className="min-w-0 space-y-1">
-                      <span className="text-micro font-bold uppercase tracking-wider text-ink-faint">
+                      <span className="text-micro font-semibold text-ink-faint">
                         Official House Member
                       </span>
                       <h3 className="font-display font-extrabold text-title-lg text-ink truncate">
@@ -844,7 +832,7 @@ export default function ProfilePage() {
                   {/* Pass Metadata Grid */}
                   <div className="grid grid-cols-2 gap-4 p-4 rounded-xl bg-surface-sunken border border-hairline text-caption">
                     <div>
-                      <span className="text-micro text-ink-faint block uppercase font-bold tracking-wider">
+                      <span className="text-micro text-ink-faint block font-semibold">
                         Programme
                       </span>
                       <span className="font-semibold text-ink truncate block">
@@ -853,7 +841,7 @@ export default function ProfilePage() {
                     </div>
 
                     <div>
-                      <span className="text-micro text-ink-faint block uppercase font-bold tracking-wider">
+                      <span className="text-micro text-ink-faint block font-semibold">
                         Academic Level
                       </span>
                       <span className="font-semibold text-ink">
@@ -862,7 +850,7 @@ export default function ProfilePage() {
                     </div>
 
                     <div>
-                      <span className="text-micro text-ink-faint block uppercase font-bold tracking-wider">
+                      <span className="text-micro text-ink-faint block font-semibold">
                         Regional Chapter
                       </span>
                       <span className="font-semibold text-ink flex items-center gap-1">
@@ -872,7 +860,7 @@ export default function ProfilePage() {
                     </div>
 
                     <div>
-                      <span className="text-micro text-ink-faint block uppercase font-bold tracking-wider">
+                      <span className="text-micro text-ink-faint block font-semibold">
                         Tenure
                       </span>
                       <span className="font-semibold text-ink">
@@ -933,9 +921,6 @@ export default function ProfilePage() {
                 <h2 className="font-display font-extrabold text-title text-ink">
                   Event Participations
                 </h2>
-                <p className="text-caption text-ink-muted mt-0.5">
-                  All competitions, workshops, and meetups you are currently registered for.
-                </p>
               </div>
 
               <Link href="/dashboard/events">
@@ -1056,7 +1041,7 @@ export default function ProfilePage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="p-4 rounded-xl bg-surface-sunken border border-hairline space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-micro uppercase font-bold tracking-wider text-ink-faint">
+                    <span className="text-micro font-semibold text-ink-faint">
                       Authentication Provider
                     </span>
                     <Badge tone="live" size="sm">
@@ -1075,7 +1060,7 @@ export default function ProfilePage() {
 
                 <div className="p-4 rounded-xl bg-surface-sunken border border-hairline space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-micro uppercase font-bold tracking-wider text-ink-faint">
+                    <span className="text-micro font-semibold text-ink-faint">
                       Portal Whitelist Status
                     </span>
                     <Badge tone="live" size="sm">
@@ -1096,7 +1081,7 @@ export default function ProfilePage() {
               {/* System UID & Helpdesk Tokens */}
               <div className="p-4 rounded-xl bg-surface-sunken border border-hairline space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-micro uppercase font-bold tracking-wider text-ink-faint">
+                  <span className="text-micro font-semibold text-ink-faint">
                     System User ID (UID)
                   </span>
                   <button
@@ -1128,7 +1113,7 @@ export default function ProfilePage() {
               {/* Account History */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-caption border-t border-hairline pt-4">
                 <div>
-                  <span className="text-micro text-ink-faint block uppercase font-bold tracking-wider">
+                  <span className="text-micro text-ink-faint block font-semibold">
                     Account Created
                   </span>
                   <span className="font-semibold text-ink">
@@ -1137,7 +1122,7 @@ export default function ProfilePage() {
                 </div>
 
                 <div>
-                  <span className="text-micro text-ink-faint block uppercase font-bold tracking-wider">
+                  <span className="text-micro text-ink-faint block font-semibold">
                     Last Active Session
                   </span>
                   <span className="font-semibold text-ink">

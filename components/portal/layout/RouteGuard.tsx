@@ -5,7 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { KazirangaLogo } from '@/components/portal/branding/KazirangaLogo';
-import { canManageRoles, canUsePortalAdmin } from '@/lib/portal/permissions';
+import { canManageRoles, canOpenAdminPath } from '@/lib/portal/permissions';
 
 const PUBLIC_ROUTES = ['/login', '/access-denied'];
 
@@ -44,7 +44,7 @@ export const RouteGuard: React.FC<{ children: React.ReactNode }> = ({ children }
   const outOfReach =
     Boolean(user) &&
     ((pathname.startsWith('/super-admin') && !canManageRoles(user?.role)) ||
-      (pathname.startsWith('/admin') && !canUsePortalAdmin(user?.role)));
+      (pathname.startsWith('/admin') && !canOpenAdminPath(user?.role, pathname)));
 
   useEffect(() => {
     if (!loading && !user && !isPublicRoute) {

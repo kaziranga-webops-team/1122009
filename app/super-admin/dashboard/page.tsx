@@ -113,7 +113,6 @@ export default function SuperAdminDashboardPage() {
       <div className="space-y-8">
         <SectionHeading
           title="Command centre"
-          description="Academic tenures, the allowed-user registry, administrator roles and the security audit trail."
           size="lg"
           as="h1"
           actions={

@@ -91,7 +91,7 @@ export const ResultCard: React.FC<ResultCardProps> = ({ event, className }) => {
           {/* Podium / Results showcase */}
           {hasPodium ? (
             <div className="p-3.5 rounded-xl bg-surface-sunken border border-hairline space-y-2.5">
-              <span className="text-[0.625rem] font-bold uppercase tracking-wider text-ink-faint flex items-center gap-1.5">
+              <span className="text-micro font-medium text-ink-faint flex items-center gap-1.5">
                 <Medal className="w-3.5 h-3.5 text-signal-warn" />
                 Tournament Outcomes
               </span>

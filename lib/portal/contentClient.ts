@@ -9,6 +9,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 import { auth } from '@/lib/firebase';
 import type { ContentResource } from '@/lib/portal/permissions';
+import { viewAsHeaders } from '@/lib/portal/viewAs';
 
 export interface ContentRow extends Record<string, unknown> {
   id: string;
@@ -29,7 +30,7 @@ async function authHeaders(): Promise<HeadersInit> {
   const user = auth?.currentUser;
   if (!user) throw new ContentApiError(401, 'You are signed out. Sign in again to continue.');
   const token = await user.getIdToken();
-  return { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' };
+  return { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json', ...viewAsHeaders() };
 }
 
 async function unwrap<T>(res: Response): Promise<T> {

@@ -2,11 +2,11 @@ import {
   LayoutDashboard,
   Calendar,
   CalendarCheck,
+  CalendarCog,
   ClipboardList,
-  User,
-  Bell,
   Users,
   Shield,
+  Crown,
   FileSpreadsheet,
   History,
   FolderArchive,
@@ -15,7 +15,12 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import type { UserRole } from '@/types/portal';
-import { canManageRoles, canUsePortalAdmin, writableResources } from '@/lib/portal/permissions';
+import {
+  canManageRoles,
+  canOrganiseEvents,
+  canUsePortalAdmin,
+  writableResources,
+} from '@/lib/portal/permissions';
 
 export interface NavItem {
   label: string;
@@ -33,81 +38,68 @@ export interface NavSection {
   accent?: boolean;
 }
 
-const studentSection: NavSection = {
-  id: 'student',
-  label: 'Student Portal',
+/** What every member comes to do: see what's on, join it, track it. */
+const youSection: NavSection = {
+  id: 'you',
+  label: 'For you',
   items: [
-    { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+    { label: 'Home', href: '/dashboard', icon: LayoutDashboard },
     { label: 'Events', href: '/dashboard/events', icon: Calendar },
-    { label: 'My Registrations', href: '/dashboard/my-registrations', icon: CalendarCheck },
-  ],
-};
-
-const adminSection: NavSection = {
-  id: 'admin',
-  label: 'Admin Suite',
-  action: { label: 'Create new event', href: '/admin/events/new', icon: PlusCircle },
-  items: [
-    { label: 'Admin Dashboard', href: '/admin/dashboard', icon: LayoutDashboard },
-    { label: 'Manage Events', href: '/admin/events', icon: Calendar },
-    { label: 'All Registrations', href: '/admin/registrations', icon: ClipboardList },
-  ],
-};
-
-const superAdminSection: NavSection = {
-  id: 'super-admin',
-  label: 'Super Admin',
-  items: [
-    { label: 'Overview', href: '/super-admin/dashboard', icon: Shield },
-    { label: 'Allowed Users', href: '/super-admin/allowed-users', icon: FileSpreadsheet },
-    { label: 'Members Directory', href: '/super-admin/roles', icon: Users },
-    { label: 'Archived Users', href: '/super-admin/historical-users', icon: FolderArchive },
-    { label: 'Audit Logs', href: '/super-admin/audit-logs', icon: History },
+    { label: 'My registrations', href: '/dashboard/my-registrations', icon: CalendarCheck },
   ],
 };
 
 /**
- * The website's own content lives behind one nav item, not seven.
- *
- * Seven sibling links pushed the sidebar past twenty items, which is more than
- * anyone scans. The resources become tabs inside the page instead, so the
- * sidebar stays readable and the grouping is still obvious.
+ * Running events. Community heads, RCs and admins all organise; only the
+ * portal admins get the overview, and only roles that can change the public
+ * site get its content screen.
  */
-function websiteSection(role?: UserRole): NavSection | null {
+function organiseSection(role?: UserRole): NavSection | null {
+  if (!canOrganiseEvents(role)) return null;
+  const items: NavItem[] = [];
+  if (canUsePortalAdmin(role)) {
+    items.push({ label: 'Overview', href: '/admin/dashboard', icon: Shield });
+  }
+  items.push(
+    { label: 'Events', href: '/admin/events', icon: CalendarCog },
+    { label: 'Registrations', href: '/admin/registrations', icon: ClipboardList },
+  );
   const resources = writableResources(role);
-  if (!resources.length) return null;
+  if (resources.length) {
+    items.push({ label: 'Site content', href: `/admin/content/${resources[0]}`, icon: Globe });
+  }
   return {
-    id: 'website',
-    label: 'Website',
-    items: [
-      { label: 'Site content', href: `/admin/content/${resources[0]}`, icon: Globe },
-    ],
+    id: 'organise',
+    label: 'Organise',
+    action: { label: 'New event', href: '/admin/events/new', icon: PlusCircle },
+    items,
   };
 }
 
-const accountSection: NavSection = {
-  id: 'account',
-  label: 'Account',
+/** Who is in the house and what was changed — the super admin's alone. */
+const houseSection: NavSection = {
+  id: 'house',
+  label: 'House admin',
+  accent: true,
   items: [
-    { label: 'Profile', href: '/dashboard/profile', icon: User },
-    { label: 'Notifications', href: '/dashboard/notifications', icon: Bell },
+    { label: 'Overview', href: '/super-admin/dashboard', icon: Crown },
+    { label: 'Members', href: '/super-admin/roles', icon: Users },
+    { label: 'Allowed list', href: '/super-admin/allowed-users', icon: FileSpreadsheet },
+    { label: 'Past members', href: '/super-admin/historical-users', icon: FolderArchive },
+    { label: 'Audit log', href: '/super-admin/audit-logs', icon: History },
   ],
 };
 
-/** 
- * The nav sections a given role may see, in display order.
- * Follows Approach 1:
- * - Domain suites: Student Portal, Admin Suite, Super Admin
- * - Dedicated Account section: Profile & Notifications (universal across all roles)
+/**
+ * The sections a role sees, grouped by what the person is there to do rather
+ * than by which part of the codebase a screen lives in. Profile and
+ * notifications live on the avatar and the bell in the top bar.
  */
 export function getNavSections(role?: UserRole): NavSection[] {
-  const sections: NavSection[] = [studentSection];
-  if (canUsePortalAdmin(role)) sections.push(adminSection);
-
-  const website = websiteSection(role);
-  if (website) sections.push(website);
-
-  if (canManageRoles(role)) sections.push(superAdminSection);
+  const sections: NavSection[] = [youSection];
+  const organise = organiseSection(role);
+  if (organise) sections.push(organise);
+  if (canManageRoles(role)) sections.push(houseSection);
   return sections;
 }
 

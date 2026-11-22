@@ -12,7 +12,10 @@ import { DEFAULT_MAIN_EVENT_ID } from '@/lib/portal/firebase/paths';
 interface AdminEventRowProps {
   event: EventItem;
   onStatusChange: (eventId: string, status: string) => void;
-  onDelete: (eventId: string) => void;
+  /** Omitted for roles that may not delete events. */
+  onDelete?: (eventId: string) => void;
+  /** The organising community, when the event belongs to one. */
+  communityName?: string;
 }
 
 /** Strips stored rich text down to a plain preview line. */
@@ -30,6 +33,7 @@ export const AdminEventRow: React.FC<AdminEventRowProps> = ({
   event,
   onStatusChange,
   onDelete,
+  communityName,
 }) => {
   const publicHref = `/dashboard/events/${event.mainEventId || DEFAULT_MAIN_EVENT_ID}/subevents/${event.slug || event.id}`;
   const deadline = new Date(
@@ -38,7 +42,7 @@ export const AdminEventRow: React.FC<AdminEventRowProps> = ({
 
   return (
     <Card elevation={1} className="relative p-4 sm:p-5">
-      {/* Top-Right Delete Action */}
+      {onDelete && (
       <Button
         size="icon"
         variant="ghost"
@@ -49,9 +53,10 @@ export const AdminEventRow: React.FC<AdminEventRowProps> = ({
       >
         <Trash2 className="w-4 h-4" />
       </Button>
+      )}
 
       <div className="flex flex-col lg:flex-row lg:items-center gap-4">
-        <div className="flex-1 min-w-0 space-y-2 pr-9 lg:pr-0">
+        <div className={`flex-1 min-w-0 space-y-2 lg:pr-0 ${onDelete ? 'pr-9' : ''}`}>
           <div className="flex flex-wrap items-center gap-2.5">
             <h3 className="font-display font-bold text-title-sm text-ink min-w-0 clamp-1">
               {event.name}
@@ -65,6 +70,12 @@ export const AdminEventRow: React.FC<AdminEventRowProps> = ({
           <p className="text-caption text-ink-muted clamp-2">{toPlainText(event.description)}</p>
 
           <dl className="flex flex-wrap gap-x-5 gap-y-1 text-micro text-ink-faint">
+            {communityName && (
+              <div className="flex gap-1.5">
+                <dt>Organised by</dt>
+                <dd className="text-ink-muted font-medium">{communityName}</dd>
+              </div>
+            )}
             {event.category && (
               <div className="flex gap-1.5">
                 <dt>Category</dt>
@@ -87,7 +98,7 @@ export const AdminEventRow: React.FC<AdminEventRowProps> = ({
         </div>
 
         {/* Controls wrap onto their own row below the lg breakpoint. */}
-        <div className="flex flex-wrap items-center gap-2 shrink-0 pt-3 lg:pt-0 border-t lg:border-t-0 border-hairline lg:pr-9">
+        <div className={`flex flex-wrap items-center gap-2 shrink-0 pt-3 lg:pt-0 border-t lg:border-t-0 border-hairline ${onDelete ? 'lg:pr-9' : ''}`}>
           <label className="sr-only" htmlFor={`status-${event.id}`}>
             Status for {event.name}
           </label>

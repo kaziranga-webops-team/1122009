@@ -3,9 +3,10 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Calendar, CalendarCheck, Shield, Crown } from 'lucide-react';
+import { LayoutDashboard, Calendar, CalendarCheck, ClipboardList, Crown } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { cn } from '@/lib/utils';
+import { canOrganiseEvents, canUsePortalAdmin } from '@/lib/portal/permissions';
 
 interface TabItem {
   label: string;
@@ -21,18 +22,23 @@ export const BottomNav: React.FC = () => {
 
   if (!user) return null;
 
-  const isAdmin = user.role === 'ADMIN' || user.role === 'SUPER_ADMIN';
   const isSuperAdmin = user.role === 'SUPER_ADMIN';
 
   const items: TabItem[] = [
     { label: 'Home', href: '/dashboard', icon: LayoutDashboard },
     { label: 'Events', href: '/dashboard/events', icon: Calendar, match: ['/dashboard/events'] },
-    { label: 'Registrations', href: '/dashboard/my-registrations', icon: CalendarCheck },
+    { label: 'My activity', href: '/dashboard/my-registrations', icon: CalendarCheck },
   ];
 
-  if (isAdmin) items.push({ label: 'Admin', href: '/admin/dashboard', icon: Shield, match: ['/classic/admin'] });
+  if (canOrganiseEvents(user.role))
+    items.push({
+      label: 'Organise',
+      href: canUsePortalAdmin(user.role) ? '/admin/dashboard' : '/admin/events',
+      icon: ClipboardList,
+      match: ['/admin'],
+    });
   if (isSuperAdmin)
-    items.push({ label: 'Super', href: '/super-admin/dashboard', icon: Crown, match: ['/classic/super-admin'] });
+    items.push({ label: 'House', href: '/super-admin/dashboard', icon: Crown, match: ['/super-admin'] });
 
   const isTabActive = (item: TabItem) =>
     pathname === item.href || (item.match ?? []).some((p) => pathname.startsWith(p));

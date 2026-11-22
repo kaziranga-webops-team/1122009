@@ -44,6 +44,8 @@ import {
   DEFAULT_TENURE_ID,
 } from '@/lib/portal/firebase/paths';
 import { RichDescriptionEditor } from '@/components/portal/ui/RichDescriptionEditor';
+import { useAuth } from '@/context/AuthContext';
+import { COMMUNITIES } from '@/lib/communities';
 
 interface EventFormProps {
   initialData?: Partial<EventItem>;
@@ -58,6 +60,17 @@ export const EventForm: React.FC<EventFormProps> = ({
   onSubmit,
   isLoading = false,
 }) => {
+  const { user } = useAuth();
+  const isHead = user?.role === 'COMMUNITY_HEAD';
+  const canCreateParentEvent = user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN';
+  // A head organises for the communities they lead; everyone above may tag
+  // any community or leave an event house-wide.
+  const communityOptions = isHead
+    ? COMMUNITIES.filter((c) => (user?.communitySlugs ?? []).includes(c.slug))
+    : COMMUNITIES;
+  const [communitySlug, setCommunitySlug] = useState<string>(
+    initialData?.communitySlug ?? (isHead ? communityOptions[0]?.slug ?? '' : ''),
+  );
   const [eventGroups, setEventGroups] = useState<MainEvent[]>([]);
   const [mainEventId, setMainEventId] = useState(initialData?.mainEventId || '');
   const [showNewMegaEventInput, setShowNewMegaEventInput] = useState(false);
@@ -817,6 +830,11 @@ export const EventForm: React.FC<EventFormProps> = ({
       return null;
     }
 
+    if (isHead && !communityOptions.some((c) => c.slug === communitySlug)) {
+      setError('Choose which of your communities is organising this event.');
+      return null;
+    }
+
     try {
       let finalMainEventId = mainEventId;
 
@@ -985,7 +1003,7 @@ export const EventForm: React.FC<EventFormProps> = ({
         guests: normalizedGuests,
       });
 
-      return validated;
+      return { ...validated, communitySlug: communitySlug || null };
     } catch (err: any) {
       if (err.errors && err.errors[0]?.message) {
         setError(err.errors[0].message);
@@ -1049,7 +1067,7 @@ export const EventForm: React.FC<EventFormProps> = ({
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Parent Event Selection */}
       <div className="space-y-4">
-        <h3 className="ed-eyebrow-plain text-ink flex items-center gap-2">
+        <h3 className="ed-subhead text-ink flex items-center gap-2">
           <Layers className="w-4 h-4 text-brand" />
           <span>Parent Event</span>
         </h3>
@@ -1060,7 +1078,7 @@ export const EventForm: React.FC<EventFormProps> = ({
               <label className="block text-caption font-bold text-ink">
                 Parent Event <span className="text-signal-danger">*</span>
               </label>
-              {!showNewMegaEventInput ? (
+              {!canCreateParentEvent ? null : !showNewMegaEventInput ? (
                 <button
                   type="button"
                   onClick={() => setShowNewMegaEventInput(true)}
@@ -1142,6 +1160,27 @@ export const EventForm: React.FC<EventFormProps> = ({
                 </div>
               </div>
             )}
+
+            <div className="mt-4">
+              <label htmlFor="ev-community" className="block text-caption font-bold text-ink mb-1">
+                Organised by {isHead && <span className="text-signal-danger">*</span>}
+              </label>
+              <select
+                id="ev-community"
+                value={communitySlug}
+                onChange={(e) => setCommunitySlug(e.target.value)}
+                required={isHead}
+                disabled={isHead && communityOptions.length <= 1}
+                className="ed-select"
+              >
+                {!isHead && <option value="">The house (no community)</option>}
+                {communityOptions.map((c) => (
+                  <option key={c.slug} value={c.slug}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
 
           <div>
@@ -1173,7 +1212,7 @@ export const EventForm: React.FC<EventFormProps> = ({
 
       {/* Basic Event Information */}
       <div className="space-y-4 pt-4 border-t border-hairline">
-        <h3 className="ed-eyebrow-plain text-ink">
+        <h3 className="ed-subhead text-ink">
           General Details
         </h3>
 
@@ -1381,7 +1420,7 @@ export const EventForm: React.FC<EventFormProps> = ({
 
       {/* Schedule & Deadlines */}
       <div className="space-y-4 pt-4 border-t border-hairline">
-        <h3 className="ed-eyebrow-plain text-ink">
+        <h3 className="ed-subhead text-ink">
           Schedule & Limits
         </h3>
 
@@ -1523,7 +1562,7 @@ export const EventForm: React.FC<EventFormProps> = ({
 
       {/* Media & Links */}
       <div className="space-y-4 pt-4 border-t border-hairline">
-        <h3 className="ed-eyebrow-plain text-ink">
+        <h3 className="ed-subhead text-ink">
           Media & Rulebook
         </h3>
 
@@ -1556,7 +1595,7 @@ export const EventForm: React.FC<EventFormProps> = ({
       <div className="space-y-4 pt-4 border-t border-hairline">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="ed-eyebrow-plain text-ink">
+            <h3 className="ed-subhead text-ink">
               Submissions
             </h3>
             <p className="text-micro text-ink-muted mt-0.5">
@@ -2003,7 +2042,7 @@ export const EventForm: React.FC<EventFormProps> = ({
       <div className="space-y-4 pt-4 border-t border-hairline">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="ed-eyebrow-plain text-ink flex items-center gap-2">
+            <h3 className="ed-subhead text-ink flex items-center gap-2">
               <span>Guest / Judge</span>
             </h3>
             <p className="text-micro text-ink-muted mt-0.5">Add Guest or Judge for the event.</p>
@@ -2178,7 +2217,7 @@ export const EventForm: React.FC<EventFormProps> = ({
       <div className="space-y-4 pt-4 border-t border-hairline">
         <div className="flex items-start sm:items-center justify-between gap-4 flex-col sm:flex-row">
           <div>
-            <h3 className="ed-eyebrow-plain text-ink">
+            <h3 className="ed-subhead text-ink">
               Additional Questions
             </h3>
             <p className="text-micro text-ink-muted mt-0.5">
@@ -2305,7 +2344,7 @@ export const EventForm: React.FC<EventFormProps> = ({
               {(q.type === 'radio' || q.type === 'checkbox') && (
                 <div className="pt-3 border-t border-hairline/80 space-y-2.5">
                   <div className="flex items-center justify-between">
-                    <label className="block text-caption font-bold text-ink-muted uppercase tracking-wider">
+                    <label className="block text-caption font-semibold text-ink-muted">
                       Choices <span className="text-signal-danger">*</span>
                     </label>
                     <button
@@ -2494,7 +2533,7 @@ export const EventForm: React.FC<EventFormProps> = ({
             <div className="p-4 sm:p-6 overflow-y-auto space-y-6 flex-1">
               {showNewMegaEventInput && newMegaEventName.trim() && (
                 <div className="space-y-3">
-                  <h3 className="text-micro font-bold font-display text-accent uppercase tracking-widest pl-1">
+                  <h3 className="text-micro font-semibold font-display text-accent pl-1">
                     New Mega Event Preview
                   </h3>
                   <div className="relative rounded-2xl overflow-hidden bg-surface-sunken shadow-md h-32 sm:h-40 border-2 border-accent/40">
@@ -2533,7 +2572,7 @@ export const EventForm: React.FC<EventFormProps> = ({
 
               {/* Sub-Event Preview Header */}
               {showNewMegaEventInput && newMegaEventName.trim() && (
-                <h3 className="text-micro font-bold font-display text-ink-muted uppercase tracking-widest pl-1 mt-6">
+                <h3 className="text-micro font-semibold font-display text-ink-muted pl-1 mt-6">
                   Sub-Event Preview
                 </h3>
               )}
@@ -2576,7 +2615,7 @@ export const EventForm: React.FC<EventFormProps> = ({
                 <div className="md:col-span-2 space-y-6">
                   {/* Description Box */}
                   <Card className="p-5 space-y-3">
-                    <h3 className="ed-eyebrow-plain text-ink">
+                    <h3 className="ed-subhead text-ink">
                       About the Activity
                     </h3>
                     <div
@@ -2606,7 +2645,7 @@ export const EventForm: React.FC<EventFormProps> = ({
                     validatedPayload.guests.length > 0 && (
                       <Card className="p-5 space-y-4">
                         <div className="flex items-center justify-between">
-                          <h3 className="ed-eyebrow-plain text-ink flex items-center gap-2">
+                          <h3 className="ed-subhead text-ink flex items-center gap-2">
                             <UserCheck className="w-4 h-4 text-accent" />
                             <span>Guests & Speakers ({validatedPayload.guests.length})</span>
                           </h3>
@@ -2704,7 +2743,7 @@ export const EventForm: React.FC<EventFormProps> = ({
                     validatedPayload.customQuestions.length > 0 && (
                       <Card className="p-5 space-y-4">
                         <div className="flex items-center justify-between">
-                          <h3 className="ed-eyebrow-plain text-ink">
+                          <h3 className="ed-subhead text-ink">
                             Questions ({validatedPayload.customQuestions.length})
                           </h3>
                           <span className="text-caption text-ink-faint italic">Preview Mode</span>
@@ -2785,7 +2824,7 @@ export const EventForm: React.FC<EventFormProps> = ({
                 {/* Right 1 Col: Metadata Sidebar */}
                 <div className="space-y-4">
                   <Card className="p-5 space-y-4">
-                    <h3 className="text-caption font-bold uppercase tracking-wider text-ink-muted font-display">
+                    <h3 className="text-caption font-semibold text-ink-muted font-display">
                       Event Summary
                     </h3>
 
@@ -2851,7 +2890,7 @@ export const EventForm: React.FC<EventFormProps> = ({
                   {/* Event Publication Status Card */}
                   <Card className="p-5 space-y-3 bg-surface-raised border border-hairline">
                     <div>
-                      <label className="block text-caption font-bold text-ink uppercase tracking-wider mb-1">
+                      <label className="block text-caption font-semibold text-ink mb-1">
                         Event Status <span className="text-signal-danger">*</span>
                       </label>
                       <p className="text-micro text-ink-muted mb-2">

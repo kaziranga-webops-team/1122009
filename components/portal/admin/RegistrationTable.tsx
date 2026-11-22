@@ -328,7 +328,7 @@ export const RegistrationTable: React.FC<RegistrationTableProps> = ({
         filters={
           <div className="space-y-4">
             <div className="space-y-1.5">
-              <label className="block text-micro font-display font-bold uppercase tracking-wider text-ink-muted">
+              <label className="block text-micro font-display font-semibold text-ink-muted">
                 Festival
               </label>
               <FilterSelect
@@ -345,7 +345,7 @@ export const RegistrationTable: React.FC<RegistrationTableProps> = ({
             </div>
 
             <div className="space-y-1.5">
-              <label className="block text-micro font-display font-bold uppercase tracking-wider text-ink-muted">
+              <label className="block text-micro font-display font-semibold text-ink-muted">
                 Activity / Sub-event
               </label>
               <FilterSelect
@@ -361,7 +361,7 @@ export const RegistrationTable: React.FC<RegistrationTableProps> = ({
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-hairline">
               <div className="space-y-1.5">
-                <label className="block text-micro font-display font-bold uppercase tracking-wider text-ink-muted">
+                <label className="block text-micro font-display font-semibold text-ink-muted">
                   Region
                 </label>
                 <FilterSelect
@@ -375,7 +375,7 @@ export const RegistrationTable: React.FC<RegistrationTableProps> = ({
               </div>
 
               <div className="space-y-1.5">
-                <label className="block text-micro font-display font-bold uppercase tracking-wider text-ink-muted">
+                <label className="block text-micro font-display font-semibold text-ink-muted">
                   Academic Level
                 </label>
                 <FilterSelect
@@ -390,7 +390,7 @@ export const RegistrationTable: React.FC<RegistrationTableProps> = ({
             </div>
 
             <div className="space-y-1.5 pt-2 border-t border-hairline">
-              <label className="block text-micro font-display font-bold uppercase tracking-wider text-ink-muted">
+              <label className="block text-micro font-display font-semibold text-ink-muted">
                 Academic Programme
               </label>
               <FilterSelect
@@ -512,7 +512,7 @@ export const RegistrationTable: React.FC<RegistrationTableProps> = ({
                 { label: 'Reference', value: selectedRegistration.id, mono: true },
               ].map((row) => (
                 <div key={row.label}>
-                  <dt className="text-eyebrow uppercase font-display text-ink-faint">
+                  <dt className="text-[0.75rem] font-medium text-ink-faint">
                     {row.label}
                   </dt>
                   <dd
@@ -529,7 +529,7 @@ export const RegistrationTable: React.FC<RegistrationTableProps> = ({
 
             {selectedRegistration.submissionContent && (
               <div className="p-4 rounded-xl bg-surface-sunken border border-hairline space-y-2">
-                <p className="ed-eyebrow-plain text-ink-faint">Submission</p>
+                <p className="ed-subhead text-ink-faint">Submission</p>
                 {isUrl(selectedRegistration.submissionContent) ? (
                   <a
                     href={selectedRegistration.submissionContent}

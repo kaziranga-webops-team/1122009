@@ -158,7 +158,7 @@ export const SubmissionModal: React.FC<SubmissionModalProps> = ({ isOpen, onClos
           <>
             {(event.afterSubmissionInstructions || event.submissionInstructions) && (
               <div className="p-4 rounded-xl bg-surface-sunken border border-hairline space-y-1.5">
-                <p className="ed-eyebrow-plain text-ink-faint">Instructions</p>
+                <p className="ed-subhead text-ink-faint">Instructions</p>
                 <p className="text-caption text-ink-muted leading-relaxed">
                   {event.afterSubmissionInstructions || event.submissionInstructions}
                 </p>

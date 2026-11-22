@@ -323,7 +323,6 @@ export default function MyRegistrationsPage() {
     <div className="space-y-8">
       <SectionHeading
         title="My registrations"
-        description="Track confirmed entries, manage your team, and submit your work before the deadline."
         size="lg"
         as="h1"
         actions={
@@ -395,7 +394,7 @@ export default function MyRegistrationsPage() {
           filters={
             <div className="space-y-4">
               <div className="space-y-1.5">
-                <label className="block text-micro font-display font-bold uppercase tracking-wider text-ink-muted">
+                <label className="block text-micro font-display font-semibold text-ink-muted">
                   Registration Status
                 </label>
                 <FilterSelect
@@ -416,7 +415,7 @@ export default function MyRegistrationsPage() {
 
               {mainEvents.length > 1 && (
                 <div className="space-y-1.5 pt-2 border-t border-hairline">
-                  <label className="block text-micro font-display font-bold uppercase tracking-wider text-ink-muted">
+                  <label className="block text-micro font-display font-semibold text-ink-muted">
                     Festival
                   </label>
                   <FilterSelect
@@ -499,7 +498,7 @@ export default function MyRegistrationsPage() {
                   <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
                     <div className="space-y-1">
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="text-micro font-display font-bold uppercase tracking-wider text-accent dark:text-[rgb(var(--accent-vivid))]">
+                        <span className="text-micro font-semibold text-accent dark:text-[rgb(var(--accent-vivid))]">
                           {ev?.mainEventId ? 'Festival Event' : 'Standalone'}
                         </span>
                         <Badge tone={isPast ? 'neutral' : 'live'} size="sm">

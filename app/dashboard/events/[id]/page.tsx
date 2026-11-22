@@ -361,7 +361,7 @@ export default function EventGroupDetailPage() {
                 {group.description}
               </p>
             )}
-            <p className="text-eyebrow uppercase font-display text-[rgb(var(--accent-vivid))]">
+            <p className="text-caption font-semibold text-white/80">
               {subEvents.length} {subEvents.length === 1 ? 'activity' : 'activities'}
             </p>
           </div>
@@ -396,7 +396,7 @@ export default function EventGroupDetailPage() {
           filters={
             <div className="space-y-4">
               <div className="space-y-1.5">
-                <label className="block text-micro font-display font-bold uppercase tracking-wider text-ink-muted">
+                <label className="block text-micro font-display font-semibold text-ink-muted">
                   Category
                 </label>
                 <FilterSelect
@@ -413,7 +413,7 @@ export default function EventGroupDetailPage() {
               </div>
 
               <div className="space-y-1.5 pt-2 border-t border-hairline">
-                <label className="block text-micro font-display font-bold uppercase tracking-wider text-ink-muted">
+                <label className="block text-micro font-display font-semibold text-ink-muted">
                   Status & Timeline
                 </label>
                 <FilterSelect

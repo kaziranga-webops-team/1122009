@@ -205,8 +205,7 @@ export default function ClassicEventsPage() {
   return (
     <div className="space-y-8">
       <HouseHeader
-        title="Every competition, one arena."
-        subtitle="Browse active festivals, rulebooks, venues and deadlines across Kaziranga House."
+        title="Events"
         footer={
           <HeaderStats
             items={[
@@ -237,7 +236,7 @@ export default function ClassicEventsPage() {
         filters={
           <div className="space-y-4">
             <div className="space-y-1.5">
-              <label className="block text-micro font-display font-bold uppercase tracking-wider text-ink-muted">
+              <label className="block text-micro font-display font-semibold text-ink-muted">
                 Category
               </label>
               <FilterSelect
@@ -254,7 +253,7 @@ export default function ClassicEventsPage() {
             </div>
 
             <div className="space-y-1.5 pt-2 border-t border-hairline">
-              <label className="block text-micro font-display font-bold uppercase tracking-wider text-ink-muted">
+              <label className="block text-micro font-display font-semibold text-ink-muted">
                 Status & Timeline
               </label>
               <FilterSelect

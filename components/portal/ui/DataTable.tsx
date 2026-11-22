@@ -110,7 +110,7 @@ export function DataTable<T>({
                             : undefined
                       }
                       className={cn(
-                        'px-4 py-3 text-eyebrow uppercase font-display text-ink-faint whitespace-nowrap',
+                        'px-4 py-2.5 text-[0.75rem] font-semibold text-ink-muted whitespace-nowrap',
                         col.align === 'right' && 'text-right'
                       )}
                     >

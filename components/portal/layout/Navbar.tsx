@@ -15,6 +15,7 @@ import { cn } from '@/lib/utils';
 import { getNavSections } from './navConfig';
 import { NavSectionBlock, SocialRow } from './NavList';
 import { EASE_EDITORIAL } from '@/components/portal/ui/Motion';
+import { ViewAsSwitcher } from './ViewAsSwitcher';
 
 const roleBadge = (role?: string) => {
   switch (role) {
@@ -30,6 +31,13 @@ const roleBadge = (role?: string) => {
         <Badge tone="info" size="sm">
           <Shield className="w-3 h-3" aria-hidden />
           Admin
+        </Badge>
+      );
+    case 'RC':
+    case 'COMMUNITY_HEAD':
+      return (
+        <Badge tone="brand" size="sm">
+          {ROLE_LABELS[role]}
         </Badge>
       );
     default:
@@ -110,11 +118,11 @@ export const Navbar: React.FC = () => {
           onClick={openSearch}
           title="Search or jump to (⌘K)"
           aria-label="Search or jump to"
-          className="flex flex-1 min-w-0 max-w-[460px] items-center gap-2.5 h-11 pl-3 pr-2
+          className="flex flex-1 min-w-0 max-w-[420px] items-center gap-2.5 h-11 pl-3 pr-2
             rounded-xl bg-surface border border-hairline text-ink-muted
             hover:border-hairline-strong transition-colors text-left"
         >
-          <Search className="w-[18px] h-[18px] shrink-0" aria-hidden />
+          <Search className="w-4 h-4 shrink-0" aria-hidden />
           <span className="flex-1 truncate text-[0.875rem]">Search events, people, pages…</span>
           <kbd className="hidden sm:inline-flex items-center px-[7px] py-[3px] rounded-[7px] text-[0.75rem] font-bold
             font-[inherit] bg-surface-raised border border-hairline">
@@ -123,6 +131,7 @@ export const Navbar: React.FC = () => {
         </button>
 
         <div className="flex items-center gap-1 ml-auto">
+          <ViewAsSwitcher />
           <ThemeToggle />
           <NotificationBell />
 

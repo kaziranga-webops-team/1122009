@@ -5,12 +5,12 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { EventItem, Registration, MainEvent } from '@/types/portal';
-import { isMockMode, db } from '@/lib/firebase';
+import { isMockMode } from '@/lib/firebase';
+import { organiserEventsQuery, organiserRegistrationsQuery } from '@/lib/portal/organiser';
+import { canOrganiseEvents } from '@/lib/portal/permissions';
 import { mockStore } from '@/lib/portal/firebase/mockStore';
 import { getDocs } from 'firebase/firestore';
 import {
-  getAllRegistrationsGroupRef,
-  getAllEventsGroupRef,
   getMainEventsCollectionRef,
   DEFAULT_TENURE_ID,
 } from '@/lib/portal/firebase/paths';
@@ -29,7 +29,7 @@ export default function ClassicAdminRegistrationsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (user && user.role === 'USER') {
+    if (user && !canOrganiseEvents(user.role)) {
       router.replace('/dashboard');
       return;
     }
@@ -56,9 +56,10 @@ export default function ClassicAdminRegistrationsPage() {
         setLoading(false);
       } else {
         try {
-          const regSnap = await getDocs(getAllRegistrationsGroupRef());
+          const regQuery = organiserRegistrationsQuery(user);
+          const regSnap = regQuery ? await getDocs(regQuery) : null;
           const regList: Registration[] = [];
-          regSnap.forEach((d) => {
+          regSnap?.forEach((d) => {
             if (d.ref.path.includes('tenures/')) {
               const data = d.data();
               regList.push({
@@ -74,9 +75,10 @@ export default function ClassicAdminRegistrationsPage() {
             }
           });
 
-          const evSnap = await getDocs(getAllEventsGroupRef());
+          const evQuery = organiserEventsQuery(user);
+          const evSnap = evQuery ? await getDocs(evQuery) : null;
           const evList: EventItem[] = [];
-          evSnap.forEach((d) => {
+          evSnap?.forEach((d) => {
             if (d.ref.path.includes('tenures/')) {
               evList.push({ id: d.id, ...d.data() } as EventItem);
             }
@@ -103,7 +105,7 @@ export default function ClassicAdminRegistrationsPage() {
     fetchData();
   }, [user, router]);
 
-  if (!user || user.role === 'USER') return null;
+  if (!user || !canOrganiseEvents(user.role)) return null;
 
   return (
     <div>
@@ -112,7 +114,6 @@ export default function ClassicAdminRegistrationsPage() {
       <div className="space-y-7">
         <SectionHeading
           title="Registrations"
-          description="Search and filter participants, inspect their submitted details, and export CSV reports."
           size="lg"
           as="h1"
         />

@@ -234,9 +234,6 @@ export default function SuperAdminAllowedUsersPage() {
             <h3 className="text-sm font-display font-bold text-ink">
               Active Whitelisted Accounts ({allowedUsers.length})
             </h3>
-            <p className="text-caption text-ink-faint">
-              Currently permitted to authenticate and access the student arena.
-            </p>
           </div>
 
           <SearchInput

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { UserProfile, UserRole } from '@/types/portal';
 import { normalizeDisplayName } from '@/lib/portal/utils/nameNormalization';
@@ -10,9 +10,21 @@ import { doc, getDoc, setDoc, updateDoc, onSnapshot, Unsubscribe } from 'firebas
 import { mockStore } from '@/lib/portal/firebase/mockStore';
 import { INITIAL_SUPER_ADMIN_EMAILS } from '@/lib/portal/firebase/mockData';
 import { useToast } from '@/components/portal/ui/Toast';
+import { canViewAs, effectiveScope } from '@/lib/portal/roles';
+import { readViewAs, writeViewAs, type ViewAs } from '@/lib/portal/viewAs';
 
 interface AuthContextType {
+  /**
+   * The signed-in person as the portal should treat them right now: their own
+   * profile, with the role (and communities) they are viewing the portal as.
+   */
   user: UserProfile | null;
+  /** The role on their actual profile, whatever they are viewing as. */
+  realRole: UserRole | null;
+  /** The role they have switched to, or null when viewing as themselves. */
+  viewAs: ViewAs | null;
+  /** Switch the portal to a lower role (or back to your own). */
+  setViewAs: (role: UserRole, community?: string | null) => Promise<void>;
   deniedEmail: string | null;
   loading: boolean;
   isAccessDenied: boolean;
@@ -28,7 +40,8 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   // Safe: <ToastProvider> wraps <AuthProvider> in the root layout.
   const toast = useToast();
-  const [user, setUser] = useState<UserProfile | null>(null);
+  const [account, setAccount] = useState<UserProfile | null>(null);
+  const [viewAs, setViewAsState] = useState<ViewAs | null>(null);
   const [deniedEmail, setDeniedEmail] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [isAccessDenied, setIsAccessDenied] = useState<boolean>(false);
@@ -58,7 +71,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (!allowedSnap.exists() && !isInitialSuperAdmin) {
       setIsAccessDenied(true);
       setDeniedEmail(email);
-      setUser(null);
+      setAccount(null);
       router.push('/access-denied');
       return false;
     }
@@ -99,7 +112,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     if (isMockMode) {
       const active = mockStore.getActiveUser();
-      setUser(active);
+      setAccount(active);
       setLoading(false);
 
       const unsubscribe = mockStore.subscribe(() => {
@@ -110,16 +123,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           );
           if (!mockStore.isEmailAllowed(activeUser.email) && !isSuperAdminEmail) {
             console.warn('[AuthContext] User access revoked in latest allowed list:', activeUser.email);
-            setUser(null);
+            setAccount(null);
             setIsAccessDenied(true);
             setDeniedEmail(activeUser.email);
             router.push('/access-denied');
             return;
           }
-          setUser(activeUser);
+          setAccount(activeUser);
           handleDemotionCheck(activeUser.role);
         } else {
-          setUser(null);
+          setAccount(null);
         }
       });
       return () => unsubscribe();
@@ -158,7 +171,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 if (snapshot.exists()) {
                   const liveProfile = { uid: snapshot.id, ...snapshot.data() } as UserProfile;
                   console.log('[AuthContext] Real-time profile/role update received:', liveProfile.role);
-                  setUser(liveProfile);
+                  setAccount(liveProfile);
                   handleDemotionCheck(liveProfile.role);
                 }
                 setLoading(false);
@@ -171,12 +184,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           } catch (err) {
             console.error('Login error:', err);
             setIsAccessDenied(true);
-            setUser(null);
+            setAccount(null);
             router.push('/access-denied');
             setLoading(false);
           }
         } else {
-          setUser(null);
+          setAccount(null);
           setLoading(false);
         }
       });
@@ -195,7 +208,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (isMockMode) {
       const currentMock = mockStore.getActiveUser() || mockStore.getUsers()[0];
       mockStore.setActiveUser(currentMock);
-      setUser(currentMock);
+      setAccount(currentMock);
       setLoading(false);
       router.push('/dashboard');
       return;
@@ -220,28 +233,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const logout = async () => {
+    writeViewAs(null);
+    setViewAsState(null);
+
     if (isMockMode) {
       mockStore.setActiveUser(null);
-      setUser(null);
+      setAccount(null);
       router.push('/login');
       return;
     }
 
     await firebaseSignOut(auth);
-    setUser(null);
+    setAccount(null);
     router.push('/login');
   };
 
   const updateProfile = async (data: Partial<UserProfile>) => {
-    if (!user) return;
+    if (!account) return;
 
     if (isMockMode) {
-      const updated = mockStore.updateUserProfile(user.uid, data);
-      setUser(updated);
+      const updated = mockStore.updateUserProfile(account.uid, data);
+      setAccount(updated);
       return;
     }
 
-    const docRef = doc(db, 'users', user.uid);
+    const docRef = doc(db, 'users', account.uid);
     const updates = {
       ...data,
       updatedAt: new Date().toISOString(),
@@ -250,38 +266,90 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     delete (updates as any).email;
 
     await updateDoc(docRef, updates);
-    setUser((prev) => (prev ? { ...prev, ...updates } : null));
+    setAccount((prev) => (prev ? { ...prev, ...updates } : null));
   };
 
   const switchDemoRole = (role: UserRole) => {
     if (!isMockMode) return;
+    writeViewAs(null);
+    setViewAsState(null);
     const targetUser = mockStore.getUsers().find((u) => u.role === role) || mockStore.getUsers()[0];
     mockStore.setActiveUser(targetUser);
-    setUser(targetUser);
+    setAccount(targetUser);
   };
 
   const refreshUser = async () => {
     if (isMockMode) {
-      setUser(mockStore.getActiveUser());
+      setAccount(mockStore.getActiveUser());
       return;
     }
 
     const fbUser = auth?.currentUser;
     if (!fbUser) {
-      setUser(null);
+      setAccount(null);
       return;
     }
 
     const userSnap = await getDoc(doc(db, 'users', fbUser.uid));
     if (userSnap.exists()) {
-      setUser({ uid: userSnap.id, ...userSnap.data() } as UserProfile);
+      setAccount({ uid: userSnap.id, ...userSnap.data() } as UserProfile);
     }
   };
+
+  // The chosen view survives a reload within this tab.
+  useEffect(() => {
+    setViewAsState(readViewAs());
+  }, []);
+
+  // A view the account may no longer take (after a demotion, say) is dropped.
+  useEffect(() => {
+    if (account && viewAs && !canViewAs(account.role, viewAs.role)) {
+      writeViewAs(null);
+      setViewAsState(null);
+    }
+  }, [account, viewAs]);
+
+  const user = useMemo<UserProfile | null>(() => {
+    if (!account) return null;
+    const scope = effectiveScope(
+      { role: account.role, communitySlugs: account.communitySlugs ?? [] },
+      viewAs?.role,
+      viewAs?.community
+    );
+    return { ...account, role: scope.role, communitySlugs: scope.communitySlugs };
+  }, [account, viewAs]);
+
+  const setViewAs = useCallback(
+    async (role: UserRole, community?: string | null) => {
+      if (!account || !canViewAs(account.role, role)) return;
+      const next: ViewAs | null =
+        role === account.role ? null : { role, community: role === 'COMMUNITY_HEAD' ? community ?? null : null };
+      writeViewAs(next);
+      setViewAsState(next);
+
+      if (isMockMode) return;
+      try {
+        const token = await auth?.currentUser?.getIdToken();
+        if (!token) return;
+        await fetch('/api/portal/view-as', {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ role, community: next?.community ?? null }),
+        });
+      } catch {
+        // The switch already applies; only the audit entry was missed.
+      }
+    },
+    [account]
+  );
 
   return (
     <AuthContext.Provider
       value={{
         user,
+        realRole: account?.role ?? null,
+        viewAs,
+        setViewAs,
         deniedEmail,
         loading,
         isAccessDenied,
