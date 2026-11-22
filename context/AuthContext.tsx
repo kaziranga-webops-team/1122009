@@ -259,7 +259,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return;
     }
 
-    const fbUser = auth.currentUser;
+    const fbUser = auth?.currentUser;
     if (!fbUser) {
       setUser(null);
       return;

@@ -14,7 +14,7 @@ import { isIITMEmail } from '@/lib/portal/utils/emailValidation';
 export default function AccessDeniedPage() {
   const { user, deniedEmail, logout } = useAuth();
   
-  const activeEmail = (user?.email || deniedEmail || auth.currentUser?.email || '').trim().toLowerCase();
+  const activeEmail = (user?.email || deniedEmail || auth?.currentUser?.email || '').trim().toLowerCase();
   const isIITM = isIITMEmail(activeEmail);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -58,7 +58,7 @@ export default function AccessDeniedPage() {
           metadata: { note: noteInput.trim() },
         });
       } else {
-        const token = await auth.currentUser?.getIdToken();
+        const token = await auth?.currentUser?.getIdToken();
         const res = await fetch('/api/auth/request-access', {
           method: 'POST',
           headers: {
