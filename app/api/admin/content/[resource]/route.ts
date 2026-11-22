@@ -21,6 +21,15 @@ export const dynamic = 'force-dynamic';
 const SUPABASE_URL = (process.env.NEXT_PUBLIC_SUPABASE_URL || '').replace(/\/+$/, '');
 const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 
+function purgeCacheTag(tag: string) {
+  try {
+    // Next.js 16 requires a 2nd argument ('max' / profile); typed as any for backwards compatibility.
+    (revalidateTag as any)(tag, 'max');
+  } catch (err) {
+    console.warn(`[revalidateTag] Failed to purge ${tag}:`, err);
+  }
+}
+
 /** Columns searched by the editor's search box, per resource. */
 const SEARCH_COLUMNS: Record<ContentResource, string[]> = {
   events: ['title', 'category', 'speaker'],
@@ -147,7 +156,7 @@ export async function POST(req: Request, ctx: Ctx) {
     });
     const [row] = (await res.json()) as Record<string, unknown>[];
 
-    revalidateTag(`content:${resource}`);
+    purgeCacheTag(`content:${resource}`);
     await writeAudit({
       actor: user,
       action: 'CONTENT_CREATED',
@@ -192,7 +201,7 @@ export async function PATCH(req: Request, ctx: Ctx) {
     });
     const [row] = (await res.json()) as Record<string, unknown>[];
 
-    revalidateTag(`content:${resource}`);
+    purgeCacheTag(`content:${resource}`);
     await writeAudit({
       actor: user,
       action: 'CONTENT_UPDATED',
@@ -224,7 +233,7 @@ export async function DELETE(req: Request, ctx: Ctx) {
       headers: { Prefer: 'return=minimal' },
     });
 
-    revalidateTag(`content:${resource}`);
+    purgeCacheTag(`content:${resource}`);
     await writeAudit({
       actor: user,
       action: 'CONTENT_DELETED',
