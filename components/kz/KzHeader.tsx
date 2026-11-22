@@ -31,15 +31,7 @@ const NAV: NavItem[] = [
       { label: "Kaziranga Tak", href: "/tak", line: "The house podcast" },
     ],
   },
-  {
-    label: "Study",
-    id: "study",
-    links: [
-      { label: "Study Zone", href: "/study", line: "Planners, tools and the study circle" },
-      { label: "Resource hub", href: "/hub", line: "Handbooks, grade tools, study help" },
-      { label: "Notes", href: "/resources", line: "Notes and material by subject" },
-    ],
-  },
+  { label: "Study", href: "/study" },
 ];
 
 const SOCIALS = [
@@ -53,13 +45,16 @@ const SOFT = [0.22, 1, 0.36, 1] as const;
 const CURTAIN = [0.76, 0, 0.24, 1] as const;
 
 /**
- * Site header: one ivory bar edged with a thin gamosa weave. On laptops and
+ * Site header. At the top of a page it has no ground of its own, so it reads
+ * as part of the page; once you scroll it becomes a solid bar. `ground` says
+ * what it sits on at the top: the ivory paper of most pages, a coloured hero
+ * (home) or the dark pages (Tak), so its text stays readable. On laptops and
  * up it shows five things — Communities, Council, Gallery, and the
  * Gatherings and Study families, which open a short list. Smaller screens
  * open a full-screen menu with everything, small and centred. The bar tucks
  * away while scrolling down and returns on scroll up.
  */
-export default function KzHeader({ overlay: _overlay = false }: { overlay?: boolean }) {
+export default function KzHeader({ ground = "paper" }: { ground?: "paper" | "color" | "ink" }) {
   const pathname = usePathname();
   const reduce = useReducedMotion();
   const lenis = useLenis();
@@ -67,15 +62,26 @@ export default function KzHeader({ overlay: _overlay = false }: { overlay?: bool
   const [sheet, setSheet] = useState(false);
   const [openId, setOpenId] = useState<string | null>(null);
   const [hidden, setHidden] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const [mounted, setMounted] = useState(false);
   const burger = useRef<HTMLButtonElement>(null);
   const navRef = useRef<HTMLElement>(null);
 
   useEffect(() => setMounted(true), []);
 
+  // The bar's ground follows the real scroll position: on load (a reload can
+  // restore and then reset it) and on every native scroll.
+  useEffect(() => {
+    const sync = () => setScrolled(window.scrollY > 12);
+    sync();
+    window.addEventListener("scroll", sync, { passive: true });
+    return () => window.removeEventListener("scroll", sync);
+  }, [pathname]);
+
   const { scrollY } = useScroll();
   useMotionValueEvent(scrollY, "change", (y) => {
     const prev = scrollY.getPrevious() ?? 0;
+    setScrolled(y > 12);
     if (sheet || openId) return;
     if (y > 420 && y > prev + 4) setHidden(true);
     else if (y < prev - 4 || y < 420) setHidden(false);
@@ -132,9 +138,23 @@ export default function KzHeader({ overlay: _overlay = false }: { overlay?: bool
   const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
   const allLinks: NavLink[] = NAV.flatMap((item) => ("links" in item ? item.links : [item]));
 
+  // Light text while the bar sits over the dark page or a coloured hero.
+  const lightText = !sheet && (ground === "ink" || (ground === "color" && !scrolled));
+  const bar = sheet
+    ? "bg-transparent text-[#f5e9cf]"
+    : scrolled
+      ? `${ground === "ink" ? "bg-[#1c130c] text-[#f5e9cf]" : "bg-[#f5e9cf] text-[#1c130c]"} shadow-[0_10px_30px_-22px_rgba(28,19,12,0.55)]`
+      : `bg-transparent ${lightText ? "text-[#f5e9cf]" : "text-[#1c130c]"}`;
+
   const topLink = (active: boolean) =>
     `kz-focus relative inline-flex items-center gap-1.5 whitespace-nowrap px-3 py-2.5 text-[0.98rem] font-medium transition-colors ${
-      active ? "text-[#c8102e]" : "text-[#1c130c]/80 hover:text-[#1c130c]"
+      active
+        ? lightText
+          ? "text-[#f6b51e]"
+          : "text-[#c8102e]"
+        : lightText
+          ? "text-[#f5e9cf]/85 hover:text-[#f5e9cf]"
+          : "text-[#1c130c]/80 hover:text-[#1c130c]"
     }`;
 
   return (
@@ -145,8 +165,8 @@ export default function KzHeader({ overlay: _overlay = false }: { overlay?: bool
         transition={{ duration: reduce ? 0 : 0.5, ease: SOFT }}
         className="kz-font fixed inset-x-0 top-0 z-50"
       >
-        <div className={`transition-colors duration-500 ${sheet ? "bg-transparent text-[#f5e9cf]" : "bg-[#f5e9cf] text-[#1c130c] shadow-[0_10px_30px_-22px_rgba(28,19,12,0.55)]"}`}>
-          <div className="mx-auto flex h-[calc(var(--kz-header-h)-17px)] max-w-[90rem] items-center justify-between gap-6 px-5 sm:px-8 md:px-12">
+        <div className={`transition-[background-color,color,box-shadow] duration-500 ${bar}`}>
+          <div className="mx-auto flex h-[var(--kz-header-h)] max-w-[90rem] items-center justify-between gap-6 px-5 sm:px-8 md:px-12">
             <Link href="/" className="kz-focus flex shrink-0 items-center gap-3" onClick={() => setSheet(false)}>
               <Image src="/logo.png" alt="" width={44} height={44} priority className="h-10 w-10 rounded-full sm:h-11 sm:w-11" />
               <span className="kz-wordmark text-[1.45rem] sm:text-[1.65rem]">Kaziranga House</span>
@@ -217,7 +237,7 @@ export default function KzHeader({ overlay: _overlay = false }: { overlay?: bool
               {!sheet && (
                 <Link
                   href={portal.href}
-                  className="kz-focus kz-sign hidden items-center gap-2 px-2 py-2.5 text-[0.8rem] uppercase tracking-[0.1em] text-[#1c130c]/70 transition-colors hover:text-[#1c130c] lg:inline-flex"
+                  className={`kz-focus hidden items-center gap-2 px-2 py-2.5 text-[0.95rem] font-medium transition-colors lg:inline-flex ${lightText ? "text-[#f5e9cf]/85 hover:text-[#f5e9cf]" : "text-[#1c130c]/75 hover:text-[#1c130c]"}`}
                 >
                   <portal.Icon size={15} />
                   {portal.label}
@@ -251,7 +271,6 @@ export default function KzHeader({ overlay: _overlay = false }: { overlay?: bool
               </button>
             </div>
           </div>
-          {!sheet && <div aria-hidden="true" className="kz-gamosa kz-gamosa--thin" />}
         </div>
       </motion.header>
 

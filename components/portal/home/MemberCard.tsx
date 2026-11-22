@@ -1,6 +1,8 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { fetchCouncil, getCachedCouncil } from '@/lib/api';
+import { joinNames, rcsByRegion } from '@/lib/rcs';
 import Link from 'next/link';
 import { RegionArt, REGION_THEMES } from './RegionArt';
 import { toRegion } from '@/lib/portal/regions';
@@ -42,6 +44,13 @@ export const MemberCard: React.FC<MemberCardProps> = ({ user, role, tenure = '20
   const art = region || 'Other';
   const theme = REGION_THEMES[art];
   const roll = rollNumberOf(user.email);
+  const [rcs, setRcs] = useState(() => rcsByRegion(getCachedCouncil() || []));
+  useEffect(() => {
+    fetchCouncil()
+      .then((rows) => setRcs(rcsByRegion(rows)))
+      .catch(() => {});
+  }, []);
+  const myRcs = region ? rcs[region] ?? [] : [];
   const roleLabel = ROLE_LABELS[role] ?? 'Member';
   const communities = (user.communitySlugs ?? [])
     .map((s) => communityBySlug(s)?.name)
@@ -126,9 +135,9 @@ export const MemberCard: React.FC<MemberCardProps> = ({ user, role, tenure = '20
               <dd className="text-[0.8125rem] font-semibold truncate">{regionLine}</dd>
             </div>
             <div className="min-w-0">
-              <dt className="text-[0.6875rem] opacity-60">{communities ? 'Community' : 'Landmark'}</dt>
-              <dd className="text-[0.8125rem] font-semibold truncate" title={communities || theme.landmark}>
-                {communities || theme.landmark}
+              <dt className="text-[0.6875rem] opacity-60">{communities ? 'Community' : myRcs.length > 1 ? 'Your RCs' : 'Your RC'}</dt>
+              <dd className="text-[0.8125rem] font-semibold truncate" title={communities || joinNames(myRcs)}>
+                {communities || joinNames(myRcs) || '—'}
               </dd>
             </div>
           </dl>

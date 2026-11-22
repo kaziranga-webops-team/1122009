@@ -70,8 +70,9 @@ export const ViewAsSwitcher: React.FC = () => {
         aria-haspopup="menu"
         aria-expanded={open}
         title="Switch the role you view the portal as"
+        aria-label={`Viewing as ${ROLE_LABELS[current]}. Switch role`}
         className={cn(
-          'flex items-center gap-1.5 h-11 px-3 rounded-xl border text-[0.8125rem] font-bold transition-colors',
+          'flex items-center gap-1.5 h-11 px-2.5 sm:px-3 rounded-xl border text-[0.8125rem] font-bold transition-colors',
           viewAs
             ? 'border-signal-warn/40 bg-signal-warn/10 text-signal-warn'
             : 'border-hairline text-ink-muted hover:text-ink hover:border-hairline-strong'
@@ -79,7 +80,7 @@ export const ViewAsSwitcher: React.FC = () => {
       >
         <Eye className="w-4 h-4 shrink-0" aria-hidden />
         <span className="hidden xl:inline">Viewing as</span>
-        <span className="max-w-[9rem] truncate text-ink">{ROLE_LABELS[current]}</span>
+        <span className="hidden sm:inline max-w-[9rem] truncate text-ink">{ROLE_LABELS[current]}</span>
         <ChevronDown className={cn('w-3.5 h-3.5 transition-transform', open && 'rotate-180')} aria-hidden />
       </button>
 
@@ -87,7 +88,7 @@ export const ViewAsSwitcher: React.FC = () => {
         <div
           role="menu"
           aria-label="View the portal as"
-          className="absolute right-0 top-[calc(100%+0.5rem)] z-50 w-[19rem] rounded-2xl border border-hairline bg-surface-raised p-1.5 shadow-e-4"
+          className="fixed inset-x-3 top-[4.75rem] sm:absolute sm:inset-x-auto sm:right-0 sm:top-[calc(100%+0.5rem)] z-50 sm:w-[19rem] max-h-[70vh] overflow-y-auto rounded-2xl border border-hairline bg-surface-raised p-1.5 shadow-e-4"
         >
           {!pickCommunity ? (
             <>

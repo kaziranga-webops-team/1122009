@@ -8,6 +8,7 @@ import { useLenis } from "lenis/react";
 import { AlertTriangle, ArrowRight, ArrowUpRight, CalendarDays, Mic, Play, Search, Trophy, X } from "lucide-react";
 import KzHeader from "@/components/kz/KzHeader";
 import KzFooter from "@/components/kz/KzFooter";
+import { DateStamp, TicketCard, type TicketStock } from "@/components/kz/TicketCard";
 import PageHero, { Segmented } from "@/components/kz/PageHero";
 import CommunityPatch from "@/components/communities/CommunityPatch";
 import { fetchEvents, getCachedEvents } from "@/lib/api";
@@ -44,11 +45,11 @@ function Ticket({ event, onOpen, index }: { event: EventItem; onOpen: (e: EventI
         {live ? (
           <>
             <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-white" />
-            <span className="kz-label mt-1 text-[0.7rem]">Live now</span>
+            <span className="mt-1 text-[0.85rem] font-semibold">Live now</span>
           </>
         ) : d ? (
           <>
-            <span className="kz-label text-[0.66rem] text-[#f6b51e]">{d.toLocaleDateString("en-IN", { month: "short" })}</span>
+            <span className="text-[0.85rem] font-semibold text-[#f6b51e]">{d.toLocaleDateString("en-IN", { month: "short" })}</span>
             <span className="kz-display text-[2.8rem] leading-none">{d.getDate()}</span>
             <span className="text-[0.72rem] font-semibold opacity-80">{d.toLocaleDateString("en-IN", { weekday: "short" })}</span>
           </>
@@ -62,7 +63,7 @@ function Ticket({ event, onOpen, index }: { event: EventItem; onOpen: (e: EventI
 
       <div className="flex min-w-0 flex-1 flex-col justify-between gap-4 p-5 pl-6 sm:p-6 sm:pl-7">
         <div>
-          <p className="kz-sign text-[0.72rem] uppercase tracking-[0.14em] text-[#c8102e]">{seriesLabel(event)}</p>
+          <p className="text-[0.88rem] font-semibold text-[#c8102e]">{seriesLabel(event)}</p>
           <h3 className="kz-serif mt-1.5 text-[1.35rem] leading-snug">{event.title}</h3>
           {event.speaker && (
             <p className="mt-1.5 flex items-center gap-1.5 truncate text-[0.85rem] font-medium text-[#5e4a35]">
@@ -87,6 +88,9 @@ function Ticket({ event, onOpen, index }: { event: EventItem; onOpen: (e: EventI
 
 /* ═══ Event card ═══════════════════════════════════════════════════ */
 
+const stockFor = (e: EventItem): TicketStock =>
+  e.category === "guest-sessions" ? "marigold" : e.category === "curiosity-hour" ? "pink" : e.category === "community" ? "mint" : "sky";
+
 function EventCard({ event, index, onOpen }: { event: EventItem; index: number; onOpen: (e: EventItem) => void }) {
   const reduce = useReducedMotion();
   const [broken, setBroken] = useState(false);
@@ -100,83 +104,75 @@ function EventCard({ event, index, onOpen }: { event: EventItem; index: number; 
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.97, transition: { duration: 0.15 } }}
       transition={{ duration: 0.5, delay: Math.min(index, 10) * 0.035, ease: SOFT }}
-      className="group relative flex h-full flex-col border-2 border-[#1c130c] bg-[#f5e9cf] transition-[transform,box-shadow] duration-300 hover:-translate-x-1 hover:-translate-y-1 hover:shadow-[6px_6px_0_#c8102e]"
+      className="h-full"
     >
-      {/* the poster, set inside a soft frame */}
-      <div className="relative aspect-[16/9] overflow-hidden border-b-2 border-[#1c130c]" style={{ background: c?.bg ?? "#ebd9b2" }}>
-        {event.imageUrl && !broken ? (
-          <Image
-            src={event.imageUrl}
-            alt=""
-            fill
-            sizes="(max-width: 640px) 92vw, (max-width: 1024px) 46vw, 30vw"
-            className="object-cover transition-transform duration-700 group-hover:scale-[1.04]"
-            unoptimized
-            onError={() => setBroken(true)}
-          />
-        ) : c ? (
-          <span className="grid h-full w-full place-items-center">
-            <CommunityPatch c={c} size={76} />
-          </span>
-        ) : (
-          <span className="grid h-full w-full place-items-center">
-            <CalendarDays size={36} className="text-[#0f5e48]/45" />
-          </span>
-        )}
-        {hasResults(event) && (
-          <span className="kz-sign kz-signboard absolute left-0 top-3 inline-flex items-center gap-1.5 bg-[#f6b51e] py-1.5 pl-3 pr-6 text-[0.68rem] uppercase tracking-[0.1em] text-[#1c130c]">
-            <Trophy size={12} /> Results
-          </span>
-        )}
-      </div>
-
-      <div className="relative flex flex-1 flex-col px-5 pb-5 pt-4">
-        {/* a small calendar tile, pinned to the edge of the poster */}
-        {d && (
-          <span className="absolute -top-8 left-5 flex w-12 flex-col items-center overflow-hidden border-2 border-[#1c130c] bg-[#f5e9cf] text-center">
-            <span className="kz-sign w-full bg-[#c8102e] py-0.5 text-[0.6rem] uppercase tracking-wider text-[#f5e9cf]">
-              {d.toLocaleDateString("en-IN", { month: "short" })}
-            </span>
-            <span className="kz-display pt-0.5 text-[1.3rem] leading-tight text-[#1c130c]">{d.getDate()}</span>
-            <span className="kz-sign pb-1 text-[0.6rem] text-[#5e4a35]">{d.getFullYear()}</span>
-          </span>
-        )}
-        <span className={`kz-sign text-[0.72rem] uppercase tracking-[0.12em] text-[#c8102e] ${d ? "pl-16" : ""}`}>
-          {seriesLabel(event)}
-        </span>
-        <h3 className="kz-serif mt-3 line-clamp-2 text-[1.2rem] leading-snug text-[#1c130c]">
-          {/* the whole card opens the details; this is its one real control */}
+      <TicketCard
+        stock={stockFor(event)}
+        poster={
+          <div className="relative aspect-[16/9]" style={{ background: c?.bg ?? "#ebd9b2" }}>
+            {event.imageUrl && !broken ? (
+              <Image
+                src={event.imageUrl}
+                alt=""
+                fill
+                sizes="(max-width: 640px) 92vw, (max-width: 1024px) 46vw, 30vw"
+                className="object-cover transition-transform duration-700 group-hover:scale-[1.04]"
+                unoptimized
+                onError={() => setBroken(true)}
+              />
+            ) : c ? (
+              <span className="grid h-full w-full place-items-center">
+                <CommunityPatch c={c} size={76} />
+              </span>
+            ) : (
+              <span className="grid h-full w-full place-items-center">
+                <CalendarDays size={36} className="text-[#0f5e48]/45" />
+              </span>
+            )}
+            {hasResults(event) && (
+              <span className="absolute left-2 top-2 inline-flex items-center gap-1.5 rounded-full bg-[#1c130c] px-2.5 py-1 text-[0.8rem] font-semibold text-[#f6b51e]">
+                <Trophy size={13} /> Results
+              </span>
+            )}
+          </div>
+        }
+      >
+        <div className="flex items-start justify-between gap-3">
+          <span className="text-[0.88rem] font-semibold text-[#1c130c]/75">{seriesLabel(event)}</span>
+          <DateStamp date={d} className="shrink-0" />
+        </div>
+        <h3 className="kz-serif mt-2 line-clamp-2 text-[1.25rem] leading-snug text-[#1c130c]">
+          {/* the whole ticket opens the details; this is its one real control */}
           <button type="button" onClick={() => onOpen(event)} className="kz-focus text-left after:absolute after:inset-0">
             {event.title}
           </button>
         </h3>
         {event.speaker && (
-          <p className="mt-1.5 flex items-center gap-1.5 truncate text-[0.84rem] font-medium text-[#5e4a35]">
-            <Mic size={13} className="shrink-0" /> <span className="truncate">{event.speaker}</span>
+          <p className="mt-1 flex items-center gap-1.5 truncate text-[0.9rem] text-[#1c130c]/75">
+            <Mic size={14} className="shrink-0" /> <span className="truncate">{event.speaker}</span>
           </p>
         )}
-        <div className="mt-auto flex items-center justify-between gap-3 pt-5">
+        <div className="mt-auto flex items-center justify-between gap-3 pt-4">
           {event.youtubeLink ? (
-            // YouTube red, so a recording reads as a video at a glance
             <a
               href={event.youtubeLink}
               target="_blank"
               rel="noopener noreferrer"
-              className="kz-focus kz-sign kz-signboard relative z-10 inline-flex items-center gap-2 bg-[#ff0000] py-2 pl-2.5 pr-7 text-[0.78rem] uppercase tracking-[0.1em] text-white transition-transform duration-300 hover:translate-x-1"
+              className="kz-focus relative z-10 inline-flex h-10 items-center gap-2 rounded-full bg-[#c8102e] pl-1.5 pr-4 text-[0.92rem] font-semibold text-white transition-transform duration-300 hover:-translate-y-0.5"
             >
-              <span className="grid h-6 w-6 place-items-center bg-white/20">
-                <Play size={12} fill="currentColor" className="translate-x-px" />
+              <span className="grid h-7 w-7 place-items-center rounded-full bg-white/20">
+                <Play size={13} fill="currentColor" className="translate-x-px" />
               </span>
               Watch
             </a>
           ) : (
-            <span className="kz-sign text-[0.72rem] uppercase tracking-[0.1em] text-[#5e4a35]/80">{event.status === "past-unrecorded" ? "Not recorded" : "Recording soon"}</span>
+            <span className="text-[0.88rem] text-[#1c130c]/60">{event.status === "past-unrecorded" ? "Not recorded" : "Recording soon"}</span>
           )}
-          <span className="grid h-9 w-9 place-items-center border-2 border-[#1c130c] text-[#1c130c] transition-colors duration-300 group-hover:bg-[#1c130c] group-hover:text-[#f6b51e]">
+          <span className="grid h-9 w-9 place-items-center rounded-full border-2 border-[#1c130c] text-[#1c130c] transition-colors duration-300 group-hover:bg-[#1c130c] group-hover:text-[#f6b51e]">
             <ArrowUpRight size={16} className="transition-transform duration-300 group-hover:rotate-45" />
           </span>
         </div>
-      </div>
+      </TicketCard>
     </motion.article>
   );
 }
@@ -375,30 +371,37 @@ export default function EventsPage() {
     <div className="kz-font kz-paper min-h-screen bg-[#f5e9cf] text-[#1c130c] selection:bg-[#c8102e]/20">
       <KzHeader />
       <main>
-        <PageHero title={["Events &", "sessions"]} />
-
-        {/* ── the search ── */}
-        <section className="mx-auto flex max-w-[90rem] justify-end px-5 pb-6 pt-10 sm:px-8 md:px-12">
-          <label className="relative block w-full sm:w-80">
-            <span className="sr-only">Search events</span>
-            <Search size={17} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[#5e4a35]" />
-            <input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search events or speakers"
-              className="h-12 w-full border-2 border-[#1c130c] bg-[#f5e9cf] pl-11 pr-10 text-[0.95rem] outline-none transition-shadow placeholder:text-[#5e4a35]/75 focus:shadow-[4px_4px_0_#c8102e]"
-            />
-            {query && (
-              <button type="button" aria-label="Clear search" onClick={() => setQuery("")} className="absolute right-3 top-1/2 grid h-7 w-7 -translate-y-1/2 place-items-center text-[#5e4a35] hover:bg-[#1c130c]/5">
-                <X size={15} />
-              </button>
-            )}
-          </label>
-        </section>
+        <PageHero
+          title={["Events &", "sessions"]}
+          intro={
+            loading
+              ? "Guest sessions, Curiosity Hour, Aarohan and community events."
+              : soon.length > 0
+                ? `${soon.length} coming up, and ${events.length - soon.length} sessions in the archive, recordings included.`
+                : `Nothing scheduled right now. ${events.length - soon.length} past sessions, recordings included.`
+          }
+          aside={
+            <label className="relative block w-full md:w-[22rem]">
+              <span className="sr-only">Search events</span>
+              <Search size={17} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[#5e4a35]" />
+              <input
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search events or speakers"
+                className="h-12 w-full rounded-full border-2 border-[#1c130c] bg-[#fffaf0] pl-11 pr-11 text-[1rem] outline-none transition-shadow placeholder:text-[#5e4a35]/75 focus:shadow-[3px_3px_0_#c8102e]"
+              />
+              {query && (
+                <button type="button" aria-label="Clear search" onClick={() => setQuery("")} className="absolute right-3 top-1/2 grid h-8 w-8 -translate-y-1/2 place-items-center rounded-full text-[#5e4a35] hover:bg-[#1c130c]/5">
+                  <X size={15} />
+                </button>
+              )}
+            </label>
+          }
+        />
 
         {/* ── coming up ── */}
         {soon.length > 0 && !query && (
-          <section className="mx-auto max-w-[90rem] px-5 pb-10 sm:px-8 md:px-12">
+          <section className="mx-auto max-w-[90rem] px-5 pb-10 pt-8 sm:px-8 md:px-12">
             <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
               {soon.map((e, i) => (
                 <Ticket key={e.id} event={e} index={i} onOpen={setSelected} />
@@ -409,7 +412,7 @@ export default function EventsPage() {
 
         {/* ── the four kinds of event ── */}
         {!query && (
-          <section className="relative mx-auto max-w-[90rem] px-5 sm:px-8 md:px-12">
+          <section className="relative mx-auto max-w-[90rem] px-5 pt-8 sm:px-8 md:px-12">
             <Segmented
               id="evt-tab"
               value={tab}

@@ -5,7 +5,7 @@ import { notFound, useParams } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { SectionHeading } from '@/components/portal/ui/Section';
 import { ContentManager } from '@/components/portal/admin/ContentManager';
-import { AdminNavTabs } from '@/components/portal/admin/AdminNavTabs';
+import { SuperAdminNavTabs } from '@/components/portal/super-admin/SuperAdminNavTabs';
 import { ContentTabs } from '@/components/portal/admin/ContentTabs';
 import { EmptyState } from '@/components/portal/ui/EmptyState';
 import { CONTENT_RESOURCES, writableResources, type ContentResource } from '@/lib/portal/permissions';
@@ -24,7 +24,7 @@ export default function ContentResourcePage() {
 
   return (
     <div>
-      <AdminNavTabs />
+      <SuperAdminNavTabs />
 
       <div className="space-y-5">
         <SectionHeading title={labels.title} size="lg" as="h1" />

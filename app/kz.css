@@ -29,7 +29,7 @@
 
 @layer components {
   :root {
-    --kz-header-h: 80px;
+    --kz-header-h: 64px;
 
     --kz-cream: #f5e9cf;
     --kz-ink: #1c130c;
@@ -49,14 +49,14 @@
     --kz-marigold: #f6b51e;
     --kz-cobalt: #2343b8;
 
-    --kz-f-display: "Yatra One", "Mukta", ui-serif, Georgia, serif;
+    --kz-f-display: var(--font-yatra), "Yatra One", var(--font-mukta), ui-serif, Georgia, serif;
     --kz-f-sign: "Akasha", ui-monospace, "Courier New", monospace;
-    --kz-f-body: "Mukta", ui-sans-serif, system-ui, sans-serif;
+    --kz-f-body: var(--font-mukta), "Mukta", ui-sans-serif, system-ui, sans-serif;
   }
 
   @media (min-width: 640px) {
     :root {
-      --kz-header-h: 88px;
+      --kz-header-h: 72px;
     }
   }
 

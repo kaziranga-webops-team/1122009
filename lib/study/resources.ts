@@ -20,7 +20,7 @@ export type Resource = {
 };
 
 /**
- * Notes and study material shown on /resources. Add entries here, e.g.
+ * Notes and study material shown on /study/notes. Add entries here, e.g.
  *
  *   {
  *     id: "stats1-week1-notes",

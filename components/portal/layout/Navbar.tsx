@@ -116,9 +116,18 @@ export const Navbar: React.FC = () => {
         <button
           type="button"
           onClick={openSearch}
+          title="Search"
+          aria-label="Search"
+          className="sm:hidden grid place-items-center w-11 h-11 rounded-xl text-ink-muted hover:text-ink hover:bg-surface-sunken transition-colors"
+        >
+          <Search className="w-5 h-5" aria-hidden />
+        </button>
+        <button
+          type="button"
+          onClick={openSearch}
           title="Search or jump to (⌘K)"
           aria-label="Search or jump to"
-          className="flex flex-1 min-w-0 max-w-[420px] items-center gap-2.5 h-11 pl-3 pr-2
+          className="hidden sm:flex flex-1 min-w-0 max-w-[420px] items-center gap-2.5 h-11 pl-3 pr-2
             rounded-xl bg-surface border border-hairline text-ink-muted
             hover:border-hairline-strong transition-colors text-left"
         >
@@ -132,7 +141,9 @@ export const Navbar: React.FC = () => {
 
         <div className="flex items-center gap-1 ml-auto">
           <ViewAsSwitcher />
-          <ThemeToggle />
+          <span className="hidden sm:contents">
+            <ThemeToggle />
+          </span>
           <NotificationBell />
 
           <span className="hidden sm:block w-px h-7 mx-2 bg-hairline" aria-hidden />
@@ -199,7 +210,11 @@ export const Navbar: React.FC = () => {
                 </button>
               </div>
 
-              <div className="shrink-0 flex items-center gap-3 px-4 py-4 border-b border-hairline">
+              <Link
+                href="/dashboard/profile"
+                onClick={() => setDrawerOpen(false)}
+                className="shrink-0 flex items-center gap-3 px-4 py-4 border-b border-hairline hover:bg-surface-sunken/60 transition-colors"
+              >
                 <Avatar src={user.avatarUrl} name={user.name} className="w-10 h-10 shrink-0" />
                 <div className="min-w-0 flex-1">
                   <div className="text-caption font-semibold text-ink truncate">
@@ -208,7 +223,7 @@ export const Navbar: React.FC = () => {
                   <div className="text-[0.625rem] text-ink-faint truncate">{user.email}</div>
                 </div>
                 {roleBadge(user.role)}
-              </div>
+              </Link>
 
               <nav className="flex-1 overflow-y-auto no-scrollbar px-3 py-4" aria-label="Main navigation">
                 {sections.map((section, i) => (
@@ -223,6 +238,16 @@ export const Navbar: React.FC = () => {
               </nav>
 
               <div className="shrink-0 px-4 py-4 border-t border-hairline dark:border-white/[0.07] space-y-3">
+                <div className="flex items-center justify-between gap-3">
+                  <Link
+                    href="/dashboard/notifications"
+                    onClick={() => setDrawerOpen(false)}
+                    className="text-[0.875rem] font-semibold text-ink-muted hover:text-ink"
+                  >
+                    Notifications
+                  </Link>
+                  <ThemeToggle />
+                </div>
                 <SocialRow className="justify-center" />
                 <button
                   onClick={logout}

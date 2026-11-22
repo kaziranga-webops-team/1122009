@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
-import StudyPage from "@/components/pages/StudyPage";
+import HubOverview from "@/components/study/hub/HubOverview";
 
 export const metadata: Metadata = {
-  title: "Study Zone — Academic Resources & Course Planner",
+  title: "Study zone",
   description:
-    "Access curated study resources, course planners, and the Discourse forum for IIT Madras BS Degree students. Covers both Data Science and Electronic Systems programmes.",
+    "Student handbooks, grading documents, important links, grade predictor, GPA and CGPA calculator and study help for IIT Madras BS students.",
   alternates: { canonical: "/study" },
 };
 
 export default function Page() {
-  return <StudyPage />;
+  return <HubOverview />;
 }

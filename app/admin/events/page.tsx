@@ -8,7 +8,8 @@ import { EventItem, MainEvent } from '@/types/portal';
 import { isMockMode, db } from '@/lib/firebase';
 import { mockStore } from '@/lib/portal/firebase/mockStore';
 import { getDocs, updateDoc, deleteDoc } from 'firebase/firestore';
-import { organiserEventsQuery, postNotice } from '@/lib/portal/organiser';
+import { organiserEventsQuery } from '@/lib/portal/organiser';
+import { sendNotice } from '@/lib/portal/portalApi';
 import { communityBySlug } from '@/lib/communities';
 import {
   getEventRef,
@@ -135,25 +136,15 @@ export default function AdminEventsPage() {
         updatedAt: new Date().toISOString(),
       });
 
+      const path = {
+        tenureId: evt.tenureId || DEFAULT_TENURE_ID,
+        mainEventId: evt.mainEventId || DEFAULT_MAIN_EVENT_ID,
+        eventId,
+      };
       if (!wasPublished && willBePublished) {
-        await postNotice(user.role, {
-          userId: 'GLOBAL',
-          title: evt.hasBeenPublished ? 'Event Re-Published' : 'New Event Published',
-          message: evt.hasBeenPublished
-            ? `${eventName} has been re-published and is open for registration.`
-            : `${eventName} is now open for registration.`,
-          type: 'EVENT',
-          linkUrl: `/dashboard/events/${eventId}`,
-          isGlobal: true,
-        });
+        await sendNotice({ kind: 'EVENT_STATUS', event: path, change: evt.hasBeenPublished ? 'REPUBLISHED' : 'PUBLISHED' });
       } else if (wasPublished && !willBePublished) {
-        await postNotice(user.role, {
-          userId: 'GLOBAL',
-          title: 'Event Removed',
-          message: `${eventName} has been removed from published events.`,
-          type: 'WARNING',
-          isGlobal: true,
-        });
+        await sendNotice({ kind: 'EVENT_STATUS', event: path, change: 'REMOVED' });
       }
 
       fetchEvents();
@@ -188,13 +179,7 @@ export default function AdminEventsPage() {
         await deleteDoc(docRef);
 
         if (evt.status === 'PUBLISHED') {
-          await postNotice(user.role, {
-            userId: 'GLOBAL',
-            title: 'Event Removed',
-            message: `${deletedName} has been removed from published events.`,
-            type: 'WARNING',
-            isGlobal: true,
-          });
+          await sendNotice({ kind: 'EVENT_DELETED', name: deletedName });
         }
 
         setIsDeleting(false);

@@ -256,6 +256,22 @@ service cloud.firestore {
       allow delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
     }
 
+    // ─── Announcements ──────────────────────────────────────────────────────
+    // Every member reads them; posting, pinning and removing go through
+    // /api/portal/announcements, which checks the author's reach.
+    match /announcements/{announcementId} {
+      allow read: if isAuthenticated();
+      allow write: if false;
+    }
+
+    // ─── Community pages ────────────────────────────────────────────────────
+    // The text on each community's public card. Public to read; heads edit it
+    // through /api/portal/communities.
+    match /communities/{slug} {
+      allow read: if true;
+      allow write: if false;
+    }
+
     // ─── Access requests ────────────────────────────────────────────────────
     // A signed-in student asks for access in their own name only.
     match /accessRequests/{requestId} {

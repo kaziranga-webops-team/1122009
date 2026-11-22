@@ -9,6 +9,7 @@ import { Badge } from '@/components/portal/ui/Badge';
 import { UrlInput } from '@/components/portal/ui/UrlInput';
 import { registrationSchema } from '@/lib/portal/validation/schemas';
 import { isMockMode, db } from '@/lib/firebase';
+import { sendNotice } from '@/lib/portal/portalApi';
 import { mockStore } from '@/lib/portal/firebase/mockStore';
 import { CheckCircle2, Lock, User, Phone, MapPin, GraduationCap, BookOpen, AlertCircle, Users, Plus, X, Mail, UserPlus, Loader2, Info, ArrowLeft, Check, Edit3, ExternalLink } from 'lucide-react';
 import { setDoc, updateDoc, increment, doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
@@ -533,32 +534,17 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
             createdAt: new Date().toISOString(),
           });
 
-          // 2. If joining a team, check if team reached full / required capacity
+          // 2. Joining a team: the server tells the leader once it is complete.
           if (isJoiningTeam && joinTeamId) {
-            try {
-              const teamRegsSnap = await getDocs(
-                query(collection(db, 'registrations'), where('teamId', '==', joinTeamId), where('status', '==', 'CONFIRMED'))
-              );
-              const totalConfirmed = teamRegsSnap.docs.length + 1;
-              const minRequired = event.minimumTeamSize || 2;
-              const leaderDoc = teamRegsSnap.docs.find(d => d.data().teamRole === 'INITIATOR');
-              if (leaderDoc && totalConfirmed >= minRequired) {
-                const leaderData = leaderDoc.data();
-                const teamNotifDoc = doc(collection(db, 'notifications'));
-                await setDoc(teamNotifDoc, {
-                  id: teamNotifDoc.id,
-                  userId: leaderData.userId,
-                  title: 'Team Ready & Complete',
-                  message: `Your team "${leaderData.teamName || 'Roster'}" for "${event.name}" now has all ${totalConfirmed} required members and is fully registered!`,
-                  type: 'SUCCESS',
-                  linkUrl: `/dashboard/events/${event.id}`,
-                  read: false,
-                  createdAt: new Date().toISOString(),
-                });
-              }
-            } catch (e) {
-              console.error('Error checking team completion:', e);
-            }
+            await sendNotice({
+              kind: 'TEAM_READY',
+              event: {
+                tenureId: event.tenureId || DEFAULT_TENURE_ID,
+                mainEventId: event.mainEventId || DEFAULT_MAIN_EVENT_ID,
+                eventId: event.id,
+              },
+              teamId: joinTeamId,
+            });
           }
 
           // Update the event's current registration count

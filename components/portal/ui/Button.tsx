@@ -24,28 +24,25 @@ const variants: Record<Variant, string> = {
   // override bg-brand / the accent / bg-signal-danger in cn() — every filled
   // button rendered with a transparent background until this was changed.
   primary:
-    'text-brand-contrast font-bold bg-brand shadow-sm ' +
-    'hover:opacity-95 hover:shadow hover:-translate-y-px',
+    'text-brand-contrast bg-brand shadow-sm hover:opacity-95 hover:shadow',
   accent:
-    'text-accent-contrast font-bold bg-[color:rgb(var(--accent-vivid))] shadow-sm ' +
-    'hover:opacity-95 hover:shadow hover:-translate-y-px',
+    'text-accent-contrast bg-[color:rgb(var(--accent-vivid))] shadow-sm hover:opacity-95 hover:shadow',
   secondary:
     'bg-surface-raised text-ink border border-hairline-strong shadow-e-1 ' +
-    'hover:bg-surface-sunken hover:border-ink-faint hover:shadow-e-2 hover:-translate-y-px',
+    'hover:bg-surface-sunken hover:border-ink-faint',
   outline:
     'border border-hairline-strong text-ink bg-transparent ' +
     'hover:bg-surface-sunken hover:border-ink-faint hover:shadow-e-1',
   ghost:
     'text-ink-muted bg-transparent hover:bg-surface-sunken hover:text-ink',
   danger:
-    'text-white font-bold bg-signal-danger shadow-sm ' +
-    'hover:opacity-95 hover:shadow hover:-translate-y-px',
+    'text-white bg-signal-danger shadow-sm hover:opacity-95 hover:shadow',
   link:
     'text-accent bg-transparent underline-offset-4 hover:underline p-0 h-auto shadow-none',
 };
 
 const sizes: Record<Size, string> = {
-  sm: 'h-9 px-3.5 text-caption gap-1.5 rounded-lg',
+  sm: 'h-10 md:h-9 px-3.5 text-caption gap-1.5 rounded-lg',
   md: 'h-11 px-5 text-caption gap-2 rounded-xl',
   lg: 'h-12 px-6 text-body gap-2.5 rounded-xl',
   xl: 'h-14 px-8 text-body-lg gap-3 rounded-2xl',
@@ -76,7 +73,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         'relative inline-flex items-center justify-center font-semibold font-display',
         'whitespace-nowrap select-none',
         'transition-all duration-200 ease-editorial',
-        'active:scale-[0.98] active:translate-y-0',
+        'active:scale-[0.98]',
         'disabled:opacity-50 disabled:pointer-events-none',
         variant !== 'link' && sizes[size],
         variants[variant],

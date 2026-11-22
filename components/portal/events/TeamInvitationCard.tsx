@@ -7,6 +7,7 @@ import { Badge } from '@/components/portal/ui/Badge';
 import { Button } from '@/components/portal/ui/Button';
 import { Card } from '@/components/portal/ui/Card';
 import { isMockMode, db } from '@/lib/firebase';
+import { sendNotice } from '@/lib/portal/portalApi';
 import { mockStore } from '@/lib/portal/firebase/mockStore';
 import { updateDoc, doc, collection, setDoc } from 'firebase/firestore';
 import { getTeamInvitationRef } from '@/lib/portal/firebase/paths';
@@ -45,17 +46,7 @@ export const TeamInvitationCard: React.FC<TeamInvitationCardProps> = ({
           updatedAt: new Date().toISOString(),
         });
 
-        const notifDoc = doc(collection(db, 'notifications'));
-        await setDoc(notifDoc, {
-          id: notifDoc.id,
-          userId: invitation.inviterUserId,
-          title: 'Team Invitation Accepted',
-          message: `${user.name || invitation.inviteeEmail} has accepted your team invitation and joined your team for "${invitation.eventName}".`,
-          type: 'SUCCESS',
-          linkUrl: `/dashboard/events/${invitation.eventId}`,
-          read: false,
-          createdAt: new Date().toISOString(),
-        });
+        await sendNotice({ kind: 'TEAM_INVITE_RESPONSE', invitationId: invitation.id });
       }
       setActionTaken('ACCEPTED');
       if (onAccept) onAccept(invitation);
@@ -81,16 +72,7 @@ export const TeamInvitationCard: React.FC<TeamInvitationCardProps> = ({
           updatedAt: new Date().toISOString(),
         });
 
-        const notifDoc = doc(collection(db, 'notifications'));
-        await setDoc(notifDoc, {
-          id: notifDoc.id,
-          userId: invitation.inviterUserId,
-          title: 'Team Invitation Declined',
-          message: `${user.name || invitation.inviteeEmail} has declined your team invitation for "${invitation.eventName}".`,
-          type: 'WARNING',
-          read: false,
-          createdAt: new Date().toISOString(),
-        });
+        await sendNotice({ kind: 'TEAM_INVITE_RESPONSE', invitationId: invitation.id });
       }
       setActionTaken('REJECTED');
       if (onReject) onReject();

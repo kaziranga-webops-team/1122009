@@ -38,6 +38,7 @@ import {
 import { getOptimizedImageUrl } from '@/lib/portal/utils/imageFormatter';
 import { formatDate } from '@/lib/portal/utils/formatDate';
 import { CountdownTimer } from '@/components/portal/events/CountdownTimer';
+import { ResultsPanel } from '@/components/portal/events/ResultsPanel';
 
 function formatGoogleCalendarDate(d: string | Date): string {
   const date = new Date(d);
@@ -380,6 +381,7 @@ export default function SubEventDetailPage() {
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 lg:gap-8 items-start">
         {/* ─── Main column ─── */}
         <div className="xl:col-span-2 space-y-6 min-w-0">
+          <ResultsPanel event={event} />
           <Card elevation={1} className="p-6 sm:p-8 space-y-5">
             <h2 className="ed-subhead">About this activity</h2>
             <div

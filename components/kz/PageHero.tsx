@@ -1,50 +1,69 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
-import { Gamosa } from "@/components/kz/Motifs";
 
-const GROUNDS = {
-  red: { bg: "#c8102e", texture: "kz-cloth", title: "#f6b51e", offset: "#1c130c", ink: "#f5e9cf", dot: "" },
-  cobalt: { bg: "#2343b8", texture: "kz-halftone", title: "#f6b51e", offset: "#e2387a", ink: "#f5e9cf", dot: "rgba(10,20,80,0.55)" },
-  forest: { bg: "#0a3b2f", texture: "kz-jaali", title: "#f6b51e", offset: "#c8102e", ink: "#f5e9cf", dot: "" },
-  marigold: { bg: "#f6b51e", texture: "kz-halftone", title: "#1c130c", offset: "#e2387a", ink: "#1c130c", dot: "rgba(120,60,0,0.25)" },
-  rani: { bg: "#e2387a", texture: "kz-halftone", title: "#f6b51e", offset: "#1c130c", ink: "#fff8ec", dot: "rgba(90,0,30,0.3)" },
+/** Each page keeps a colour of its own; it marks the title, not a band. */
+const ACCENTS = {
+  red: "#c8102e",
+  cobalt: "#2343b8",
+  forest: "#0f5e48",
+  marigold: "#e3a936",
+  rani: "#e2387a",
 } as const;
 
-export type Ground = keyof typeof GROUNDS;
+export type Ground = keyof typeof ACCENTS;
 
 /**
- * The opener for inner pages, printed like a poster band: a coloured ground,
- * the title in Yatra One with an off-register shadow, an optional line of
- * intro, and a gamosa edge. Short on purpose, so the page's own content is
- * on screen at once.
+ * The opener for inner pages. It sits on the page's own paper, so the header,
+ * title and content read as one sheet: the title in Yatra One with an
+ * off-register shadow in the page's colour, a line of intro, and an `aside`
+ * slot on the right for what the page is used for (search, filters, a fact
+ * or two). A rule with a short stroke of the page colour closes it.
  */
-export default function PageHero({ title, intro, ground = "red" }: { title: string[]; intro?: React.ReactNode; ground?: Ground }) {
+export default function PageHero({
+  title,
+  intro,
+  ground = "red",
+  aside,
+  tone = "paper",
+}: {
+  title: string[];
+  intro?: React.ReactNode;
+  ground?: Ground;
+  aside?: React.ReactNode;
+  /** `ink` for the dark pages. */
+  tone?: "paper" | "ink";
+}) {
   const reduce = useReducedMotion();
-  const g = GROUNDS[ground];
+  const accent = ACCENTS[ground];
+  const ink = tone === "ink" ? "#f5e9cf" : "#1c130c";
 
   return (
-    <section
-      className={`kz-font relative overflow-hidden pt-[var(--kz-header-h)] ${g.texture}`}
-      style={{ background: g.bg, color: g.ink, ...(g.dot ? { ["--dot" as string]: g.dot } : {}) }}
-    >
-      <div className="relative mx-auto max-w-[90rem] px-5 pb-14 pt-12 sm:px-8 md:px-12 md:pb-16 md:pt-16">
-        <motion.h1
-          className="kz-display kz-offset text-[clamp(2.8rem,6.4vw,5.8rem)]"
-          style={{ color: g.title, ["--offset" as string]: g.offset }}
-          initial={reduce ? false : { opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-        >
-          {title.map((line, i) => (
-            <span key={i} className="block">
-              {line}
-            </span>
-          ))}
-        </motion.h1>
-        {intro && <p className="kz-lead mt-6 max-w-2xl opacity-90">{intro}</p>}
+    <section className="kz-font relative pt-[var(--kz-header-h)]" style={{ color: ink }}>
+      <div className="mx-auto max-w-[90rem] px-5 sm:px-8 md:px-12">
+        <div className="grid items-end gap-6 pb-7 pt-8 md:grid-cols-[minmax(0,1fr)_auto] md:gap-10 md:pb-9 md:pt-12">
+          <div className="min-w-0">
+            <motion.h1
+              className="kz-display kz-offset text-[clamp(2.6rem,6vw,5.2rem)]"
+              style={{ ["--offset" as string]: accent }}
+              initial={reduce ? false : { opacity: 0, y: 18 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+            >
+              {title.map((line, i) => (
+                <span key={i} className="block">
+                  {line}
+                </span>
+              ))}
+            </motion.h1>
+            {intro && <p className="kz-lead mt-4 max-w-2xl opacity-80">{intro}</p>}
+          </div>
+          {aside && <div className="min-w-0 md:max-w-md md:justify-self-end">{aside}</div>}
+        </div>
+        <div aria-hidden="true" className="relative h-[3px]" style={{ background: ink, opacity: tone === "ink" ? 0.85 : 1 }}>
+          <span className="absolute inset-y-[-2px] left-0 w-24 md:w-40" style={{ background: accent }} />
+        </div>
       </div>
-      <Gamosa />
     </section>
   );
 }
@@ -66,8 +85,8 @@ export function Segmented<T extends string>({
   return (
     <div
       role="tablist"
-      className={`inline-flex max-w-full gap-1 overflow-x-auto p-1 [scrollbar-width:none] ${
-        dark ? "border-2 border-[#f5e9cf]/40" : "border-2 border-[#1c130c] bg-[#f5e9cf]"
+      className={`inline-flex max-w-full gap-1 overflow-x-auto rounded-full p-1 [scrollbar-width:none] ${
+        dark ? "bg-[#f5e9cf]/10" : "bg-[#1c130c]/[0.06]"
       }`}
     >
       {options.map((o) => {
@@ -79,14 +98,14 @@ export function Segmented<T extends string>({
             role="tab"
             aria-selected={active}
             onClick={() => onChange(o.value)}
-            className={`kz-sign relative inline-flex shrink-0 items-center gap-2 px-4 pb-2 pt-2.5 text-[0.8rem] uppercase tracking-[0.1em] transition-colors duration-300 sm:px-5 ${
+            className={`kz-focus relative inline-flex h-10 shrink-0 items-center gap-2 rounded-full px-4 text-[0.95rem] font-semibold transition-colors duration-300 sm:px-5 ${
               active ? (dark ? "text-[#1c130c]" : "text-[#f5e9cf]") : dark ? "text-white/75 hover:text-white" : "text-[#1c130c]/70 hover:text-[#1c130c]"
             }`}
           >
             {active && (
               <motion.span
                 layoutId={`seg-${id}`}
-                className={`absolute inset-0 ${dark ? "bg-[#f6b51e]" : "bg-[#c8102e]"}`}
+                className={`absolute inset-0 rounded-full ${dark ? "bg-[#f6b51e]" : "bg-[#1c130c]"}`}
                 transition={{ type: "spring", stiffness: 420, damping: 34 }}
               />
             )}
@@ -94,11 +113,7 @@ export function Segmented<T extends string>({
               {o.icon}
               {o.label}
               {typeof o.count === "number" && (
-                <span
-                  className={`grid min-w-[1.4rem] place-items-center px-1.5 py-0.5 text-[0.72rem] leading-none transition-colors ${
-                    active ? "bg-[#f6b51e] text-[#1c130c]" : "bg-[#1c130c]/10 text-[#1c130c]/70"
-                  }`}
-                >
+                <span className={`text-[0.82rem] font-medium tabular-nums ${active ? (dark ? "text-[#1c130c]/70" : "text-[#f6b51e]") : "opacity-60"}`}>
                   {o.count}
                 </span>
               )}

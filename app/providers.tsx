@@ -15,7 +15,7 @@ import Navbar from "@/components/Navbar";
 
 // Routes that render their own header, so the global Navbar is hidden.
 // "/" is the illustrated homepage — it ships its own KzHeader.
-const NAVBAR_HIDDEN = ["/", "/gallery", "/events", "/council", "/meetups", "/communities", "/resources", "/hub", "/study", "/tak"];
+const NAVBAR_HIDDEN = ["/", "/gallery", "/events", "/council", "/meetups", "/communities", "/study", "/tak"];
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(() => new QueryClient());
@@ -32,7 +32,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
     pathname === "/notifications" ||
     pathname === "/profile";
 
-  const showNavbar = !NAVBAR_HIDDEN.includes(pathname) && !pathname.startsWith("/hub/") && !isPortalRoute;
+  const showNavbar = !NAVBAR_HIDDEN.includes(pathname) && !pathname.startsWith("/study/") && !isPortalRoute;
 
   return (
     <QueryClientProvider client={queryClient}>

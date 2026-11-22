@@ -6,12 +6,12 @@ import { useAuth } from '@/context/AuthContext';
 import { EventItem } from '@/types/portal';
 import { EventForm } from '@/components/portal/admin/EventForm';
 import { isMockMode } from '@/lib/firebase';
-import { organiserEventsQuery, postNotice, canBroadcast } from '@/lib/portal/organiser';
+import { organiserEventsQuery } from '@/lib/portal/organiser';
+import { sendNotice } from '@/lib/portal/portalApi';
 import { canOrganiseEvents } from '@/lib/portal/permissions';
 import { mockStore } from '@/lib/portal/firebase/mockStore';
 import { updateDoc, query, where, getDocs } from 'firebase/firestore';
 import {
-  getAllRegistrationsGroupRef,
   getEventRef,
   DEFAULT_TENURE_ID,
   DEFAULT_MAIN_EVENT_ID,
@@ -104,25 +104,15 @@ export default function EditEventPage() {
           updatedAt: new Date().toISOString(),
         });
 
+        const path = {
+          tenureId: event.tenureId || DEFAULT_TENURE_ID,
+          mainEventId: event.mainEventId || DEFAULT_MAIN_EVENT_ID,
+          eventId,
+        };
         if (!wasPublished && willBePublished) {
-          await postNotice(user.role, {
-            userId: 'GLOBAL',
-            title: event.hasBeenPublished ? 'Event Re-Published' : 'New Event Published',
-            message: event.hasBeenPublished
-              ? `${eventData.name || event.name} has been re-published and is open for registration.`
-              : `${eventData.name || event.name} is now open for registration.`,
-            type: 'EVENT',
-            linkUrl: `/dashboard/events/${eventId}`,
-            isGlobal: true,
-          });
+          await sendNotice({ kind: 'EVENT_STATUS', event: path, change: event.hasBeenPublished ? 'REPUBLISHED' : 'PUBLISHED' });
         } else if (wasPublished && !willBePublished) {
-          await postNotice(user.role, {
-            userId: 'GLOBAL',
-            title: 'Event Removed',
-            message: `${eventData.name || event.name} has been removed from published events.`,
-            type: 'WARNING',
-            isGlobal: true,
-          });
+          await sendNotice({ kind: 'EVENT_STATUS', event: path, change: 'REMOVED' });
         }
 
         const scheduleOrVenueChanged =
@@ -130,30 +120,9 @@ export default function EditEventPage() {
           (eventData.endDateTime && eventData.endDateTime !== event.endDateTime) ||
           (eventData.venue && eventData.venue !== event.venue);
 
-        if (wasPublished && willBePublished && scheduleOrVenueChanged && canBroadcast(user.role)) {
-          try {
-            const regsSnap = await getDocs(
-              query(
-                getAllRegistrationsGroupRef(),
-                where('eventId', '==', eventId),
-                where('status', '==', 'CONFIRMED')
-              )
-            );
-            const userIds = Array.from(new Set(regsSnap.docs.map((d) => d.data().userId)));
-            await Promise.all(
-              userIds.map((uid) => {
-                return postNotice(user.role, {
-                  userId: uid,
-                  title: 'Event Details Updated',
-                  message: `The venue/schedule for "${eventData.name || event.name}" has been updated. Check the event page for details.`,
-                  type: 'INFO',
-                  linkUrl: `/dashboard/events/${eventId}`,
-                });
-              })
-            );
-          } catch (e) {
-            console.error('Failed to dispatch schedule update notifications:', e);
-          }
+        // The server finds the confirmed registrants and tells each of them.
+        if (wasPublished && willBePublished && scheduleOrVenueChanged) {
+          await sendNotice({ kind: 'EVENT_UPDATED', event: path });
         }
       }
       router.push('/admin/events');

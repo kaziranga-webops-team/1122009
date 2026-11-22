@@ -46,6 +46,8 @@ export const FilterSelect: React.FC<FilterSelectProps> = ({
     <div
       className={cn(
         'relative inline-flex items-center min-w-0 transition-all rounded-xl border',
+        // The select hides its own outline; the box shows focus instead.
+        'focus-within:border-brand focus-within:ring-2 focus-within:ring-brand/25',
         'bg-surface-raised dark:bg-surface-sunken text-ink',
         isDefault
           ? 'border-hairline hover:border-hairline-strong'
@@ -75,7 +77,7 @@ export const FilterSelect: React.FC<FilterSelectProps> = ({
         className={cn(
           'w-full bg-transparent appearance-none cursor-pointer border-none outline-none font-semibold transition-colors',
           'focus:outline-none focus:ring-0',
-          isSm ? 'h-9 text-caption pr-7' : 'h-10 text-caption sm:text-sm pr-8',
+          isSm ? 'h-10 text-[1rem] md:h-9 md:text-caption pr-7' : 'h-11 text-[1rem] md:h-10 md:text-sm pr-8',
           icon ? (isSm ? 'pl-2' : 'pl-2.5') : (isSm ? 'pl-3' : 'pl-3.5'),
           isDefault ? 'text-ink-muted' : 'text-ink font-bold',
           className

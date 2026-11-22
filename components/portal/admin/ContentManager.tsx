@@ -231,7 +231,46 @@ export function ContentManager({ resource }: { resource: ContentResource }) {
           action={mayCreate && !query ? <Button size="sm" onClick={openCreate}>Add the first one</Button> : undefined}
         />
       ) : (
-        <div className="overflow-hidden rounded-2xl border border-hairline bg-surface-raised">
+        <>
+        {/* Phones: one card per entry, with its actions at hand. */}
+        <ul className="space-y-2 md:hidden">
+          {visible.map((row) => {
+            const editable = mayEdit(row);
+            const removable = mayDelete(row);
+            const details = config.columns
+              .slice(1)
+              .map((c) => row[c.name])
+              .filter((v) => typeof v === 'string' && v && !/^https?:\/\//.test(v))
+              .join(' · ');
+            return (
+              <li key={row.id} className="rounded-2xl border border-hairline bg-surface-raised p-4">
+                <p className="font-semibold text-ink">{String(row[headline] || '—')}</p>
+                {details && <p className="mt-0.5 text-[0.875rem] text-ink-muted line-clamp-2">{details}</p>}
+                {(editable || removable) && (
+                  <div className="mt-3 flex gap-2">
+                    {editable && (
+                      <Button variant="secondary" size="sm" onClick={() => openEdit(row)} leftIcon={<Pencil className="w-4 h-4" />}>
+                        Edit
+                      </Button>
+                    )}
+                    {removable && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setDeleting(row)}
+                        leftIcon={<Trash2 className="w-4 h-4" />}
+                        className="text-signal-danger hover:bg-signal-danger/10"
+                      >
+                        Delete
+                      </Button>
+                    )}
+                  </div>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+        <div className="hidden overflow-hidden rounded-2xl border border-hairline bg-surface-raised md:block">
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead>
@@ -315,6 +354,7 @@ export function ContentManager({ resource }: { resource: ContentResource }) {
             </table>
           </div>
         </div>
+        </>
       )}
 
       {/* ─── Editor ─── */}

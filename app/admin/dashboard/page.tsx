@@ -134,7 +134,7 @@ export default function AdminDashboardPage() {
 
       <div className="space-y-8">
         <SectionHeading
-          title="Event operations"
+          title="Insights"
           size="lg"
           as="h1"
           actions={

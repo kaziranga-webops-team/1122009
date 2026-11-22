@@ -5,9 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { ArrowLeft, ArrowUpRight, Check, ChevronDown, FolderOpen, LayoutGrid, Library, List, Search, X } from "lucide-react";
-import KzHeader from "@/components/kz/KzHeader";
-import KzFooter from "@/components/kz/KzFooter";
-import PageHero, { Segmented } from "@/components/kz/PageHero";
+import { Segmented } from "@/components/kz/PageHero";
 import { RESOURCES, getResourceKind, type Resource } from "@/lib/study/resources";
 import { LEVELS, SUBJECTS, findSubjectLevel, formatSubjectTitle, getSubjectShortName, isLevel, type Level } from "@/lib/study/subjects";
 
@@ -326,12 +324,11 @@ function ResourcesContent() {
 
   return (
     <>
-      <PageHero ground="marigold" title={["Notes for every", "subject"]} />
-
-      <section className="mx-auto max-w-[90rem] space-y-5 px-5 pb-24 sm:px-8 md:px-12 md:pb-32">
-        <Link href="/hub" className="kz-focus flex w-fit items-center gap-1.5 rounded-full text-[0.85rem] font-bold text-[#0f5e48] hover:text-[#1c130c]">
-          <ArrowLeft size={15} /> Resource hub
-        </Link>
+      <section className="space-y-5 pb-24 pt-6 lg:pt-10 md:pb-32">
+        <header>
+          <h1 className="kz-serif text-[clamp(2rem,4vw,3rem)] leading-none">Notes</h1>
+          <p className="kz-body mt-2 text-[#5e4a35]">Notes, cheat sheets and links shared by students, sorted by level and subject.</p>
+        </header>
 
         <Segmented
           id="resources-level"
@@ -437,14 +434,8 @@ function ResourcesContent() {
 
 export default function ResourcesPage() {
   return (
-    <div className="kz-font kz-paper min-h-screen bg-[#f5e9cf] text-[#1c130c] selection:bg-[#c8102e]/20">
-      <KzHeader />
-      <main>
-        <Suspense fallback={<div className="min-h-screen" />}>
-          <ResourcesContent />
-        </Suspense>
-      </main>
-      <KzFooter />
-    </div>
+    <Suspense fallback={<div className="min-h-screen" />}>
+      <ResourcesContent />
+    </Suspense>
   );
 }

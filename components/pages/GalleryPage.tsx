@@ -6,13 +6,17 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Image as ImageIcon, ArrowLeft, ArrowRight, Loader2, AlertTriangle, RefreshCw, Heart, Search, X, ChevronDown, Folder, Zap, Calendar } from "lucide-react";
 import { FaInstagram } from "react-icons/fa";
-import { fetchGallery, fetchMeetups, getCachedGallery, getCachedMeetups, toDirectImageUrl, type GalleryRow, type MeetupRow } from "@/lib/api";
+import { fetchCouncil, getCachedCouncil, fetchGallery, fetchMeetups, getCachedGallery, getCachedMeetups, toDirectImageUrl, type GalleryRow, type MeetupRow } from "@/lib/api";
 import { useLikes, useAllLikes } from "@/hooks/useLikes";
 import { generateImageId } from "@/lib/firebase";
-import FolderComponent from "@/components/Folder";
 import KzHeader from "@/components/kz/KzHeader";
 import KzFooter from "@/components/kz/KzFooter";
-import PageHero from "@/components/kz/PageHero";
+import PageHero, { Segmented } from "@/components/kz/PageHero";
+import { Postmark } from "@/components/kz/Motifs";
+import { DateStamp, TicketCard, type TicketStock } from "@/components/kz/TicketCard";
+import { REGION_THEMES, regionImage } from "@/components/portal/home/RegionArt";
+import { toRegion } from "@/lib/portal/regions";
+import { joinNames, rcsByRegion } from "@/lib/rcs";
 
 
 const CATEGORIES = ["All", "Meetups", "Meme", "Sticker", "Photograph", "Screenshot", "Creativity"];
@@ -37,259 +41,6 @@ const getCategoryBadgeColor = (category: string) => {
   if (cat === "screenshot") return "bg-white";
   return "bg-[#c8102e]"; // Creativity
 };
-
-// ─── Navbar ───────────────────────────────────────────────────────────────────
-interface ScrapbookNavbarProps {
-  selectedRegion: string | null;
-  onBackToRegions: () => void;
-  meetupCount?: number;
-  isMeetupsActive: boolean;
-  onMeetupsClick: () => void;
-  activeTab: string;
-  setActiveTab: (tab: string) => void;
-  setSelectedRegion: (region: string | null) => void;
-  creativeDropdownOpen: boolean;
-  setCreativeDropdownOpen: (open: boolean) => void;
-  setLocation: (path: string) => void;
-}
-
-function ScrapbookNavbar({
-  selectedRegion,
-  onBackToRegions,
-  meetupCount = 0,
-  isMeetupsActive,
-  onMeetupsClick,
-  activeTab,
-  setActiveTab,
-  setSelectedRegion,
-  creativeDropdownOpen,
-  setCreativeDropdownOpen,
-  setLocation,
-}: ScrapbookNavbarProps) {
-  if (selectedRegion) {
-    return (
-      <nav className="w-full sticky top-0 z-40 py-4 px-4 bg-[#f5e9cf]/90 backdrop-blur-md">
-        <div className="container mx-auto max-w-7xl">
-          <div className="flex items-center justify-between border border-black/10 bg-[#fbf3df] py-3 px-4 md:px-6 shadow-[2px_4px_12px_rgba(0,0,0,0.08)] w-full relative">
-            <div className="absolute -top-2 left-6 w-16 h-5 bg-[#f08a24]/50 mix-blend-multiply transform -rotate-2 z-20">
-              <div className="w-full h-full border-x-2 border-dotted border-white/30"></div>
-            </div>
-            
-            <button
-              onClick={onBackToRegions}
-              className="flex items-center gap-1.5 h-10 px-4 border border-black/10 bg-[#fbf3df] text-black font-bold uppercase text-xs tracking-wide shadow-sm hover:-translate-y-0.5 hover:shadow-md transition-all cursor-pointer rounded-sm shrink-0"
-            >
-              <ArrowLeft size={14} />
-              <span>All Regions</span>
-            </button>
-            
-            <h2 className="font-bold text-lg md:text-2xl lg:text-3xl text-black text-center flex-grow mx-4 truncate leading-none">
-              {selectedRegion}
-            </h2>
-            
-            <div className="flex items-center gap-1.5 h-10 px-4 bg-[#f6b51e]/90 border border-black/10 font-bold text-xs uppercase tracking-wide shadow-sm rounded-sm shrink-0 transform rotate-1">
-              <span>{meetupCount} {meetupCount === 1 ? "Meetup" : "Meetups"}</span>
-            </div>
-          </div>
-        </div>
-      </nav>
-    );
-  }
-
-  return (
-    <nav className="w-full bg-[#f5e9cf] border-b border-black/10 sticky top-0 z-40 py-3 px-4 shadow-[0_2px_10px_rgba(0,0,0,0.05)]">
-      <div className="container mx-auto flex flex-col lg:flex-row items-center justify-between gap-3 lg:gap-4 relative">
-        {/* Navigation Buttons wrapper */}
-        <div className="flex items-center justify-between w-full lg:w-auto gap-4">
-          {/* Mobile Meetups Button */}
-          <button
-            onClick={onMeetupsClick}
-            className={`lg:hidden flex items-center gap-1.5 h-10 px-4 border border-black/10 font-bold uppercase text-xs tracking-wide shadow-sm active:translate-y-0.5 hover:shadow-md transition-all cursor-pointer rounded-sm transform rotate-1
-              ${isMeetupsActive 
-                ? "bg-[#f6b51e]/90 text-black shadow-inner" 
-                : "bg-white text-black"
-              }`}
-          >
-            <Folder size={14} className={isMeetupsActive ? "fill-black" : ""} />
-            <span>Meetups</span>
-          </button>
-        </div>
-
-        {/* Category Navbar in place of GALLERY title */}
-        <div className="flex flex-wrap items-center justify-center gap-1.5 border border-black/10 bg-white p-1.5 shadow-sm w-full sm:w-auto max-w-full relative">
-          <div className="absolute -top-2 right-12 w-12 h-4 bg-[#e2387a]/50 mix-blend-multiply transform rotate-3 z-20">
-             <div className="w-full h-full border-x-2 border-dotted border-white/30"></div>
-          </div>
-          {/* All Button */}
-          <button
-            onClick={() => {
-              setLocation("/gallery?tab=images");
-              setActiveTab("All");
-              setSelectedRegion(null);
-            }}
-            className={`h-8 md:h-10 px-2.5 md:px-4 font-bold text-[10px] md:text-xs tracking-wide transition-all cursor-pointer rounded-sm border-b-2
-              ${activeTab === "All" 
-                ? "border-[#e3a936] text-black bg-[#f5e9cf]/50" 
-                : "border-transparent text-black/60 hover:bg-[#f5e9cf]/50 hover:text-black"
-              }`}
-          >
-            All
-          </button>
-
-          {/* Photographs Button */}
-          <button
-            onClick={() => {
-              setLocation("/gallery?tab=images");
-              setActiveTab("Photograph");
-              setSelectedRegion(null);
-            }}
-            className={`h-8 md:h-10 px-2.5 md:px-4 font-bold text-[10px] md:text-xs tracking-wide transition-all cursor-pointer rounded-sm border-b-2
-              ${activeTab === "Photograph" 
-                ? "border-[#e2387a] text-black bg-[#f5e9cf]/50" 
-                : "border-transparent text-black/60 hover:bg-[#f5e9cf]/50 hover:text-black"
-              }`}
-          >
-            Photographs
-          </button>
-
-          {/* Creativity Button */}
-          <button
-            onClick={() => {
-              setLocation("/gallery?tab=images");
-              setActiveTab("Creativity");
-              setSelectedRegion(null);
-            }}
-            className={`h-8 md:h-10 px-2.5 md:px-4 font-bold text-[10px] md:text-xs tracking-wide transition-all cursor-pointer rounded-sm border-b-2
-              ${activeTab === "Creativity" 
-                ? "border-[#f08a24] text-black bg-[#f5e9cf]/50" 
-                : "border-transparent text-black/60 hover:bg-[#f5e9cf]/50 hover:text-black"
-              }`}
-          >
-            Creativity
-          </button>
-
-          {/* Dropdown for Fun Categories */}
-          <div className="relative creative-dropdown-container">
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setCreativeDropdownOpen(!creativeDropdownOpen);
-              }}
-              className={`h-8 md:h-10 px-2.5 md:px-4 font-bold text-[10px] md:text-xs tracking-wide transition-all cursor-pointer rounded-sm border-b-2 flex items-center gap-1
-                ${["Meme", "Screenshot", "Sticker"].includes(activeTab)
-                  ? "border-[#c8102e] text-black bg-[#f5e9cf]/50"
-                  : "border-transparent text-black/60 hover:bg-[#f5e9cf]/50 hover:text-black"
-                }`}
-            >
-              <span>
-                {["Meme", "Screenshot", "Sticker"].includes(activeTab) 
-                  ? activeTab === "Meme" 
-                    ? "Memes" 
-                    : activeTab === "Screenshot" 
-                      ? "Screenshots" 
-                      : "Stickers"
-                  : "Fun"}
-              </span>
-              <ChevronDown size={14} className={`transition-transform duration-200 ${creativeDropdownOpen ? "rotate-180" : ""}`} />
-            </button>
-
-            <AnimatePresence>
-              {creativeDropdownOpen && (
-                <motion.div
-                  initial={{ opacity: 0, y: 8, scale: 0.95 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: 8, scale: 0.95 }}
-                  transition={{ duration: 0.15 }}
-                  className="absolute z-50 right-0 mt-2 bg-white border border-black/10 shadow-lg overflow-hidden p-1 flex flex-col gap-1 w-44 rounded-sm"
-                >
-                  <button
-                    onClick={() => {
-                      setLocation("/gallery?tab=images");
-                      setActiveTab("Meme");
-                      setSelectedRegion(null);
-                      setCreativeDropdownOpen(false);
-                    }}
-                    className={`w-full text-left px-4 py-2 font-bold text-xs tracking-wide rounded-sm transition-colors
-                      ${activeTab === "Meme" 
-                        ? "bg-[#e3a936]/20 text-black border-l-2 border-[#e3a936]" 
-                        : "text-black/70 hover:bg-[#f5e9cf]"
-                      }`}
-                  >
-                    Memes
-                  </button>
-
-                  <button
-                    onClick={() => {
-                      setLocation("/gallery?tab=images");
-                      setActiveTab("Screenshot");
-                      setSelectedRegion(null);
-                      setCreativeDropdownOpen(false);
-                    }}
-                    className={`w-full text-left px-4 py-2 font-bold text-xs tracking-wide rounded-sm transition-colors
-                      ${activeTab === "Screenshot" 
-                        ? "bg-[#f08a24]/20 text-black border-l-2 border-[#f08a24]" 
-                        : "text-black/70 hover:bg-[#f5e9cf]"
-                      }`}
-                  >
-                    Screenshots
-                  </button>
-
-                  <button
-                    onClick={() => {
-                      setLocation("/gallery?tab=images");
-                      setActiveTab("Sticker");
-                      setSelectedRegion(null);
-                      setCreativeDropdownOpen(false);
-                    }}
-                    className={`w-full text-left px-4 py-2 font-bold text-xs tracking-wide rounded-sm transition-colors
-                      ${activeTab === "Sticker" 
-                        ? "bg-[#e2387a]/20 text-black border-l-2 border-[#e2387a]" 
-                        : "text-black/70 hover:bg-[#f5e9cf]"
-                      }`}
-                  >
-                    Stickers
-                  </button>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        </div>
-
-        {/* Desktop Meetups Button */}
-        <button
-          onClick={onMeetupsClick}
-          className={`hidden lg:flex items-center gap-1.5 h-10 px-4 border border-black/10 font-bold uppercase text-xs tracking-wide shadow-sm hover:-translate-y-0.5 hover:shadow-md transition-all cursor-pointer rounded-sm transform rotate-1
-            ${isMeetupsActive 
-              ? "bg-[#f6b51e]/90 text-black shadow-inner" 
-              : "bg-white text-black"
-            }`}
-        >
-          <Folder size={14} className={isMeetupsActive ? "fill-black" : ""} />
-          <span>Meetups</span>
-        </button>
-      </div>
-    </nav>
-  );
-}
-
-
-// ─── Region Colors and Helpers ──────────────────────────────────────────────
-const REGION_COLORS: Record<string, string> = {
-  bengaluru: "bg-[#e3a936]",
-  chandigarh: "bg-[#e2387a]",
-  chennai: "bg-[#f6b51e]",
-  delhi: "bg-[#f08a24]",
-  hyderabad: "bg-[#c8102e]",
-  kolkata: "bg-[#2343b8] text-white",
-  mumbai: "bg-white",
-  patna: "bg-[#e3a936]",
-  lucknow: "bg-[#e2387a]"
-};
-
-function getRegionColor(region: string): string {
-  const norm = region.toLowerCase().trim();
-  return REGION_COLORS[norm] || "bg-[#f6b51e]";
-}
 
 const REGION_HEX_COLORS: Record<string, string> = {
   bengaluru: "#e3a936",
@@ -422,65 +173,72 @@ function CanvaModalEmbed({ url }: { url: string }) {
 }
 
 // ─── Folder Card Component ───────────────────────────────────────────────────
-interface FolderCardProps {
-  region: string;
-  count: number;
-  meetups: MeetupRow[];
-  onClick: () => void;
-  index: number;
+/** "d/m/yyyy" as the meetup sheet writes it, to a sortable number. */
+function sheetTime(d?: string): number {
+  const m = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec((d || "").trim());
+  return m ? Date.UTC(+m[3], +m[2] - 1, +m[1]) : 0;
 }
 
-function FolderCard({ region, count, meetups, onClick, index }: FolderCardProps) {
-  const hexColor = getRegionHexColor(region);
-  
-  const papers = meetups.slice(0, 3).map((meetup, idx) => {
-    const posterUrl = meetup.Poster ? toDirectImageUrl(meetup.Poster) : "";
-    const hasImage = posterUrl && (
-      posterUrl.match(/\.(jpeg|jpg|gif|png|webp)/i) || 
-      posterUrl.includes("lh3.googleusercontent.com")
-    );
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-    return (
-      <div key={idx} className="w-full h-full p-1 flex flex-col relative rounded-[10px] overflow-hidden group">
-        {hasImage ? (
-          <img src={posterUrl} alt="" className="w-full h-full object-cover pointer-events-none" />
-        ) : (
-          <div className="w-full h-full bg-black/5 flex items-center justify-center">
-            <span className="font-bold text-[8px] text-black/40 uppercase tracking-wider block text-center">Meetup</span>
-          </div>
-        )}
-      </div>
-    );
-  });
-
+/**
+ * A region as an old railway-station travel poster: the region's poster art
+ * (the same set the member cards use), its name painted across the sky, its
+ * RC underneath, and an India Post-style postmark with the meetup count.
+ */
+function RegionPoster({ region, meetups, rcs, onClick }: { region: string; meetups: MeetupRow[]; rcs: string[]; onClick: () => void }) {
+  const r = toRegion(region) || "Other";
+  const theme = REGION_THEMES[r];
+  const count = meetups.length;
+  const name = r === "Other" ? region : r;
   return (
-    <div 
-      onClick={onClick}
-      className="flex flex-col items-center justify-between p-5 bg-[#fbf3df] border border-black/10 rounded-[20px] shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group/card cursor-pointer"
-    >
-      {/* Subtle background texture */}
-      <div className="absolute inset-0 pointer-events-none opacity-[0.02] bg-[radial-gradient(#000_1px,transparent_1px)] [background-size:12px_12px]" />
-      
-      <div className="h-[190px] w-full flex items-center justify-center relative mt-2 mb-2 z-10">
-        <FolderComponent 
-          size={1.8} 
-          color={hexColor} 
-          items={papers} 
-          label={region}
-          subLabel={`${count} ${count === 1 ? 'Meetup' : 'Meetups'}`}
-          className="absolute" 
-        />
-      </div>
-      
-      <div className="w-full z-10 mt-2">
-        <button 
-          onClick={onClick}
-          className="w-full py-3.5 bg-white border border-black/10 text-black font-bold text-xs uppercase tracking-widest hover:bg-black hover:text-white hover:border-black shadow-sm hover:shadow-md transition-all active:scale-[0.98]"
-        >
-          View Region
-        </button>
-      </div>
-    </div>
+    <li>
+      <button
+        type="button"
+        onClick={onClick}
+        aria-label={`${region}: ${count} ${count === 1 ? "meetup" : "meetups"}`}
+        className="kz-focus group block w-full text-left"
+      >
+        <span className="relative block border-[3px] border-[#1c130c] bg-[#fffaf0] p-2 shadow-[6px_6px_0_#1c130c] transition-[transform,box-shadow] duration-300 group-hover:-translate-x-0.5 group-hover:-translate-y-1 group-hover:shadow-[9px_9px_0_#c8102e]">
+          <span className="relative block aspect-[4/3] overflow-hidden" style={{ background: theme.sky }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={regionImage(r, 640)}
+              srcSet={`${regionImage(r, 640)} 640w, ${regionImage(r, 1200)} 1200w`}
+              sizes="(min-width: 1024px) 30vw, (min-width: 640px) 45vw, 92vw"
+              alt={`${theme.landmark}, ${region}`}
+              loading="lazy"
+              decoding="async"
+              className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
+              style={{ objectPosition: theme.focus }}
+            />
+            <span
+              className="kz-display absolute left-3 top-2 text-[clamp(1.8rem,3vw,2.4rem)] leading-none sm:left-4 sm:top-3"
+              style={{ color: theme.label, textShadow: `2px 2px 0 ${theme.accent}` }}
+            >
+              {r === "Other" ? region : r}
+            </span>
+          </span>
+          <span className="flex items-center justify-between gap-3 px-2 pb-1 pt-3">
+            <span className="min-w-0">
+              <span className="block truncate text-[1.05rem] font-semibold text-[#1c130c]">{name} region</span>
+              {rcs.length > 0 && (
+                <span className="block truncate text-[0.9rem] text-[#5e4a35]">
+                  {rcs.length > 1 ? "RCs" : "RC"}: {joinNames(rcs)}
+                </span>
+              )}
+            </span>
+            <Postmark
+              className="w-[4.75rem] shrink-0 -rotate-12 text-[1.55rem] sm:w-[5.25rem]"
+              color="#c8102e"
+              top="KAZIRANGA HOUSE"
+              bottom="MEETUPS"
+              center={<span className="font-bold">{count}</span>}
+            />
+          </span>
+        </span>
+      </button>
+    </li>
   );
 }
 
@@ -491,128 +249,57 @@ interface MeetupCardProps {
   onClick: () => void;
 }
 
+const MEETUP_STOCKS: TicketStock[] = ["marigold", "pink", "sky", "mint"];
+
 function MeetupCard({ meetup, index, onClick }: MeetupCardProps) {
-  const { embedUrl, loading } = useCanvaEmbed(meetup.Poster);
-  
-  const cleanHosts = useMemo(() => {
-    if (!meetup["Host's ID"]) return "";
-    return meetup["Host's ID"]
-      .split(",")
-      .map(h => h.trim())
-      .join(", ");
-  }, [meetup]);
+  const [failed, setFailed] = useState(false);
+  const src = meetup.Poster?.trim() ? toDirectImageUrl(meetup.Poster.trim()) : "";
+  const t = sheetTime(meetup.Date);
+  const hosts = (meetup["Host's ID"] || "")
+    .split(",")
+    .map((h) => h.trim())
+    .filter((h) => h && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(h))
+    .map((h) => h.replace("@", ""));
 
-  const { day, monthYear } = useMemo(() => parseMeetupDate(meetup.Date), [meetup.Date]);
-  const hasPoster = meetup.Poster && meetup.Poster.trim() !== "";
-  
   return (
-    <div 
-      onClick={onClick}
-      className="relative group flex flex-col p-4 bg-white border border-black/10 shadow-sm hover:shadow-md transition-all duration-300 ease-out cursor-pointer z-10"
-    >
-      {/* Poster Image / Embed */}
-      <div className="relative w-full aspect-[3/4] bg-gray-50 border border-black/5 overflow-hidden mb-4">
-        {loading ? (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
-            <Loader2 className="animate-spin text-black/30" size={24} strokeWidth={2} />
-            <span className="font-medium text-xs text-black/40 uppercase tracking-wider">Loading...</span>
-          </div>
-        ) : embedUrl ? (
-          <iframe
-            src={embedUrl}
-            className="w-full h-full border-none pointer-events-none transition-transform duration-500"
-            allowFullScreen
-            loading="lazy"
-            title="Canva Poster"
-          />
-        ) : hasPoster && meetup.Poster.trim().match(/\.(jpeg|jpg|gif|png|webp)/i) ? (
-          <img
-            src={meetup.Poster.trim()}
-            alt="Meetup Poster"
-            className="w-full h-full object-cover transition-transform duration-500"
-            loading="lazy"
-          />
-        ) : hasPoster ? (
-          <div className="absolute inset-0 flex flex-col items-center justify-center p-4 text-center gap-3">
-            <span className="font-medium text-sm text-black/50">Attached Photo</span>
-            <button
-              onClick={(e) => { e.stopPropagation(); window.open(meetup.Poster.trim(), "_blank"); }}
-              className="px-4 py-1.5 border border-black/10 bg-white font-medium text-xs shadow-sm hover:bg-gray-50 transition-colors text-black/70"
-            >
-              View original
-            </button>
-          </div>
-        ) : (
-          <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <ImageIcon className="text-black/10 mb-2" size={32} />
-            <span className="font-medium text-xs text-black/40">No Photo</span>
-          </div>
-        )}
-
-        {/* Floating Date Badge */}
-        <div className="absolute top-3 right-3 bg-white/95 backdrop-blur-md border border-black/10 px-2.5 py-1.5 shadow-sm flex flex-col items-center justify-center group-hover:scale-105 transition-transform">
-          <span className="font-black text-sm text-black leading-none">{day}</span>
-          <span className="font-bold text-[9px] text-black/60 uppercase tracking-widest mt-1 leading-none">{monthYear?.split(' ')[0]}</span>
+    <TicketCard
+      stock={MEETUP_STOCKS[index % MEETUP_STOCKS.length]}
+      poster={
+        <div className="relative aspect-[4/5] bg-[#ebd9b2]">
+          {src && !failed ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={src} alt={`Poster for the meetup at ${meetup.Venue}`} loading="lazy" decoding="async" onError={() => setFailed(true)} className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.03]" />
+          ) : (
+            <span className="absolute inset-0 grid place-items-center p-6 text-center">
+              <span className="kz-display text-[1.8rem] text-[#1c130c]/70">{meetup.Venue}</span>
+            </span>
+          )}
         </div>
+      }
+    >
+      <div className="flex items-start justify-between gap-3">
+        <h3 className="kz-serif line-clamp-2 text-[1.2rem] leading-snug text-[#1c130c]">
+          <button type="button" onClick={onClick} className="kz-focus text-left after:absolute after:inset-0">
+            {meetup.Venue}
+          </button>
+        </h3>
+        <DateStamp date={t ? new Date(t) : null} className="shrink-0" />
       </div>
-
-      {/* Details Section */}
-      <div className="flex flex-col flex-1 px-1">
-        {/* Meetup Title (Venue) */}
-        <h4 className="font-bold text-lg text-black leading-tight line-clamp-2" title={meetup.Venue}>
-          {meetup.Venue}
-        </h4>
-
-        {/* Host Info */}
-        {(() => {
-          const nonEmailHosts = meetup["Host's ID"]
-            ? meetup["Host's ID"]
-                .split(",")
-                .map(h => h.trim())
-                .filter(host => host !== "" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(host))
-            : [];
-          
-          if (nonEmailHosts.length === 0) return null;
-
-          return (
-            <div className="flex flex-wrap items-center gap-1.5 mt-3">
-              <span className="font-medium text-black/40 text-xs">Organized by</span>
-              {nonEmailHosts.map((host, hi) => {
-                const username = host.replace("@", "");
-                return (
-                  <span 
-                    key={hi} 
-                    className="font-semibold text-black/70 text-xs bg-gray-100 px-2 py-0.5"
-                    title={host}
-                  >
-                    {username}
-                  </span>
-                );
-              })}
-            </div>
-          );
-        })()}
-
-        {/* Links / Annotations */}
-        {meetup["Instagram Post"] && meetup["Instagram Post"].trim() !== "" ? (
-          <div className="mt-4 pt-3 border-t border-black/5 shrink-0 flex items-center">
-            <a
-              href={meetup["Instagram Post"].trim()}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-pink-50 border border-pink-100 hover:bg-pink-100 transition-colors text-pink-600"
-            >
-              <FaInstagram size={14} />
-              <span className="font-bold text-xs uppercase tracking-wider">View Memories</span>
-            </a>
-          </div>
-        ) : null}
-      </div>
-    </div>
+      {hosts.length > 0 && <p className="mt-1.5 truncate text-[0.9rem] text-[#1c130c]/75">Hosted by {hosts.join(", ")}</p>}
+      {meetup["Instagram Post"]?.trim() && (
+        <a
+          href={meetup["Instagram Post"].trim()}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="kz-focus relative z-10 mt-4 inline-flex w-fit items-center gap-2 rounded-full bg-[#1c130c] px-4 py-2 text-[0.9rem] font-semibold text-[#f6b51e] transition-transform hover:-translate-y-0.5"
+        >
+          <FaInstagram size={15} /> Photos
+        </a>
+      )}
+    </TicketCard>
   );
 }
 
-// ─── Gallery Card ─────────────────────────────────────────────────────────────
 function GalleryCard({ row, index, isTopPick }: { row: GalleryRow; index: number; isTopPick: boolean }) {
   const [imgError, setImgError] = useState(false);
   const ref = useRef(null);
@@ -779,6 +466,13 @@ export default function GalleryPage() {
     return [];
   });
   const [meetups, setMeetups] = useState<MeetupRow[]>(initialMeetups || []);
+  // The RCs, from the council list, to name on each region's poster.
+  const [rcs, setRcs] = useState(() => rcsByRegion(getCachedCouncil() || []));
+  useEffect(() => {
+    fetchCouncil()
+      .then((rows) => setRcs(rcsByRegion(rows)))
+      .catch(() => {});
+  }, []);
   const [loading, setLoading] = useState(!initialGallery || !initialMeetups);
   const [error, setError] = useState<string | null>(null);
   
@@ -961,69 +655,81 @@ export default function GalleryPage() {
   return (
     <div className="kz-font min-h-screen flex flex-col selection:bg-[#e2387a]/30 bg-[#f5e9cf] relative">
       <KzHeader />
-      <PageHero ground="marigold" title={["Gallery"]} intro="Photos, memes and memories from meetups and events across India." />
-      <ScrapbookNavbar 
-        selectedRegion={selectedRegion} 
-        onBackToRegions={() => setSelectedRegion(null)} 
-        meetupCount={filteredMeetupsForRegion.length}
-        isMeetupsActive={activeTab === "Meetups"}
-        onMeetupsClick={() => {
-          setLocation("/gallery?tab=meetups");
-          setActiveTab("Meetups");
-          setSelectedRegion(null);
-        }}
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        setSelectedRegion={setSelectedRegion}
-        creativeDropdownOpen={creativeDropdownOpen}
-        setCreativeDropdownOpen={setCreativeDropdownOpen}
-        setLocation={setLocation}
+      <PageHero
+        ground="marigold"
+        title={["Gallery"]}
+        intro={
+          loading
+            ? "Meetup posters, and the photos, memes and art members share."
+            : `${meetups.length} meetup posters from ${uniqueRegions.length} regions, and ${rows.length} photos, memes and drawings from members.`
+        }
+        aside={
+          <label className="relative block w-full md:w-[22rem]">
+            <span className="sr-only">{activeTab === "Meetups" ? "Search regions and meetups" : "Search by member"}</span>
+            <Search size={17} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[#5e4a35]" />
+            <input
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={activeTab === "Meetups" ? (selectedRegion ? "Search venues and hosts" : "Search regions") : "Search by member"}
+              className="h-12 w-full rounded-full border-2 border-[#1c130c] bg-[#fffaf0] pl-11 pr-11 text-[1rem] outline-none transition-shadow placeholder:text-[#5e4a35]/75 focus:shadow-[3px_3px_0_#e3a936]"
+            />
+            {searchQuery && (
+              <button type="button" aria-label="Clear search" onClick={() => setSearchQuery("")} className="absolute right-3 top-1/2 grid h-8 w-8 -translate-y-1/2 place-items-center rounded-full text-[#5e4a35] hover:bg-[#1c130c]/5">
+                <X size={15} />
+              </button>
+            )}
+          </label>
+        }
       />
 
-      {/* Scrapbook Textures Background */}
-      <div className="fixed inset-0 pointer-events-none z-0 bg-[url('https://www.transparenttextures.com/patterns/handmade-paper.png')] opacity-60 mix-blend-multiply" />
-      <div
-        className="fixed inset-0 pointer-events-none z-0 mix-blend-multiply"
-        style={{
-          backgroundImage: "radial-gradient(#000 1px, transparent 1px)",
-          backgroundSize: "24px 24px",
-          opacity: 0.035,
-        }}
-      />
-
-      <main className="flex-grow pt-6 pb-24 relative z-10">
-        <div className="container mx-auto px-4 md:px-6">
-
-          {/* Meetups Stats Header */}
-          {!loading && !error && activeTab === "Meetups" && !selectedRegion && (
-            <div className="max-w-4xl mx-auto mb-8 flex justify-center gap-4">
-              {/* Regions Badge */}
-              <div className="flex items-center gap-2 px-5 py-2.5 bg-[#fbf3df] border border-black/10 font-bold uppercase tracking-wide shadow-sm text-sm md:text-base rounded-sm transform -rotate-1">
-                <Folder size={18} className="text-black/80" />
-                <span>{uniqueRegions.length} Regions</span>
+      <main className="flex-grow pt-8 pb-24 relative z-10">
+        <div className="mx-auto max-w-[90rem] px-5 sm:px-8 md:px-12">
+          <div className="mb-10 flex flex-wrap items-center justify-between gap-4">
+            {selectedRegion ? (
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+                <button
+                  type="button"
+                  onClick={() => setSelectedRegion(null)}
+                  className="kz-focus inline-flex h-10 items-center gap-2 rounded-full bg-[#1c130c]/[0.06] px-4 font-semibold text-[#1c130c] hover:bg-[#1c130c]/10"
+                >
+                  <ArrowLeft size={16} /> All regions
+                </button>
+                <h2 className="kz-h2 text-[clamp(1.8rem,3vw,2.4rem)]">{selectedRegion}</h2>
+                <span className="text-[#5e4a35]">
+                  {filteredMeetupsForRegion.length} {filteredMeetupsForRegion.length === 1 ? "meetup" : "meetups"}
+                </span>
               </div>
-              
-              {/* Archives Badge */}
-              <div className="flex items-center gap-2 px-5 py-2.5 bg-[#f6b51e]/90 border border-black/10 font-bold uppercase tracking-wide shadow-sm text-sm md:text-base rounded-sm transform rotate-1">
-                <Zap size={18} className="text-black/80 fill-black/80" />
-                <span>{meetups.length} Archives</span>
-              </div>
-            </div>
-          )}
-
-          {/* Add Post Button (Top Right, below Navbar) */}
-          {!loading && !error && activeTab !== "Meetups" && (
-            <div className="flex justify-end mb-6">
+            ) : (
+              <Segmented
+                id="gallery-tab"
+                value={activeTab}
+                onChange={(v) => {
+                  setActiveTab(v);
+                  setSearchQuery("");
+                  if (v === "Meetups") setLocation("/gallery?tab=meetups");
+                }}
+                options={[
+                  { label: "Meetups", value: "Meetups" },
+                  { label: "Everything", value: "All" },
+                  { label: "Photographs", value: "Photograph" },
+                  { label: "Creativity", value: "Creativity" },
+                  { label: "Memes", value: "Meme" },
+                  { label: "Stickers", value: "Sticker" },
+                  { label: "Screenshots", value: "Screenshot" },
+                ]}
+              />
+            )}
+            {activeTab !== "Meetups" && (
               <a
                 href="https://docs.google.com/forms/d/e/1FAIpQLSd-_J0oyeosBlrEkVFYDyUPvKOIhighKdzm_ngR2j4kFuAZyw/viewform?usp=header"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-1.5 h-10 px-4 border border-black/10 bg-[#f6b51e]/90 text-black font-bold uppercase text-xs tracking-wide shadow-sm hover:-translate-y-0.5 hover:shadow-md transition-all cursor-pointer rounded-sm shrink-0"
+                className="kz-btn kz-focus bg-[#f6b51e] text-[#1c130c]"
               >
-                <span>Add Post ↗</span>
+                Add your photo <ArrowRight size={16} />
               </a>
-            </div>
-          )}
+            )}
+          </div>
 
           {/* Loading state */}
           {loading && (
@@ -1033,9 +739,7 @@ export default function GalleryPage() {
                   <div className="absolute inset-0 border-[3px] border-black/10 border-t-[#f6b51e] rounded-full animate-spin"></div>
                   <div className="absolute w-8 h-8 border-[3px] border-transparent border-t-[#e3a936] rounded-full animate-spin [animation-direction:reverse]"></div>
                 </div>
-                <p className="font-bold uppercase text-xs tracking-wider text-black/50 animate-pulse mt-2">
-                  Curating the gallery…
-                </p>
+                <p className="mt-2 animate-pulse text-[0.95rem] text-[#5e4a35]">Loading the gallery…</p>
               </div>
               <LoadingSkeleton />
             </div>
@@ -1067,7 +771,7 @@ export default function GalleryPage() {
                   // Drill-down Meetups List View
                   <div className="flex flex-col gap-8">
                     {filteredMeetupsForRegion.length > 0 ? (
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                      <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
                         <AnimatePresence mode="popLayout">
                           {filteredMeetupsForRegion.map((meetup, idx) => (
                             <motion.div
@@ -1099,21 +803,20 @@ export default function GalleryPage() {
                   // Folders Grid View
                   <div className="flex flex-col gap-6">
                     {filteredRegions.length > 0 ? (
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 pt-4">
-                        {filteredRegions.map((region, index) => {
-                          const regionMeetups = meetupsByRegion[region] || [];
-                          return (
-                            <FolderCard
-                              key={region}
-                              region={region}
-                              count={regionMeetups.length}
-                              meetups={regionMeetups}
-                              onClick={() => setSelectedRegion(region)}
-                              index={index}
-                            />
-                          );
-                        })}
-                      </div>
+                      <ul className="grid grid-cols-1 gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
+                        {filteredRegions.map((region) => (
+                          <RegionPoster
+                            key={region}
+                            region={region}
+                            meetups={meetupsByRegion[region] || []}
+                            rcs={rcs[toRegion(region) || "Other"] ?? []}
+                            onClick={() => {
+                              setSelectedRegion(region);
+                              setSearchQuery("");
+                            }}
+                          />
+                        ))}
+                      </ul>
                     ) : (
                       <motion.div
                         initial={{ opacity: 0, scale: 0.95 }}
@@ -1200,8 +903,8 @@ export default function GalleryPage() {
                   
                   {/* Region Label */}
                   <div className="mb-4">
-                    <span className="inline-block px-3 py-1 bg-green-100 text-green-800 text-xs font-bold uppercase tracking-widest">
-                      {selectedMeetup.Region} Region
+                    <span className="inline-block rounded-full bg-[#0f5e48]/10 px-3 py-1 text-[0.85rem] font-semibold text-[#0f5e48]">
+                      {selectedMeetup.Region} region
                     </span>
                   </div>
 
@@ -1219,7 +922,7 @@ export default function GalleryPage() {
                       <span className="font-bold text-[10px] uppercase tracking-widest mt-1 text-black/60">{monthYear?.split(' ')[0]}</span>
                     </div>
                     <div className="flex flex-col justify-center">
-                      <span className="font-semibold text-black/50 text-xs uppercase tracking-wider">Date & Time</span>
+                      <span className="text-[0.85rem] text-black/55">Date</span>
                       <span className="font-bold text-base lg:text-lg text-black mt-0.5">{selectedMeetup.Date}</span>
                     </div>
                   </div>
@@ -1236,7 +939,7 @@ export default function GalleryPage() {
                     if (nonEmailHosts.length > 0) {
                       return (
                         <div className="mb-8">
-                          <span className="font-semibold text-black/50 text-xs uppercase tracking-wider block mb-2">Hosted by</span>
+                          <span className="mb-2 block text-[0.85rem] text-black/55">Hosted by</span>
                           <div className="flex flex-wrap gap-2">
                             {nonEmailHosts.map((host, hi) => {
                               const username = host.replace("@", "");
@@ -1267,10 +970,10 @@ export default function GalleryPage() {
                          href={selectedMeetup["Instagram Post"].trim()}
                          target="_blank"
                          rel="noopener noreferrer"
-                         className="w-full flex items-center justify-center gap-2 py-3.5 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold text-sm tracking-widest uppercase shadow-md hover:shadow-lg transition-all"
+                         className="kz-focus flex w-full items-center justify-center gap-2 rounded-full bg-[#1c130c] py-3.5 text-[0.95rem] font-semibold text-[#f6b51e] transition-transform hover:-translate-y-0.5"
                       >
                         <FaInstagram size={16} />
-                        <span>View Memories on Instagram</span>
+                        <span>See the photos on Instagram</span>
                       </a>
                     </div>
                   )}

@@ -6,9 +6,18 @@
 @import "./kz-scene.css";
 @import "./kz-calm.css";
 
+/* clamp-1, clamp-2, …: cut text to that many lines with an ellipsis. Used
+   across the portal's cards and lists. */
+@utility clamp-* {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: --value(integer);
+  overflow: hidden;
+}
+
 @layer utilities {
   .font-scrapbook {
-    font-family: 'Kalam', cursive;
+    font-family: var(--font-kalam), 'Kalam', cursive;
   }
   .font-handwriting {
     font-family: 'Caveat', cursive;

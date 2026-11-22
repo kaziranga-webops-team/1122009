@@ -4,6 +4,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { NotificationItem } from '@/types/portal';
 import { useAuth } from './AuthContext';
 import { isMockMode, db } from '@/lib/firebase';
+import { sendNotice } from '@/lib/portal/portalApi';
 import { collection, query, where, onSnapshot, updateDoc, doc, getDocs, getDoc, setDoc } from 'firebase/firestore';
 import { mockStore } from '@/lib/portal/firebase/mockStore';
 import { getAllEventsGroupRef } from '@/lib/portal/firebase/paths';
@@ -192,45 +193,15 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
           : undefined;
 
       // 5. Active Deadline Alerts (Firestore mode)
-      const checkFirestoreDeadlines = async () => {
-        try {
-          const eventsSnap = await getDocs(
-            query(getAllEventsGroupRef(), where('status', '==', 'PUBLISHED'))
-          );
-          const now = Date.now();
-          eventsSnap.forEach(async (docSnap) => {
-            const event = docSnap.data();
-            if (!event.registrationDeadline) return;
-            const deadline = new Date(event.registrationDeadline).getTime();
-            const diffMs = deadline - now;
-            const hoursLeft = diffMs / (1000 * 60 * 60);
-
-            if (hoursLeft > 0 && hoursLeft <= 24) {
-              const notifId = `deadline_${docSnap.id}`;
-              const notifRef = doc(db, 'notifications', notifId);
-              const notifSnap = await getDoc(notifRef);
-              if (!notifSnap.exists()) {
-                const roundedHours = Math.max(1, Math.round(hoursLeft));
-                await setDoc(notifRef, {
-                  id: notifId,
-                  userId: 'GLOBAL',
-                  title: 'Registration Closing Soon',
-                  message: `Final call: Registration for "${event.name}" closes in ${roundedHours} ${roundedHours === 1 ? 'hour' : 'hours'}!`,
-                  type: 'EVENT',
-                  linkUrl: `/dashboard/events/${docSnap.id}`,
-                  read: false,
-                  isGlobal: true,
-                  createdAt: new Date().toISOString(),
-                });
-              }
-            }
-          });
-        } catch (err: any) {
-          // Silently skip if Firestore COLLECTION_GROUP_ASC index is not created yet
-          console.debug('Firestore deadline check skipped:', err?.message || err);
+      // The server writes "closing soon" notices; it skips any already sent.
+      try {
+        if (!sessionStorage.getItem('kz-deadlines-checked')) {
+          sessionStorage.setItem('kz-deadlines-checked', '1');
+          sendNotice({ kind: 'DEADLINES' });
         }
-      };
-      checkFirestoreDeadlines();
+      } catch {
+        sendNotice({ kind: 'DEADLINES' });
+      }
 
       return () => {
         unsubUser();

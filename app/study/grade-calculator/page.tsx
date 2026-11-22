@@ -5,7 +5,7 @@ import { ToolPageShell } from "@/components/study/hub/HubShell";
 export const metadata: Metadata = {
   title: "GPA and CGPA calculator",
   description: "Work out your term GPA and updated CGPA from your IIT Madras BS grades.",
-  alternates: { canonical: "/hub/grade-calculator" },
+  alternates: { canonical: "/study/grade-calculator" },
 };
 
 export default function Page() {

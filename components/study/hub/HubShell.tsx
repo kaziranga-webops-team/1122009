@@ -29,7 +29,7 @@ function HubNav({ onNavigate }: { onNavigate?: () => void }) {
         {item.opens === "link" && (
           <>
             <ArrowUpRight size={14} className="shrink-0 opacity-50" aria-hidden="true" />
-            <span className="sr-only">(leaves the Resource hub)</span>
+            <span className="sr-only">(leaves the Study zone)</span>
           </>
         )}
       </>
@@ -54,10 +54,10 @@ function HubNav({ onNavigate }: { onNavigate?: () => void }) {
   };
 
   return (
-    <nav aria-label="Resource hub" className="space-y-5">
+    <nav aria-label="Study zone" className="space-y-5">
       <Link href={HUB_PATH} onClick={onNavigate} className={`${row} font-bold text-[#1c130c] hover:bg-[#1c130c]/6`}>
         <Compass size={18} className="shrink-0 text-[#0f5e48]" aria-hidden="true" />
-        <span className="truncate">Resource hub</span>
+        <span className="truncate">Study zone</span>
       </Link>
       {HUB_GROUPS.map((group) => (
         <div key={group.id}>
@@ -112,7 +112,7 @@ export default function HubShell({ children }: { children: ReactNode }) {
   return (
     <div className="mx-auto flex w-full max-w-[90rem] gap-10 px-5 pt-[var(--kz-header-h)] sm:px-8 md:px-12">
       <aside
-        aria-label="Resource hub navigation"
+        aria-label="Study zone navigation"
         className="sticky top-[var(--kz-header-h)] hidden h-[calc(100dvh-var(--kz-header-h))] w-64 shrink-0 overflow-y-auto border-r border-[#1c130c]/10 py-10 pr-5 lg:block"
         data-lenis-prevent
       >
@@ -123,7 +123,7 @@ export default function HubShell({ children }: { children: ReactNode }) {
         <div className="flex items-center justify-between gap-3 pt-6 lg:hidden">
           <Link href={HUB_PATH} className="kz-focus inline-flex min-h-10 items-center gap-1.5 rounded-full text-[0.85rem] font-bold text-[#0f5e48] hover:text-[#1c130c]">
             <ArrowLeft size={15} aria-hidden="true" />
-            Resource hub
+            Study zone
           </Link>
           <button
             ref={trigger}
@@ -145,7 +145,7 @@ export default function HubShell({ children }: { children: ReactNode }) {
         createPortal(
           <AnimatePresence>
             {drawer && (
-              <div key="drawer" className="kz-font fixed inset-0 z-[70] lg:hidden" role="dialog" aria-modal="true" aria-label="Resource hub tools">
+              <div key="drawer" className="kz-font fixed inset-0 z-[70] lg:hidden" role="dialog" aria-modal="true" aria-label="Study zone tools">
                 <motion.div
                   className="absolute inset-0 bg-[#1c130c]/35"
                   initial={{ opacity: 0 }}

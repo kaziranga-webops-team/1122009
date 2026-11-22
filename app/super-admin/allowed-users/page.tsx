@@ -7,7 +7,8 @@ import { useAuth } from '@/context/AuthContext';
 import { AllowedUser, SpreadsheetParseResult } from '@/types/portal';
 import { isMockMode, db } from '@/lib/firebase';
 import { mockStore } from '@/lib/portal/firebase/mockStore';
-import { collection, getDocs, doc, setDoc, deleteDoc, updateDoc } from 'firebase/firestore';
+import { collection, getDocs, doc, setDoc, deleteDoc, updateDoc, query, where } from 'firebase/firestore';
+import { SectionHeading } from '@/components/portal/ui/Section';
 import { SpreadsheetUploader } from '@/components/portal/super-admin/SpreadsheetUploader';
 import { SyncPreviewModal } from '@/components/portal/super-admin/SyncPreviewModal';
 import { SuperAdminNavTabs } from '@/components/portal/super-admin/SuperAdminNavTabs';
@@ -22,6 +23,7 @@ import {
   UserX,
   AlertTriangle,
   ShieldAlert,
+  UserPlus,
 } from 'lucide-react';
 import { SearchInput } from '@/components/portal/ui/SearchInput';
 import { useToast } from '@/components/portal/ui/Toast';
@@ -46,6 +48,62 @@ export default function SuperAdminAllowedUsersPage() {
   // Revoke Access Modal State
   const [revokingUser, setRevokingUser] = useState<AllowedUser | null>(null);
   const [isRevoking, setIsRevoking] = useState(false);
+
+  // Add one person: the everyday case, and how an access request is approved.
+  const [addEmail, setAddEmail] = useState('');
+  const [adding, setAdding] = useState(false);
+
+  // Arriving from an access request (?email=…) fills the box in.
+  useEffect(() => {
+    const fromRequest = new URLSearchParams(window.location.search).get('email');
+    if (fromRequest) setAddEmail(fromRequest);
+  }, []);
+
+  const addOne = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user) return;
+    const email = addEmail.trim().toLowerCase();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      toast.error('Check the email', 'Enter a full address, like 24f1000123@ds.study.iitm.ac.in.');
+      return;
+    }
+    if (allowedUsers.some((u) => u.email.toLowerCase() === email)) {
+      toast.error('Already on the list', `${email} can already sign in.`);
+      return;
+    }
+    if (isMockMode) {
+      toast.error('Not available in demo mode');
+      return;
+    }
+    setAdding(true);
+    try {
+      const now = new Date().toISOString();
+      await setDoc(doc(db, 'allowedUsers', email), { email, importBatchId: 'manual', importedAt: now, addedBy: user.uid });
+      // Any request this answers is done.
+      const pending = await getDocs(
+        query(collection(db, 'accessRequests'), where('email', '==', email), where('status', '==', 'PENDING'))
+      );
+      await Promise.all(pending.docs.map((d) => updateDoc(d.ref, { status: 'APPROVED', read: true })));
+      const auditRef = doc(db, 'auditLogs', 'log_' + Date.now());
+      await setDoc(auditRef, {
+        id: auditRef.id,
+        actorUserId: user.uid,
+        actorEmail: user.email,
+        action: 'ALLOWED_USER_ADDED',
+        target: email,
+        timestamp: now,
+        metadata: { approvedRequests: pending.size },
+      });
+      toast.success('Added to the access list', `${email} can sign in now.`);
+      setAddEmail('');
+      fetchAllowedUsers();
+    } catch (err) {
+      console.error('Add to access list failed:', err);
+      toast.error('Not added', 'The email was not added. Try again.');
+    } finally {
+      setAdding(false);
+    }
+  };
 
   const fetchAllowedUsers = async () => {
     setLoading(true);
@@ -195,17 +253,7 @@ export default function SuperAdminAllowedUsersPage() {
   return (
     <div className="space-y-6">
       <SuperAdminNavTabs />
-      <div>
-        <h1 className="text-2xl font-display font-black text-ink flex items-center gap-2">
-          <FileSpreadsheet className="w-6 h-6 text-accent" />
-          <span>Allowed-User Registry Synchronization</span>
-        </h1>
-        <p className="text-caption text-ink-muted mt-1">
-          Upload and replace the official allowed-user spreadsheet. The latest uploaded file is the
-          authoritative source for current login access. Historical user profiles and event
-          participation are permanently preserved.
-        </p>
-      </div>
+      <SectionHeading title="Access list" size="lg" as="h1" description="Who can sign in to the portal." />
 
       {successBanner && (
         <div className="p-4 rounded-2xl bg-signal-live/10 border border-signal-live/25 text-signal-live text-caption flex items-center justify-between animate-fade-in">
@@ -222,25 +270,55 @@ export default function SuperAdminAllowedUsersPage() {
         </div>
       )}
 
-      {/* Spreadsheet Uploader Area with Drag & Drop */}
-      <Card className="p-6">
-        <SpreadsheetUploader onParsed={handleParsed} />
-      </Card>
+      <div className="grid gap-5 lg:grid-cols-2">
+        <Card className="p-5 sm:p-6">
+          <form onSubmit={addOne} className="space-y-3">
+            <h2 className="text-[1rem] font-semibold text-ink">Add one person</h2>
+            <label htmlFor="add-email" className="block text-[0.875rem] text-ink-muted">
+              Their IIT Madras email
+            </label>
+            <div className="flex flex-col gap-2.5 sm:flex-row">
+              <input
+                id="add-email"
+                type="email"
+                inputMode="email"
+                autoComplete="off"
+                value={addEmail}
+                onChange={(e) => setAddEmail(e.target.value)}
+                placeholder="24f1000123@ds.study.iitm.ac.in"
+                className="ed-field flex-1"
+              />
+              <Button type="submit" variant="primary" isLoading={adding} leftIcon={<UserPlus className="w-4 h-4" />}>
+                Add
+              </Button>
+            </div>
+            <p className="text-[0.8125rem] text-ink-faint">They can sign in straight away. Any access request from them is marked approved.</p>
+          </form>
+        </Card>
+
+        <Card className="p-5 sm:p-6 space-y-3">
+          <h2 className="text-[1rem] font-semibold text-ink">Replace the whole list</h2>
+          <p className="text-[0.8125rem] text-ink-faint">
+            Upload the official spreadsheet. It replaces everyone on the list; past members keep their history.
+          </p>
+          <SpreadsheetUploader onParsed={handleParsed} />
+        </Card>
+      </div>
 
       {/* Current Allowed List */}
       <div className="space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h3 className="text-sm font-display font-bold text-ink">
-              Active Whitelisted Accounts ({allowedUsers.length})
-            </h3>
+            <h2 className="text-[1rem] font-semibold text-ink">
+              On the list <span className="font-normal text-ink-muted">({allowedUsers.length})</span>
+            </h2>
           </div>
 
           <SearchInput
             value={searchQuery}
             onChange={setSearchQuery}
-            placeholder="Search registry by email…"
-            aria-label="Search registry by email"
+            placeholder="Search by email"
+            aria-label="Search the access list by email"
             containerClassName="w-full sm:w-80"
           />
         </div>
@@ -290,11 +368,11 @@ export default function SuperAdminAllowedUsersPage() {
             ) : (
               <EmptyState
                 icon={<ShieldAlert />}
-                title="No emails in the registry"
+                title={searchQuery ? 'No matches' : 'Nobody on the list yet'}
                 description={
                   searchQuery
-                    ? 'No allowed emails match that search.'
-                    : 'Upload a CSV or spreadsheet to populate the allowed-users list.'
+                    ? 'No email on the list matches that search.'
+                    : 'Add someone above, or upload the official spreadsheet.'
                 }
               />
             )

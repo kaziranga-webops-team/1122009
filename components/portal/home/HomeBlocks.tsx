@@ -27,7 +27,10 @@ import {
 import { cn } from '@/lib/utils';
 import { canManageRoles, canOrganiseEvents, canUsePortalAdmin, writableResources } from '@/lib/portal/permissions';
 import { DEFAULT_MAIN_EVENT_ID } from '@/lib/portal/firebase/paths';
-import type { EventItem, NotificationItem, UserRole } from '@/types/portal';
+import type { EventItem, UserRole } from '@/types/portal';
+import type { Announcement } from '@/lib/portal/announcements';
+import { isSafeLink } from '@/lib/portal/announcements';
+import { communityBySlug } from '@/lib/communities';
 
 export const eventHref = (e: Pick<EventItem, 'id' | 'slug' | 'mainEventId'>) =>
   `/dashboard/events/${e.mainEventId || DEFAULT_MAIN_EVENT_ID}/subevents/${e.slug || e.id}`;
@@ -152,7 +155,7 @@ const TONES = {
  */
 export function shortcutsFor(role: UserRole | undefined): Shortcut[] {
   const list: Shortcut[] = [];
-  if (canUsePortalAdmin(role)) list.push({ label: 'Overview', href: '/admin/dashboard', icon: LayoutDashboard, tone: TONES.ink });
+  if (canUsePortalAdmin(role)) list.push({ label: 'Insights', href: '/admin/dashboard', icon: LayoutDashboard, tone: TONES.ink });
   if (canOrganiseEvents(role)) {
     list.push(
       { label: 'New event', href: '/admin/events/new', icon: CalendarPlus, tone: TONES.red },
@@ -160,15 +163,14 @@ export function shortcutsFor(role: UserRole | undefined): Shortcut[] {
       { label: 'Sign-ups', href: '/admin/registrations', icon: Users, tone: TONES.brass },
     );
   }
-  if (canManageRoles(role)) list.push({ label: 'Members', href: '/super-admin/roles', icon: Crown, tone: TONES.gold });
-  else if (writableResources(role).length) list.push({ label: 'Site content', href: `/admin/content/${writableResources(role)[0]}`, icon: Globe, tone: TONES.gold });
+  if (canManageRoles(role)) list.push({ label: 'House', href: '/super-admin/dashboard', icon: Crown, tone: TONES.gold });
 
   const member: Shortcut[] = [
     { label: 'Events', href: '/dashboard/events', icon: Ticket, tone: TONES.green },
     { label: 'My registrations', href: '/dashboard/my-registrations', icon: CalendarCheck, tone: TONES.pink },
     { label: 'Meetups', href: '/meetups', icon: MapPin, tone: TONES.orange },
     { label: 'Study', href: '/study', icon: BookOpen, tone: TONES.blue },
-    { label: 'Resources', href: '/resources', icon: FileText, tone: TONES.brass },
+    { label: 'Notes', href: '/study/notes', icon: FileText, tone: TONES.brass },
     { label: 'Communities', href: '/communities', icon: Users, tone: TONES.red },
     { label: 'Profile', href: '/dashboard/profile', icon: UserRound, tone: TONES.gold },
   ];
@@ -258,9 +260,16 @@ export const OrganiserPanel: React.FC<{ stats: OrganiserStats; scopeLabel: strin
 
 // ─── Announcements ──────────────────────────────────────────────────────────
 
-export const Announcements: React.FC<{ items: NotificationItem[] }> = ({ items }) => (
-  <section aria-label="Announcements">
-    <BlockHeader title="Announcements" href="/dashboard/notifications" />
+const audienceOf = (a: Announcement) =>
+  a.audience === 'COMMUNITY'
+    ? communityBySlug(a.communitySlug || '')?.name
+    : a.audience === 'REGION'
+      ? a.region
+      : null;
+
+export const Announcements: React.FC<{ items: Announcement[]; manageHref?: string }> = ({ items, manageHref }) => (
+  <section aria-label="Announcements" id="announcements">
+    <BlockHeader title="Announcements" href={manageHref} linkLabel="Post" />
     <ul className="rounded-[18px] bg-surface-raised border border-hairline shadow-e-1 divide-y divide-hairline">
       {items.map((n) => {
         const body = (
@@ -269,8 +278,11 @@ export const Announcements: React.FC<{ items: NotificationItem[] }> = ({ items }
               <Megaphone className="w-4 h-4" aria-hidden />
             </span>
             <div className="min-w-0 flex-1">
-              <p className="text-[0.875rem] font-semibold text-ink">{n.title}</p>
-              <p className="text-[0.8125rem] text-ink-muted clamp-2">{n.message}</p>
+              <p className="text-[0.875rem] font-semibold text-ink">
+                {n.title}
+                {audienceOf(n) && <span className="ml-2 text-[0.75rem] font-medium text-ink-faint">{audienceOf(n)}</span>}
+              </p>
+              <p className="text-[0.8125rem] text-ink-muted clamp-3 whitespace-pre-line">{n.body}</p>
             </div>
             <time className="text-[0.75rem] text-ink-faint shrink-0 nums" dateTime={n.createdAt}>
               {whenAgo(n.createdAt)}
@@ -279,7 +291,7 @@ export const Announcements: React.FC<{ items: NotificationItem[] }> = ({ items }
         );
         return (
           <li key={n.id}>
-            {n.linkUrl ? (
+            {n.linkUrl && isSafeLink(n.linkUrl) ? (
               <Link href={n.linkUrl} className="block hover:bg-surface-sunken/50 transition-colors">
                 {body}
               </Link>

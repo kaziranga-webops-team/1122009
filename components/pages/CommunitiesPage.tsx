@@ -11,10 +11,13 @@ import CommunityPatch from "@/components/communities/CommunityPatch";
 import { fetchEvents, getCachedEvents } from "@/lib/api";
 import { COMMUNITIES, GROUPS, type Community, type CommunityGroup } from "@/lib/communities";
 import { toEvents } from "@/lib/events";
+import { withPage, type CommunityPage } from "@/lib/portal/communityPages";
 
 const SOFT = [0.22, 1, 0.36, 1] as const;
 
-function CommunityCard({ c, events, index }: { c: Community; events: number; index: number }) {
+type ShownCommunity = Community & { joinUrl?: string; instagramUrl?: string };
+
+function CommunityCard({ c, events, index }: { c: ShownCommunity; events: number; index: number }) {
   const reduce = useReducedMotion();
   return (
     <motion.li
@@ -44,6 +47,21 @@ function CommunityCard({ c, events, index }: { c: Community; events: number; ind
       ) : (
         <span className="kz-sign relative mt-6 text-[0.74rem] uppercase tracking-[0.12em] opacity-70">First event coming soon</span>
       )}
+      {(c.joinUrl || c.instagramUrl) && (
+        // Above the card-wide event link, so these stay clickable on their own.
+        <span className="relative z-[1] mt-3 flex items-center justify-center gap-4 text-[0.8rem] font-semibold">
+          {c.joinUrl && (
+            <a href={c.joinUrl} target="_blank" rel="noopener noreferrer" className="kz-focus underline underline-offset-4">
+              Join
+            </a>
+          )}
+          {c.instagramUrl && (
+            <a href={c.instagramUrl} target="_blank" rel="noopener noreferrer" className="kz-focus underline underline-offset-4">
+              Instagram
+            </a>
+          )}
+        </span>
+      )}
     </motion.li>
   );
 }
@@ -51,11 +69,17 @@ function CommunityCard({ c, events, index }: { c: Community; events: number; ind
 export default function CommunitiesPage() {
   const [group, setGroup] = useState<"all" | CommunityGroup>("all");
   const [rows, setRows] = useState(() => getCachedEvents() || []);
+  // What each community's heads have written, laid over the built-in text.
+  const [pages, setPages] = useState<Record<string, CommunityPage>>({});
 
   useEffect(() => {
     let alive = true;
     fetchEvents()
       .then((r) => alive && setRows(r))
+      .catch(() => {});
+    fetch("/api/communities")
+      .then((r) => (r.ok ? r.json() : {}))
+      .then((p) => alive && setPages(p || {}))
       .catch(() => {});
     return () => {
       alive = false;
@@ -68,7 +92,9 @@ export default function CommunitiesPage() {
     return m;
   }, [rows]);
 
-  const shown = group === "all" ? COMMUNITIES : COMMUNITIES.filter((c) => c.group === group);
+  const shown = (group === "all" ? COMMUNITIES : COMMUNITIES.filter((c) => c.group === group)).map((c) =>
+    withPage(c, pages[c.slug])
+  );
 
   return (
     <div className="kz-font kz-paper min-h-screen bg-[#f5e9cf] text-[#1c130c] selection:bg-[#c8102e]/20">

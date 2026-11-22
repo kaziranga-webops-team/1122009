@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 import { LayoutDashboard, Calendar, CalendarCheck, ClipboardList, Crown } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { cn } from '@/lib/utils';
-import { canOrganiseEvents, canUsePortalAdmin } from '@/lib/portal/permissions';
+import { canOrganiseEvents } from '@/lib/portal/permissions';
 
 interface TabItem {
   label: string;
@@ -33,7 +33,7 @@ export const BottomNav: React.FC = () => {
   if (canOrganiseEvents(user.role))
     items.push({
       label: 'Organise',
-      href: canUsePortalAdmin(user.role) ? '/admin/dashboard' : '/admin/events',
+      href: '/admin/events',
       icon: ClipboardList,
       match: ['/admin'],
     });

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Edit, Trash2, ExternalLink } from 'lucide-react';
+import { Edit, Trash2, ExternalLink, Trophy } from 'lucide-react';
 import { EventItem, EventStatus } from '@/types/portal';
 import { Card } from '@/components/portal/ui/Card';
 import { Button } from '@/components/portal/ui/Button';
@@ -118,6 +118,12 @@ export const AdminEventRow: React.FC<AdminEventRowProps> = ({
           <Link href={`/admin/events/${event.id}/edit`}>
             <Button size="sm" variant="secondary" leftIcon={<Edit className="w-3.5 h-3.5" />}>
               Edit
+            </Button>
+          </Link>
+
+          <Link href={`/admin/events/${event.id}/results`}>
+            <Button size="sm" variant="secondary" leftIcon={<Trophy className="w-3.5 h-3.5" />}>
+              {event.resultsPublishedAt || event.winner ? 'Results' : 'Add results'}
             </Button>
           </Link>
 

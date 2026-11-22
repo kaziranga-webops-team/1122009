@@ -137,6 +137,8 @@ export interface EventItem {
   runnerUp1?: string;
   runnerUp2?: string;
   honourableMentions?: string;
+  /** When results were first published; set once. */
+  resultsPublishedAt?: string;
 }
 
 export type RegistrationStatus = 'CONFIRMED' | 'WAITLISTED' | 'CANCELLED';

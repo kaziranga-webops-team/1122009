@@ -5,7 +5,7 @@ import { ArrowRight } from "lucide-react";
 import { FaInstagram, FaLinkedinIn, FaWhatsapp, FaYoutube } from "react-icons/fa";
 import { SiLinktree } from "react-icons/si";
 import { JOIN_URL } from "@/components/kz/KzHeader";
-import { Gamosa, Postmark } from "@/components/kz/Motifs";
+import { Postmark } from "@/components/kz/Motifs";
 import { HERITAGE_CREDIT } from "@/lib/heritage";
 
 const INSTAGRAM = "https://www.instagram.com/kaziranga_iitm/";
@@ -40,23 +40,25 @@ const COLUMNS = [
   {
     heading: "Learn",
     links: [
-      { label: "Study Zone", href: "/study" },
-      { label: "Resource hub", href: "/hub" },
-      { label: "Notes", href: "/resources" },
+      { label: "Study zone", href: "/study" },
+      { label: "Notes", href: "/study/notes" },
+      { label: "GPA calculator", href: "/study/grade-calculator" },
     ],
   },
 ];
 
 /**
- * The close of every page: a gamosa edge, the question most visitors still
- * have, then the house's name set huge and hanging from its bar, with the
- * site's three groups and the ways to reach us.
+ * The close of every page: a rounded sheet with the house's name set huge and
+ * hanging from its bar, the site's three groups and the ways to reach us.
+ * The home page also opens it with the question most first-time visitors
+ * still have (`ask`); other pages go straight to the footer.
  */
-export default function KzFooter() {
+export default function KzFooter({ ask = false, under }: { ask?: boolean; under?: string }) {
+  // `under`: the colour of the section above, showing in the rounded corners.
   return (
-    <footer className="kz-font relative overflow-hidden bg-[#1c130c] text-[#f5e9cf]">
-      <Gamosa />
-
+    <div style={under ? { background: under } : undefined}>
+    <footer className="kz-font relative overflow-hidden rounded-t-[2rem] bg-[#1c130c] text-[#f5e9cf] md:rounded-t-[3rem]">
+      {ask && (
       <div className="kz-halftone bg-[#2343b8]" style={{ ["--dot" as string]: "rgba(10,20,80,0.55)" }}>
         <div className="mx-auto flex max-w-[90rem] flex-col items-start gap-7 px-5 py-14 sm:px-8 md:flex-row md:items-end md:justify-between md:px-12 md:py-16">
           <div>
@@ -75,6 +77,7 @@ export default function KzFooter() {
           </div>
         </div>
       </div>
+      )}
 
       <div className="mx-auto max-w-[90rem] px-5 pt-16 sm:px-8 md:px-12 md:pt-20">
         <div className="flex items-start gap-6">
@@ -141,5 +144,6 @@ export default function KzFooter() {
         </div>
       </div>
     </footer>
+    </div>
   );
 }

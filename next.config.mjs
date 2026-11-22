@@ -12,6 +12,15 @@ const nextConfig = {
     ],
   },
 
+  // The Resource hub and Notes became one Study zone; old links still land.
+  async redirects() {
+    return [
+      { source: "/hub", destination: "/study", permanent: true },
+      { source: "/hub/:path*", destination: "/study/:path*", permanent: true },
+      { source: "/resources", destination: "/study/notes", permanent: true },
+    ];
+  },
+
   // Ported from the old vercel.json: let crawlers index everything and serve
   // sitemap.xml with the right content type.
   async headers() {

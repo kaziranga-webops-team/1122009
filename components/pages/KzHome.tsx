@@ -16,7 +16,7 @@ import { ChapterRail, ComeHome, Gatherings, PosterHero, PosterWall, TheLand, Thr
 export default function KzHome() {
   return (
     <div className="kz-font kz-paper min-h-screen bg-[#f5e9cf] selection:bg-[#e2387a]/30 selection:text-[#1c130c]">
-      <KzHeader />
+      <KzHeader ground="color" />
       <ChapterRail />
       <main>
         <PosterHero />
@@ -29,7 +29,7 @@ export default function KzHome() {
         <KzCouncil />
         <ComeHome />
       </main>
-      <KzFooter />
+      <KzFooter ask under="#1c130c" />
     </div>
   );
 }

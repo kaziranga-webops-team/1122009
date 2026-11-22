@@ -16,7 +16,7 @@ const cma = (id: string) => `https://www.clevelandart.org/art/${id}`;
 
 export const HERITAGE = {
   elephant: {
-    src: "/images/heritage/elephant-mughal-c1700.jpg",
+    src: "/images/heritage/elephant-mughal-c1700.webp",
     title: "Drawing of an Elephant",
     made: "c. 1700",
     where: "Mughal India",
@@ -24,7 +24,7 @@ export const HERITAGE = {
     source: cma("1969.65"),
   },
   kamarupa: {
-    src: "/images/heritage/kamarupa-parrot-c1560.jpg",
+    src: "/images/heritage/kamarupa-parrot-c1560.webp",
     title: "The hunter offers the mother parrot to the king of Kamarupa",
     made: "c. 1560",
     where: "Mughal India, court of Akbar",
@@ -32,7 +32,7 @@ export const HERITAGE = {
     source: cma("1962.279.36.b"),
   },
   hoopoe: {
-    src: "/images/heritage/hoopoe-company-c1800.jpg",
+    src: "/images/heritage/hoopoe-company-c1800.webp",
     title: "Hoopoe on a Citrus Tree Branch",
     made: "c. 1800",
     where: "Company school, Calcutta",
@@ -40,7 +40,7 @@ export const HERITAGE = {
     source: cma("1990.67"),
   },
   parrot: {
-    src: "/images/heritage/green-parrot-c1820.jpg",
+    src: "/images/heritage/green-parrot-c1820.webp",
     title: "Green Parrot",
     made: "c. 1820",
     where: "East India Company school",
@@ -48,7 +48,7 @@ export const HERITAGE = {
     source: cma("1972.285"),
   },
   waqwaq: {
-    src: "/images/heritage/waqwaq-floral-fantasy.jpg",
+    src: "/images/heritage/waqwaq-floral-fantasy.webp",
     title: "A floral fantasy of animals and birds (Waq-waq)",
     made: "early 1600s",
     where: "Mughal India",
@@ -56,7 +56,7 @@ export const HERITAGE = {
     source: cma("2013.319"),
   },
   kantha: {
-    src: "/images/heritage/kantha-east-bengal.jpg",
+    src: "/images/heritage/kantha-east-bengal.webp",
     title: "Kantha (ceremonial quilt)",
     made: "1800s",
     where: "East Bengal",
@@ -64,7 +64,7 @@ export const HERITAGE = {
     source: cma("1960.274"),
   },
   shawl: {
-    src: "/images/heritage/shawl-border-kashmir.jpg",
+    src: "/images/heritage/shawl-border-kashmir.webp",
     title: "Border of a Shawl",
     made: "c. 1825–30",
     where: "Kashmir",
@@ -72,7 +72,7 @@ export const HERITAGE = {
     source: cma("1925.500"),
   },
   rubberTree: {
-    src: "/images/heritage/rubber-tree-assam-1880s.jpg",
+    src: "/images/heritage/rubber-tree-assam-1880s.webp",
     title: "Rubber Tree, Assam, India",
     made: "c. 1880s",
     where: "Assam",

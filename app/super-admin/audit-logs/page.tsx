@@ -10,6 +10,7 @@ import { mockStore } from '@/lib/portal/firebase/mockStore';
 import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 import { AuditLogTable } from '@/components/portal/super-admin/AuditLogTable';
 import { SuperAdminNavTabs } from '@/components/portal/super-admin/SuperAdminNavTabs';
+import { SectionHeading } from '@/components/portal/ui/Section';
 import { History } from 'lucide-react';
 
 export default function ClassicSuperAdminAuditLogsPage() {
@@ -52,19 +53,10 @@ export default function ClassicSuperAdminAuditLogsPage() {
   return (
     <div className="space-y-6">
       <SuperAdminNavTabs />
-      <div>
-        <h1 className="text-2xl font-display font-black text-ink flex items-center gap-2">
-          <History className="w-6 h-6 text-signal-info" />
-          <span>Security Audit Trail Logs</span>
-        </h1>
-        <p className="text-caption text-ink-muted mt-1">
-          View immutable audit records of privileged administrative actions, role changes, and
-          spreadsheet synchronization events.
-        </p>
-      </div>
+      <SectionHeading title="Activity log" size="lg" as="h1" description="Every change made by admins, newest first. Entries cannot be edited." />
 
       {loading ? (
-        <div className="p-8 text-center text-caption text-ink-faint">Loading audit trail...</div>
+        <div className="p-8 text-center text-caption text-ink-faint">Loading activity…</div>
       ) : (
         <AuditLogTable logs={logs} />
       )}

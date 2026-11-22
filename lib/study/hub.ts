@@ -9,7 +9,7 @@ import { BookMarked, Calculator, Library, Link2, NotebookText, ScrollText, Trend
  * `opens` decides how an item is shown:
  * - "panel": short reference content, opened over the page via ?open=<slug>
  * - "page":  interactive tools that need room, at /hub/<slug>
- * - "link":  lives elsewhere on the site (e.g. /resources)
+ * - "link":  lives elsewhere on the site
  */
 export type HubGroupId = "grades" | "documents" | "study";
 export type HubOpens = "panel" | "page" | "link";
@@ -26,7 +26,7 @@ export type HubItem = {
   comingSoon?: boolean;
 };
 
-export const HUB_PATH = "/hub";
+export const HUB_PATH = "/study";
 
 export const HUB_GROUPS: { id: HubGroupId; title: string; description: string }[] = [
   { id: "grades", title: "Grades", description: "Work out where you stand and what you need." },
@@ -85,8 +85,7 @@ export const HUB_ITEMS: HubItem[] = [
     summary: "Notes, cheat sheets and links shared by students, by subject.",
     icon: NotebookText,
     group: "study",
-    opens: "link",
-    linkHref: "/resources",
+    opens: "page",
   },
   {
     slug: "youtube-channels",
@@ -200,9 +199,9 @@ export const IMPORTANT_LINK_GROUPS: { title: string; links: ToolLink[] }[] = [
 export const QUICK_LINKS = IMPORTANT_LINK_GROUPS.flatMap((g) => g.links).filter((l) => l.quick);
 
 export const INTERNAL_QUICK_LINKS: { title: string; description: string; href: string }[] = [
-  { title: "Grade calculator", description: "Term GPA and CGPA", href: "/hub/grade-calculator" },
-  { title: "Grading documents", description: "Grading by programme", href: "/hub?open=grading-documents" },
-  { title: "Student handbook", description: "Rules and policies", href: "/hub?open=student-handbook" },
+  { title: "Grade calculator", description: "Term GPA and CGPA", href: "/study/grade-calculator" },
+  { title: "Grading documents", description: "Grading by programme", href: "/study?open=grading-documents" },
+  { title: "Student handbook", description: "Rules and policies", href: "/study?open=student-handbook" },
 ];
 
 /* ------------------------------------------------------------------ */
@@ -237,3 +236,10 @@ export const YOUTUBE_CHANNELS: Record<string, YouTubeChannel[]> = {};
 
 /** Same keys as YOUTUBE_CHANNELS. */
 export const RECOMMENDED_BOOKS: Record<string, Book[]> = {};
+
+/** The house study circle: peers to study with across houses. */
+export const STUDY_CIRCLE = {
+  label: "Join the study circle",
+  url: "https://forms.gle/kKBmVCAu8UwtpcpN8",
+  description: "Study with peers across houses: assignments, course material and exam prep, together.",
+};

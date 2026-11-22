@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { EventForm } from '@/components/portal/admin/EventForm';
 import { isMockMode } from '@/lib/firebase';
-import { postNotice } from '@/lib/portal/organiser';
+import { sendNotice } from '@/lib/portal/portalApi';
 import { canOrganiseEvents } from '@/lib/portal/permissions';
 import { mockStore } from '@/lib/portal/firebase/mockStore';
 import { setDoc } from 'firebase/firestore';
@@ -66,13 +66,10 @@ export default function ClassicCreateEventPage() {
         await setDoc(docRef, newEvent);
 
         if (isPublished) {
-          await postNotice(user.role, {
-            userId: 'GLOBAL',
-            title: 'New Event Published',
-            message: `${newEvent.name} is now open for registration.`,
-            type: 'EVENT',
-            linkUrl: `/dashboard/events/${eventId}`,
-            isGlobal: true,
+          await sendNotice({
+            kind: 'EVENT_STATUS',
+            event: { tenureId: DEFAULT_TENURE_ID, mainEventId: mainEvtId, eventId },
+            change: 'PUBLISHED',
           });
         }
       }

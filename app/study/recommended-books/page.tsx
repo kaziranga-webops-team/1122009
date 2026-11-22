@@ -5,7 +5,7 @@ import { BooksBrowser } from "@/components/study/hub/SubjectBrowser";
 export const metadata: Metadata = {
   title: "Recommended books",
   description: "Books and PDFs recommended for each IIT Madras BS subject.",
-  alternates: { canonical: "/hub/recommended-books" },
+  alternates: { canonical: "/study/recommended-books" },
 };
 
 export default function Page() {

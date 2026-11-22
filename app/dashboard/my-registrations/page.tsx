@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { Registration, MainEvent, EventItem } from '@/types/portal';
 import { isMockMode, db } from '@/lib/firebase';
+import { sendNotice } from '@/lib/portal/portalApi';
 import { mockStore } from '@/lib/portal/firebase/mockStore';
 import { query, where, getDocs, updateDoc, doc, collection, setDoc, collectionGroup, increment } from 'firebase/firestore';
 import { getAllRegistrationsGroupRef, getAllEventsGroupRef, getRegistrationRef, getMainEventsCollectionRef, getEventRef, DEFAULT_TENURE_ID, DEFAULT_MAIN_EVENT_ID } from '@/lib/portal/firebase/paths';
@@ -190,54 +191,13 @@ export default function MyRegistrationsPage() {
           createdAt: new Date().toISOString(),
         });
 
-        // 2. If part of a team: notify team leader or teammates
+        // 2. If part of a team, the server tells the leader or the teammates.
         if (reg.teamId) {
-          try {
-            const teamSnap = await getDocs(
-              query(
-                getAllRegistrationsGroupRef(),
-                where('teamId', '==', reg.teamId),
-                where('status', '==', 'CONFIRMED')
-              )
-            );
-            if (reg.teamRole === 'MEMBER') {
-              const leaderDoc = teamSnap.docs.find((d) => d.data().teamRole === 'INITIATOR');
-              if (leaderDoc) {
-                const leaderData = leaderDoc.data();
-                const teamNotif = doc(collection(db, 'notifications'));
-                await setDoc(teamNotif, {
-                  id: teamNotif.id,
-                  userId: leaderData.userId,
-                  title: 'Teammate Withdrawn',
-                  message: `${reg.nameSnapshot || user.name || 'A teammate'} has withdrawn from your team for "${reg.eventTitle}". You may invite a replacement.`,
-                  type: 'WARNING',
-                  linkUrl: `/dashboard/events/${reg.eventId}`,
-                  read: false,
-                  createdAt: new Date().toISOString(),
-                });
-              }
-            } else if (reg.teamRole === 'INITIATOR') {
-              const otherMembers = teamSnap.docs.filter((d) => d.id !== cancelRegId);
-              await Promise.all(
-                otherMembers.map((d) => {
-                  const mData = d.data();
-                  const disbandNotif = doc(collection(db, 'notifications'));
-                  return setDoc(disbandNotif, {
-                    id: disbandNotif.id,
-                    userId: mData.userId,
-                    title: 'Team Disbanded',
-                    message: `The team leader has cancelled the team registration for "${reg.eventTitle}".`,
-                    type: 'WARNING',
-                    linkUrl: `/dashboard/events/${reg.eventId}`,
-                    read: false,
-                    createdAt: new Date().toISOString(),
-                  });
-                })
-              );
-            }
-          } catch (e) {
-            console.error('Failed to notify team members on cancellation:', e);
-          }
+          await sendNotice({
+            kind: 'TEAM_WITHDRAWN',
+            event: { tenureId: tenure, mainEventId: mainEvent, eventId: reg.eventId, subEventId: reg.subEventId ?? null },
+            registrationId: cancelRegId,
+          });
         }
         
         setIsCancelling(false);

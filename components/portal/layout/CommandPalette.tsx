@@ -139,7 +139,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
     if (canUsePortalAdmin(user.role)) {
       items.push({
           id: 'admin-dash',
-          label: 'Admin overview',
+          label: 'Insights',
           category: 'Organise',
           icon: LayoutDashboard,
           onSelect: () => {
@@ -153,7 +153,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
       items.push(
         {
           id: 'admin-events',
-          label: 'Events you run',
+          label: 'Manage events',
           category: 'Organise',
           icon: Calendar,
           onSelect: () => {
@@ -191,7 +191,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
       items.push(
         {
           id: 'super-dash',
-          label: 'Super Admin Command Centre',
+          label: 'House overview',
           category: 'House admin',
           icon: Shield,
           onSelect: () => {
@@ -201,7 +201,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
         },
         {
           id: 'super-allowed',
-          label: 'Allowed Users Registry',
+          label: 'Access list',
           category: 'House admin',
           icon: FileSpreadsheet,
           onSelect: () => {
@@ -211,7 +211,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
         },
         {
           id: 'super-members',
-          label: 'House Members Directory & Roles',
+          label: 'Members & roles',
           category: 'House admin',
           icon: Users,
           onSelect: () => {
@@ -221,7 +221,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
         },
         {
           id: 'super-logs',
-          label: 'Security Audit Logs',
+          label: 'Activity log',
           category: 'House admin',
           icon: History,
           onSelect: () => {

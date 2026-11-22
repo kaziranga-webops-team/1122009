@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { preload } from "react-dom";
 import { AnimatePresence, motion, useReducedMotion, useScroll, useTransform, type MotionValue } from "framer-motion";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { FaInstagram, FaWhatsapp, FaYoutube } from "react-icons/fa";
@@ -18,23 +19,23 @@ const DEFAULT_SUBTITLE =
   "A student house of the IIT Madras BS degree — 5,000+ members meeting up, learning and building things together, from every corner of India.";
 
 /** One piece of the collage, pasted down with a little drop and spin. */
+/**
+ * A cut-out pasted onto the hero poster. CSS, not JavaScript: it is in the
+ * server-rendered page and plays from the first paint, instead of staying
+ * invisible until the page's scripts load.
+ */
 function Paste({ children, delay, rotate, className = "" }: { children: React.ReactNode; delay: number; rotate: number; className?: string }) {
-  const reduce = useReducedMotion();
   return (
-    <motion.div
-      className={className}
-      initial={reduce ? false : { opacity: 0, y: -40, rotate: rotate - 12, scale: 1.08 }}
-      animate={{ opacity: 1, y: 0, rotate, scale: 1 }}
-      transition={{ type: "spring", stiffness: 140, damping: 15, delay }}
-    >
+    <div className={`kz-paste ${className}`} style={{ ["--rot" as string]: `${rotate}deg`, ["--delay" as string]: `${delay}s` }}>
       {children}
-    </motion.div>
+    </div>
   );
 }
 
 /* ═══ I. Arrival — the poster ═══════════════════════════════════════ */
 
 export function PosterHero() {
+  preload("/images/hero/kaziranga-day-1200.webp", { as: "image", fetchPriority: "high" });
   const { data: content } = useContent();
   const subtitle = content?.hero?.subtitle || DEFAULT_SUBTITLE;
   const reduce = useReducedMotion();
@@ -45,23 +46,12 @@ export function PosterHero() {
         {/* ── the words ── */}
         <div className="relative z-10">
           <h1 className="kz-display leading-[0.86]">
-            <motion.span
-              className="kz-offset block text-[clamp(4rem,10vw,9.5rem)] text-[#f6b51e]"
-              style={{ ["--offset" as string]: "#1c130c" }}
-              initial={reduce ? false : { opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, ease: SOFT }}
-            >
+            <span className="kz-enter kz-offset block text-[clamp(4rem,10vw,9.5rem)] text-[#f6b51e]" style={{ ["--offset" as string]: "#1c130c" }}>
               Kaziranga
-            </motion.span>
-            <motion.span
-              className="block text-[clamp(3rem,7.4vw,6.8rem)] text-[#f5e9cf]"
-              initial={reduce ? false : { opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.12, ease: SOFT }}
-            >
+            </span>
+            <span className="kz-enter block text-[clamp(3rem,7.4vw,6.8rem)] text-[#f5e9cf]" style={{ ["--delay" as string]: "0.08s" }}>
               House
-            </motion.span>
+            </span>
           </h1>
           <Greeting />
           <p className="kz-lead mt-7 max-w-[34rem] text-[#f5e9cf]/90">{subtitle}</p>
@@ -83,11 +73,11 @@ export function PosterHero() {
             </div>
           </div>
 
-          <Paste delay={0.25} rotate={-4} className="absolute left-[9%] top-[14%] w-[76%]">
+          <Paste delay={0.05} rotate={-4} className="absolute left-[9%] top-[14%] w-[76%]">
             <Stamp value="₹ 5" bg="#f5e9cf">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src="/images/hero/kaziranga-day.webp"
+                src="/images/hero/kaziranga-day-1200.webp"
                 alt="A painting of Kaziranga's grassland: one-horned rhinos grazing by a pool under a big tree, hills beyond"
                 className="aspect-[4/3] w-full object-cover"
                 fetchPriority="high"
@@ -95,7 +85,7 @@ export function PosterHero() {
             </Stamp>
           </Paste>
 
-          <Paste delay={0.6} rotate={-12} className="absolute left-[2%] top-[4%] w-[30%]">
+          <Paste delay={0.15} rotate={-12} className="absolute left-[2%] top-[4%] w-[30%]">
             <Postmark
               className="w-full text-[clamp(0.9rem,1.6vw,1.25rem)]"
               color="#1c130c"
@@ -109,27 +99,26 @@ export function PosterHero() {
             />
           </Paste>
 
-          <Paste delay={0.75} rotate={7} className="absolute bottom-[2%] right-[0%] w-[44%]">
+          <Paste delay={0.22} rotate={7} className="absolute bottom-[2%] right-[0%] w-[44%]">
             <figure className="kz-cutout">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={HERITAGE.elephant.src} alt={HERITAGE.elephant.alt} className="aspect-[3/2] w-full object-cover" />
             </figure>
           </Paste>
 
-          <Paste delay={0.9} rotate={-8} className="absolute right-[3%] top-[0%] w-[22%]">
+          <Paste delay={0.3} rotate={-8} className="absolute right-[3%] top-[0%] w-[22%]">
             <figure className="kz-cutout rounded-full p-[5px]">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={HERITAGE.hoopoe.src} alt={HERITAGE.hoopoe.alt} className="aspect-square w-full rounded-full object-cover object-[50%_40%]" />
             </figure>
           </Paste>
 
-          <Paste delay={1.05} rotate={0} className="absolute bottom-[6%] left-[-2%] z-10">
+          <Paste delay={0.36} rotate={0} className="absolute bottom-[6%] left-[-2%] z-10">
             <Signboards
               items={[
                 { label: "Meetups", href: "/meetups", bg: "#2343b8", ink: "#f5e9cf", tilt: -3 },
                 { label: "Events", href: "/events", bg: "#f6b51e", ink: "#1c130c", tilt: 2 },
-                { label: "Study Zone", href: "/study", bg: "#0f5e48", ink: "#f5e9cf", tilt: -1.5 },
-                { label: "Resources", href: "/hub", bg: "#e2387a", ink: "#fff", tilt: 2.5 },
+                { label: "Study zone", href: "/study", bg: "#0f5e48", ink: "#f5e9cf", tilt: -1.5 },
               ]}
             />
           </Paste>
@@ -222,7 +211,7 @@ const STEPS = [
 export function ThreeSteps() {
   const reduce = useReducedMotion();
   return (
-    <section id="steps" className="kz-font kz-halftone relative scroll-mt-[var(--kz-header-h)] bg-[#2343b8] pb-24 pt-20 text-[#f5e9cf] md:pb-32 md:pt-28" style={{ ["--dot" as string]: "rgba(10,20,80,0.55)" }}>
+    <section id="steps" className="kz-font kz-halftone relative overflow-x-clip scroll-mt-[var(--kz-header-h)] bg-[#2343b8] pb-24 pt-20 text-[#f5e9cf] md:pb-32 md:pt-28" style={{ ["--dot" as string]: "rgba(10,20,80,0.55)" }}>
       <div className="mx-auto max-w-[90rem] px-5 sm:px-8 md:px-12">
         <ChapterTitle className="text-[#f6b51e]" offset="#e2387a">
           Three steps into the house

@@ -611,13 +611,9 @@ export default function IndiaMeetupMap({
                     aria-label={`${clusterTitle(g, !focus)}: ${count} meetup${count === 1 ? "" : "s"}`}
                     aria-expanded={isOpen}
                     className="group pointer-events-auto absolute -translate-x-1/2 -translate-y-full outline-none"
-                    onPointerEnter={(e) => {
-                      if (e.pointerType === "mouse" && !open?.sticky) openCluster(g.id, false);
-                    }}
-                    onPointerLeave={(e) => {
-                      if (e.pointerType === "mouse") scheduleClose();
-                    }}
-                    onFocus={() => !open?.sticky && openCluster(g.id, false)}
+                    // Cards open on a click or tap only. Opening on hover meant
+                    // that scrolling across a state swept the pointer over
+                    // pins and kept dropping cards over the map.
                     onClick={(e) => {
                       e.stopPropagation();
                       if (open?.id === g.id && open.sticky) setOpen(null);
@@ -706,7 +702,7 @@ export default function IndiaMeetupMap({
 
       {!focus && geo && (
         <div className="pointer-events-none absolute bottom-3 left-3 border-2 border-[#1c130c] bg-[#f5e9cf] px-3.5 py-2.5 sm:bottom-5 sm:left-5">
-          <p className="kz-label mb-1.5 text-[0.56rem] text-[#5e4a35]">Meetups per state</p>
+          <p className="mb-1.5 text-[0.75rem] font-semibold text-[#5e4a35]">Meetups per state</p>
           <div className="flex items-center gap-3 text-[0.68rem] font-semibold">
             {[
               ["1–2", 1],
@@ -833,13 +829,20 @@ function CardSlot({
   const cardH = 176 + (g.pins.length > 1 ? 44 : 0) + (g.cities.length > 1 ? 30 : 0);
   const pinH = 44;
 
+  // The card docks in the corner farthest from its pin, so the pin and the
+  // towns around it stay in sight. The top edge leaves room for the map's
+  // own controls.
   let style: React.CSSProperties;
   if (docked) {
     style = { left: 12, right: 12, bottom: 12 };
   } else {
-    const left = Math.min(Math.max(px - cardW / 2, 12), stageW - cardW - 12);
-    const above = py - pinH - 10 - cardH > 12;
-    style = { left, width: cardW, top: above ? py - pinH - 10 - cardH : py + 14 };
+    const pinOnLeft = px < stageW / 2;
+    const pinOnTop = py - pinH / 2 < stageH / 2;
+    style = {
+      width: cardW,
+      ...(pinOnLeft ? { right: 12 } : { left: 12 }),
+      ...(pinOnTop ? { bottom: 12 } : { top: Math.min(64, Math.max(12, stageH - cardH - 12)) }),
+    };
   }
 
   return (
@@ -863,7 +866,7 @@ function CardSlot({
         meetups={g.pins}
         index={page}
         onIndex={onPage}
-        onClose={sticky || docked ? onClose : undefined}
+        onClose={onClose}
         className={docked ? "!w-full" : ""}
       />
     </motion.div>

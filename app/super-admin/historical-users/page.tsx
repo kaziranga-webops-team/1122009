@@ -10,6 +10,7 @@ import { mockStore } from '@/lib/portal/firebase/mockStore';
 import { collection, getDocs } from 'firebase/firestore';
 import { getAllRegistrationsGroupRef } from '@/lib/portal/firebase/paths';
 import { SuperAdminNavTabs } from '@/components/portal/super-admin/SuperAdminNavTabs';
+import { SectionHeading } from '@/components/portal/ui/Section';
 import { Card } from '@/components/portal/ui/Card';
 import { Badge } from '@/components/portal/ui/Badge';
 import { Button } from '@/components/portal/ui/Button';
@@ -149,27 +150,12 @@ export default function ArchivedUsersPage() {
     <div className="space-y-6">
       <SuperAdminNavTabs />
 
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-display font-black text-ink flex items-center gap-2">
-          <FolderArchive className="w-6 h-6 text-accent" />
-          <span>Archived Accounts & Registration History</span>
-        </h1>
-        <p className="text-caption text-ink-muted mt-1">
-          Directory of student accounts no longer on the active whitelist. Login access is disabled,
-          but student identities and tournament registration snapshots remain preserved.
-        </p>
-      </div>
-
-      {/* Policy Banner */}
-      <div className="p-4 rounded-2xl bg-signal-warn/10 border border-signal-warn/25 flex items-start gap-3 text-caption text-signal-warn">
-        <Info className="w-4 h-4 text-signal-warn shrink-0 mt-0.5" />
-        <div>
-          <span className="font-bold">Access Status:</span> Archived accounts cannot log in and are
-          excluded from active Role Management. All historical registrations, team snapshots, and
-          scores are preserved.
-        </div>
-      </div>
+      <SectionHeading
+        title="Past members"
+        size="lg"
+        as="h1"
+        description="People no longer on the access list. They can't sign in, but their event history is kept."
+      />
 
       {/* Search & Filter Controls */}
       <FilterToolbar

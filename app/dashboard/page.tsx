@@ -6,12 +6,13 @@ import { collection, query, where, getDocs } from 'firebase/firestore';
 import { CalendarX2 } from 'lucide-react';
 
 import { useAuth } from '@/context/AuthContext';
-import { useNotifications } from '@/context/NotificationContext';
 import { EventCard } from '@/components/portal/events/EventCard';
 import { ResultCard } from '@/components/portal/events/ResultCard';
 import { RegistrationModal } from '@/components/portal/events/RegistrationModal';
 import { EventCardSkeleton } from '@/components/portal/ui/Skeleton';
 import { MemberCard } from '@/components/portal/home/MemberCard';
+import { useAnnouncements } from '@/components/portal/home/useAnnouncements';
+import { canAnnounce, isForMember } from '@/lib/portal/announcements';
 import {
   Announcements,
   BlockHeader,
@@ -72,7 +73,7 @@ function sheetResultsToEvents(rows: EventRow[]): EventItem[] {
 
 export default function HomePage() {
   const { user } = useAuth();
-  const { notifications } = useNotifications();
+  const { items: allAnnouncements } = useAnnouncements(20);
 
   const [events, setEvents] = useState<EventItem[]>([]);
   const [managed, setManaged] = useState<EventItem[]>([]);
@@ -190,13 +191,11 @@ export default function HomePage() {
     return [...done, ...sheetResults.filter((s) => !seen.has(s.name.toLowerCase().trim()))].slice(0, 3);
   }, [events, sheetResults]);
 
+  // Pinned first (the hook sorts them), then the newest; region posts only
+  // for members of that region.
   const announcements = useMemo(
-    () =>
-      notifications
-        .filter((n) => n.isGlobal || n.userId === 'GLOBAL')
-        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-        .slice(0, 3),
-    [notifications]
+    () => allAnnouncements.filter((a) => isForMember(a, user?.region)).slice(0, 4),
+    [allAnnouncements, user?.region]
   );
 
   const region = toRegion(user?.region);
@@ -245,7 +244,9 @@ export default function HomePage() {
 
       {organiser && <OrganiserPanel stats={organiserStats(managed)} scopeLabel={scopeLabel} loading={loading} />}
 
-      {announcements.length > 0 && <Announcements items={announcements} />}
+      {announcements.length > 0 && (
+        <Announcements items={announcements} manageHref={canAnnounce(user) ? '/admin/announcements' : undefined} />
+      )}
 
       {/* ─── Open for registration ─── */}
       <section aria-label="Open for registration">

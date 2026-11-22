@@ -105,12 +105,12 @@ export default function MeetupsPage() {
 
   return (
     <div className="kz-font min-h-screen bg-[#f5e9cf] text-[#1c130c] selection:bg-[#c8102e]/20">
-      <KzHeader />
-      <main className="pt-[var(--kz-header-h)]">
+      <KzHeader ground="color" />
+      <main>
         {/* ═══ The sea ═══ */}
         <section
           ref={seaRef}
-          className="kz-halftone relative isolate scroll-mt-[var(--kz-header-h)] overflow-hidden bg-[#2343b8] text-[#f5e9cf]"
+          className="kz-halftone relative isolate overflow-hidden bg-[#2343b8] pt-[var(--kz-header-h)] text-[#f5e9cf]"
           style={{ ["--dot" as string]: "rgba(10,20,80,0.5)" }}
         >
           <Ambient birds={3} specks={0} seed={11} sky={[4, 28]} />
@@ -169,7 +169,7 @@ export default function MeetupsPage() {
           </svg>
         </section>
 
-        <PosterStrip pins={pins.slice(0, 8)} onShow={showOnMap} />
+        <PosterStrip pins={pins.slice(0, 11)} onShow={showOnMap} />
         <HostBand />
       </main>
       <KzFooter />
@@ -235,7 +235,7 @@ function StateHead({
       <button
         type="button"
         onClick={onBack}
-        className="kz-label inline-flex items-center gap-2 text-[#f6b51e] transition-colors hover:text-[#f5e9cf]"
+        className="inline-flex items-center gap-2 font-semibold text-[#f6b51e] transition-colors hover:text-[#f5e9cf]"
       >
         <ArrowLeft size={14} /> All of India
       </button>
@@ -259,7 +259,7 @@ function StateHead({
 function StateChips({ states, loading, onPick }: { states: States; loading: boolean; onPick: (key: string) => void }) {
   return (
     <div>
-      <p className="kz-label text-[0.68rem] text-[#f5e9cf]/75">Pick a state</p>
+      <p className="text-[0.95rem] text-[#f5e9cf]/80">Pick a state</p>
       <ul className="-mx-4 mt-3 flex gap-2 overflow-x-auto px-4 pb-2 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0">
         {loading && states.length === 0
           ? Array.from({ length: 8 }).map((_, i) => (
@@ -366,36 +366,84 @@ function Credits({ className = "", missing }: { className?: string; missing: num
 
 /* ═══ Posters ═════════════════════════════════════════════════════════ */
 
+/**
+ * The newest meetup gets the room: its poster large, beside what happened and
+ * where. The ten before it follow as a poster grid.
+ */
 function PosterStrip({ pins, onShow }: { pins: MeetupPin[]; onShow: (key: string) => void }) {
   if (!pins.length) return null;
+  const [latest, ...rest] = pins;
   return (
     <section className="bg-[#f5e9cf]">
-      <SectionHead
-        title={
-          <>
-            The latest
-            <br />
-            {pins.length} posters
-          </>
-        }
-        intro={
-          <>
-            Every meetup gets a poster. Tap one to find it on the map, or{" "}
-            <Link href="/gallery?tab=meetups" className="font-semibold text-[#c8102e] underline underline-offset-4">
-              see every poster by region
+      <div className="mx-auto max-w-[90rem] px-5 pt-16 sm:px-8 md:px-12 md:pt-24">
+        <LatestMeetup m={latest} onShow={onShow} />
+      </div>
+
+      {rest.length > 0 && (
+        <>
+          <div className="mx-auto flex max-w-[90rem] flex-wrap items-end justify-between gap-4 px-5 pb-6 pt-16 sm:px-8 md:px-12">
+            <h2 className="kz-h2 text-[clamp(2rem,3.6vw,3rem)]">Before that</h2>
+            <Link href="/gallery?tab=meetups" className="kz-focus inline-flex items-center gap-1.5 font-semibold text-[#c8102e] underline-offset-4 hover:underline">
+              Every poster, by region <ArrowRight size={16} />
             </Link>
-            .
-          </>
-        }
-      />
-      <ul className="mx-auto flex max-w-[90rem] snap-x snap-mandatory gap-4 overflow-x-auto px-5 pb-20 [scrollbar-width:none] sm:px-8 md:px-12 md:pb-28 lg:grid lg:grid-cols-4 lg:gap-6 lg:overflow-visible">
-        {pins.map((m) => (
-          <li key={m.key} className="w-[68%] shrink-0 snap-start sm:w-[42%] lg:w-auto">
-            <PosterCard m={m} onShow={onShow} />
-          </li>
-        ))}
-      </ul>
+          </div>
+          <ul className="mx-auto flex max-w-[90rem] snap-x snap-mandatory gap-4 overflow-x-auto px-5 pb-20 [scrollbar-width:none] sm:px-8 md:px-12 md:pb-28 lg:grid lg:grid-cols-5 lg:gap-6 lg:overflow-visible">
+            {rest.map((m) => (
+              <li key={m.key} className="w-[62%] shrink-0 snap-start sm:w-[38%] lg:w-auto">
+                <PosterCard m={m} onShow={onShow} />
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
     </section>
+  );
+}
+
+/** Sheet entries are typed by hand; start each line with a capital. */
+const cap = (t: string) => (t ? t.charAt(0).toUpperCase() + t.slice(1) : t);
+
+function LatestMeetup({ m, onShow }: { m: MeetupPin; onShow: (key: string) => void }) {
+  const [failed, setFailed] = useState(false);
+  const src = m.poster ? toDirectImageUrl(m.poster) : "";
+  const place = [m.city, m.state].filter(Boolean).join(", ");
+  return (
+    <article className="grid items-center gap-8 md:grid-cols-[minmax(0,22rem)_minmax(0,1fr)] md:gap-14">
+      <div className="relative mx-auto w-full max-w-[22rem] rotate-[-2deg]">
+        <span className="relative block aspect-[4/5] overflow-hidden border-2 border-[#1c130c] bg-[#ebd9b2] shadow-[10px_10px_0_#c8102e]">
+          {src && !failed ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={src} alt={`Poster for the meetup in ${m.city}`} onError={() => setFailed(true)} className="absolute inset-0 h-full w-full object-cover" />
+          ) : (
+            <span className="kz-cloth absolute inset-0 grid place-items-center bg-[#c8102e] p-6 text-center">
+              <span className="kz-h3 text-white/85">{m.city}</span>
+            </span>
+          )}
+        </span>
+      </div>
+      <div>
+        <p className="font-semibold text-[#c8102e]">
+          {isUpcoming(m) ? "Coming up · " : "Latest meetup · "}
+          {formatMeetupDate(m.date) || "Date to come"}
+        </p>
+        <h2 className="kz-display kz-offset mt-3 text-[clamp(2.6rem,5.4vw,4.8rem)]" style={{ ["--offset" as string]: "#f6b51e" }}>
+          {m.city || m.venue}
+        </h2>
+        <p className="kz-lead mt-4 max-w-xl text-[#5e4a35]">
+          {cap(m.venue && m.venue !== m.city ? `${m.venue}, ${m.state}` : place)}. Members from the {cap(m.region || "local")} zone met up here.
+        </p>
+        <div className="mt-7 flex flex-wrap gap-3">
+          <button type="button" onClick={() => onShow(m.key)} className="kz-btn kz-focus bg-[#1c130c] text-[#f6b51e]">
+            <MapPin size={16} /> Show on the map
+          </button>
+          {m.instagram && (
+            <a href={m.instagram} target="_blank" rel="noopener noreferrer" className="kz-btn kz-btn--outline kz-focus text-[#1c130c]">
+              See the post <ArrowRight size={16} />
+            </a>
+          )}
+        </div>
+      </div>
+    </article>
   );
 }
 
@@ -425,15 +473,15 @@ function PosterCard({ m, onShow }: { m: MeetupPin; onShow: (key: string) => void
             <span className="kz-h3 text-white/85">{m.city}</span>
           </span>
         )}
-        <span className="kz-sign kz-signboard absolute bottom-3 left-0 inline-flex items-center gap-1.5 bg-[#f6b51e] py-1.5 pl-3 pr-6 text-[0.68rem] uppercase tracking-[0.1em] text-[#1c130c] opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-visible:opacity-100">
+        <span className="kz-sign kz-signboard absolute bottom-3 left-0 inline-flex items-center gap-1.5 bg-[#f6b51e] py-1.5 pl-3 pr-6 text-[0.8rem] font-semibold text-[#1c130c] opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-visible:opacity-100">
           <MapPin size={12} /> Show on map
         </span>
       </span>
       <span className="mt-4 flex items-center gap-2">
         {isUpcoming(m) && (
-          <span className="kz-label bg-[#c8102e] px-2 py-0.5 text-[0.6rem] text-white">Upcoming</span>
+          <span className="rounded-full bg-[#c8102e] px-2 py-0.5 text-[0.75rem] font-semibold text-white">Upcoming</span>
         )}
-        <span className="kz-label text-[0.62rem] text-[#c8102e]">{formatMeetupDate(m.date)}</span>
+        <span className="text-[0.85rem] font-semibold text-[#c8102e]">{formatMeetupDate(m.date)}</span>
       </span>
       <span className="kz-serif mt-1.5 line-clamp-2 block text-[1.1rem] leading-snug">{m.venue}</span>
       <span className="mt-1 block text-[0.78rem] font-medium text-[#5e4a35]">{[m.city, m.state].filter(Boolean).join(", ")}</span>

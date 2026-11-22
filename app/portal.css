@@ -454,5 +454,34 @@
    than the public site: text, controls, cards and spacing are all in rem and
    scale together from here. Applies only while a portal page is on screen. */
 html:has(.ed-app) {
-  font-size: 87.5%;
+  font-size: 100%;
+}
+
+/* Phones keep the full 16px base so every control is a comfortable tap; the
+   compact size starts where there is a mouse and room for it. */
+@media (min-width: 768px) {
+  html:has(.ed-app) {
+    font-size: 87.5%;
+  }
+}
+
+/* One visible focus ring for every control in the portal. */
+.ed-app :focus-visible {
+  outline: 2px solid rgb(var(--brand));
+  outline-offset: 2px;
+}
+
+/* Fields: a finger-sized target on phones, and 16px text there so iOS does
+   not zoom the page when one is tapped. */
+.ed-field {
+  min-height: 2.75rem;
+}
+.ed-field::placeholder {
+  color: rgb(var(--ink-faint));
+}
+@media (max-width: 767px) {
+  .ed-field,
+  .ed-app select {
+    font-size: 1rem;
+  }
 }

@@ -12,15 +12,12 @@ import {
   FolderArchive,
   PlusCircle,
   Globe,
+  Megaphone,
+  UsersRound,
   type LucideIcon,
 } from 'lucide-react';
 import type { UserRole } from '@/types/portal';
-import {
-  canManageRoles,
-  canOrganiseEvents,
-  canUsePortalAdmin,
-  writableResources,
-} from '@/lib/portal/permissions';
+import { canManageRoles, canOrganiseEvents, canUsePortalAdmin } from '@/lib/portal/permissions';
 
 export interface NavItem {
   label: string;
@@ -54,20 +51,26 @@ const youSection: NavSection = {
  * portal admins get the overview, and only roles that can change the public
  * site get its content screen.
  */
-function organiseSection(role?: UserRole): NavSection | null {
-  if (!canOrganiseEvents(role)) return null;
-  const items: NavItem[] = [];
-  if (canUsePortalAdmin(role)) {
-    items.push({ label: 'Overview', href: '/admin/dashboard', icon: Shield });
-  }
-  items.push(
+/**
+ * Running events and talking to members: the organisers' screens, in the order
+ * they are used. Insights (numbers across every event) is for the house's
+ * event managers, not community heads.
+ */
+export function organiseItems(role?: UserRole): NavItem[] {
+  if (!canOrganiseEvents(role)) return [];
+  const items: NavItem[] = [
     { label: 'Events', href: '/admin/events', icon: CalendarCog },
     { label: 'Registrations', href: '/admin/registrations', icon: ClipboardList },
-  );
-  const resources = writableResources(role);
-  if (resources.length) {
-    items.push({ label: 'Site content', href: `/admin/content/${resources[0]}`, icon: Globe });
-  }
+    { label: 'Announcements', href: '/admin/announcements', icon: Megaphone },
+    { label: 'Community pages', href: '/admin/community', icon: UsersRound },
+  ];
+  if (canUsePortalAdmin(role)) items.push({ label: 'Insights', href: '/admin/dashboard', icon: Shield });
+  return items;
+}
+
+function organiseSection(role?: UserRole): NavSection | null {
+  const items = organiseItems(role);
+  if (!items.length) return null;
   return {
     id: 'organise',
     label: 'Organise',
@@ -76,18 +79,24 @@ function organiseSection(role?: UserRole): NavSection | null {
   };
 }
 
-/** Who is in the house and what was changed — the super admin's alone. */
+/**
+ * Running the house: who can sign in, who holds which role, the public
+ * website and the record of changes. The super admin's alone.
+ */
+export const HOUSE_ITEMS: NavItem[] = [
+  { label: 'Overview', href: '/super-admin/dashboard', icon: Crown },
+  { label: 'Members & roles', href: '/super-admin/roles', icon: Users },
+  { label: 'Access list', href: '/super-admin/allowed-users', icon: FileSpreadsheet },
+  { label: 'Past members', href: '/super-admin/historical-users', icon: FolderArchive },
+  { label: 'Website', href: '/admin/content/events', icon: Globe },
+  { label: 'Activity log', href: '/super-admin/audit-logs', icon: History },
+];
+
 const houseSection: NavSection = {
   id: 'house',
-  label: 'House admin',
+  label: 'House',
   accent: true,
-  items: [
-    { label: 'Overview', href: '/super-admin/dashboard', icon: Crown },
-    { label: 'Members', href: '/super-admin/roles', icon: Users },
-    { label: 'Allowed list', href: '/super-admin/allowed-users', icon: FileSpreadsheet },
-    { label: 'Past members', href: '/super-admin/historical-users', icon: FolderArchive },
-    { label: 'Audit log', href: '/super-admin/audit-logs', icon: History },
-  ],
+  items: HOUSE_ITEMS,
 };
 
 /**

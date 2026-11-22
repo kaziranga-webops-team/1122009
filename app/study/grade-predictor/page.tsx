@@ -5,7 +5,7 @@ import { ToolPageShell } from "@/components/study/hub/HubShell";
 export const metadata: Metadata = {
   title: "Grade predictor",
   description: "Find the end-term score you need for each grade in your IIT Madras BS course.",
-  alternates: { canonical: "/hub/grade-predictor" },
+  alternates: { canonical: "/study/grade-predictor" },
 };
 
 export default function Page() {

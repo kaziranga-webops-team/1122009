@@ -1,8 +1,8 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // Regional poster art: one screen-print style illustration per region, in
 // public/images/regions/<slug>-<width>.webp (640 for cards, 1200 for larger
-// use). The city name and the printed dot screen are laid on in code, so they
-// stay sharp at any size and the artwork itself carries no text.
+// use). The city name is laid on in code, so it stays sharp at any size and
+// the artwork itself carries no text.
 // ─────────────────────────────────────────────────────────────────────────────
 import React from 'react';
 import type { Region } from '@/lib/portal/regions';
@@ -39,8 +39,8 @@ export const regionImage = (region: Region, width: 640 | 1200 = 640) =>
   `/images/regions/${region.toLowerCase()}-${width}.webp`;
 
 /**
- * The region's artwork, filling its box (cropped, never stretched), with a
- * faint printed dot screen over it. The caller sizes and positions the box.
+ * The region's artwork, filling its box (cropped, never stretched). The
+ * caller sizes and positions the box.
  */
 export const RegionArt: React.FC<{ region: Region; className?: string; sizes?: string }> = ({
   region,
@@ -59,14 +59,6 @@ export const RegionArt: React.FC<{ region: Region; className?: string; sizes?: s
         decoding="async"
         className="w-full h-full object-cover"
         style={{ objectPosition: theme.focus }}
-      />
-      <span
-        aria-hidden
-        className="absolute inset-0 pointer-events-none mix-blend-multiply"
-        style={{
-          backgroundImage: 'radial-gradient(rgba(28,19,12,0.14) 0.8px, transparent 1.2px)',
-          backgroundSize: '5px 5px',
-        }}
       />
     </span>
   );

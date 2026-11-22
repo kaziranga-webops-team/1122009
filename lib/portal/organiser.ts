@@ -6,11 +6,10 @@
 // that filter: the security rules refuse a query they cannot prove is limited
 // to the head's own communities, they do not filter it for us.
 // ─────────────────────────────────────────────────────────────────────────────
-import { collection, doc, query, setDoc, where, type Query } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { query, where, type Query } from 'firebase/firestore';
 import { getAllEventsGroupRef, getAllRegistrationsGroupRef } from '@/lib/portal/firebase/paths';
 import { canUsePortalAdmin } from '@/lib/portal/permissions';
-import type { UserProfile, UserRole } from '@/types/portal';
+import type { UserProfile } from '@/types/portal';
 
 type Organiser = Pick<UserProfile, 'role' | 'communitySlugs'>;
 
@@ -40,31 +39,4 @@ export function organiserRegistrationsQuery(user: Organiser | null | undefined):
   if (slugs === null) return getAllRegistrationsGroupRef();
   if (slugs.length === 0) return null;
   return query(getAllRegistrationsGroupRef(), where('communitySlug', 'in', slugs));
-}
-
-/**
- * Whether this role sends the house-wide notices that go out when an event is
- * published, removed or rescheduled. Heads do not (yet): broadcasting to the
- * whole house moves to a server-side announcements flow.
- */
-export function canBroadcast(role: UserRole | undefined): boolean {
-  return canUsePortalAdmin(role);
-}
-
-/**
- * Send one notification, best effort. The event change it describes has
- * already been saved, so a failed notice is logged rather than reported as a
- * failed save.
- */
-export async function postNotice(
-  role: UserRole | undefined,
-  data: Record<string, unknown>
-): Promise<void> {
-  if (!canBroadcast(role)) return;
-  try {
-    const ref = doc(collection(db, 'notifications'));
-    await setDoc(ref, { id: ref.id, read: false, createdAt: new Date().toISOString(), ...data });
-  } catch (err) {
-    console.error('Notification not sent:', err);
-  }
 }

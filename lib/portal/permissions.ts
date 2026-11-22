@@ -33,39 +33,23 @@ export interface PermissionContext {
   ownRowId?: string | null;
 }
 
-const ADMIN_ROLES: UserRole[] = ['ADMIN', 'SUPER_ADMIN'];
-
 /**
  * May `role` perform `action` on `resource`?
  *
- * - ADMIN / SUPER_ADMIN — everything.
- * - RC — full control of events, plus editing their own council row. Regional
- *   coordinators run events and maintain their own public profile; they have
- *   no reason to edit the gallery, the council roster or another person's row.
- * - USER — reads only. The public content is public; nothing here is secret.
+ * The public website (meetups, events, council, gallery, episodes and study
+ * material) is changed by the super admin alone; everyone can read it.
+ * `ctx` is kept for callers that pass a row, in case row-level editing
+ * comes back.
  */
 export function can(
   role: UserRole | undefined,
   resource: ContentResource,
   action: Action,
-  ctx: PermissionContext = {}
+  _ctx: PermissionContext = {}
 ): boolean {
   if (!role) return false;
   if (action === 'read') return true;
-  if (ADMIN_ROLES.includes(role)) return true;
-
-  if (role === 'RC') {
-    if (resource === 'events') return true;
-
-    // Own row only, and never create or delete a council entry — who sits on
-    // the council is the admins' call, not the coordinator's.
-    if (resource === 'council_members' && action === 'update') {
-      const { rowId, ownRowId } = ctx;
-      return Boolean(rowId && ownRowId && rowId === ownRowId);
-    }
-  }
-
-  return false;
+  return role === 'SUPER_ADMIN';
 }
 
 /** Resources this role may write at all — drives what the sidebar offers. */
@@ -96,7 +80,7 @@ export function canOrganiseEvents(role: UserRole | undefined): boolean {
 }
 
 /** The organiser screens a community head shares with the admins. */
-const ORGANISER_PATHS = ['/admin/events', '/admin/registrations'];
+const ORGANISER_PATHS = ['/admin/events', '/admin/registrations', '/admin/announcements', '/admin/community'];
 
 /** May this role open the given /admin path at all? */
 export function canOpenAdminPath(role: UserRole | undefined, pathname: string): boolean {

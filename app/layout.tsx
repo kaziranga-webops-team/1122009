@@ -1,14 +1,25 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import { Kalam, Mukta, Yatra_One } from "next/font/google";
 import Providers from "./providers";
 
 /**
- * The Google-hosted faces (Yatra One, Mukta, Montserrat and the rest). Loaded
- * here rather than with an @import in globals.css: Next.js 16's bundler drops
- * remote @imports from CSS, so the fonts silently never downloaded.
+ * The site's own faces, self-hosted by Next.js and preloaded with the page, so
+ * the title is set in Yatra One from the first paint rather than swapping in
+ * after a trip to Google. They are exposed as CSS variables that kz.css and
+ * globals.css read.
+ */
+const yatra = Yatra_One({ weight: "400", subsets: ["latin"], variable: "--font-yatra", display: "swap" });
+const mukta = Mukta({ weight: ["300", "400", "500", "600", "700"], subsets: ["latin"], variable: "--font-mukta", display: "swap" });
+const kalam = Kalam({ weight: ["300", "400", "700"], subsets: ["latin"], variable: "--font-kalam", display: "swap" });
+
+/**
+ * The remaining Google faces, used by older parts of the site and the portal.
+ * Loaded here rather than with an @import in globals.css: Next.js 16's bundler
+ * drops remote @imports from CSS.
  */
 const GOOGLE_FONTS_URL =
-  "https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,800;1,400;1,500&family=Inter:wght@400;500;600;700&family=Cinzel+Decorative:wght@400;700;900&family=Caveat:wght@400;500;600;700&family=Kalam:wght@300;400;700&family=Montserrat:wght@400;500;600;700;800&family=Mukta:wght@300;400;500;600;700&family=Yatra+One&display=swap";
+  "https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,800;1,400;1,500&family=Inter:wght@400;500;600;700&family=Caveat:wght@400;500;600;700&family=Montserrat:wght@400;500;600;700;800&display=swap";
 
 const SITE_URL = "https://kaziranga-house.vercel.app";
 const DESCRIPTION =
@@ -60,7 +71,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" className={`${yatra.variable} ${mukta.variable} ${kalam.variable}`}>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />

@@ -10,6 +10,7 @@ import { mockStore } from '@/lib/portal/firebase/mockStore';
 import { collection, onSnapshot, getDocs } from 'firebase/firestore';
 import { RoleManager } from '@/components/portal/super-admin/RoleManager';
 import { SuperAdminNavTabs } from '@/components/portal/super-admin/SuperAdminNavTabs';
+import { SectionHeading } from '@/components/portal/ui/Section';
 import { Users } from 'lucide-react';
 
 export default function ClassicSuperAdminRolesPage() {
@@ -82,19 +83,11 @@ export default function ClassicSuperAdminRolesPage() {
   return (
     <div className="space-y-6">
       <SuperAdminNavTabs />
-      <div>
-        <h1 className="text-2xl font-display font-black text-ink flex items-center gap-2.5">
-          <Users className="w-6 h-6 text-accent shrink-0" />
-          <span>Members Directory</span>
-        </h1>
-        <p className="text-caption text-ink-muted mt-1">
-          Browse currently active allowed members, search student records, and manage access roles.
-        </p>
-      </div>
+      <SectionHeading title="Members & roles" size="lg" as="h1" description="Everyone on the access list who has signed in. Change a role from their row." />
 
       {loading ? (
         <div className="p-8 text-center text-caption text-ink-faint">
-          Loading active members dataset...
+          Loading members…
         </div>
       ) : (
         <RoleManager users={activeUsers} />
