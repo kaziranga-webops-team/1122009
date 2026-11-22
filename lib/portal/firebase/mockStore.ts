@@ -30,11 +30,24 @@ class MockStore {
       }
 
       this.allowedUsers = JSON.parse(localStorage.getItem('kazi_allowed_users') || 'null') || INITIAL_ALLOWED_USERS;
-      const rawEvents = JSON.parse(localStorage.getItem('kazi_events') || 'null') || INITIAL_EVENTS;
-      this.events = rawEvents.map((e: EventItem) => ({
-        ...e,
-        hasBeenPublished: e.hasBeenPublished ?? (e.status === 'PUBLISHED'),
-      }));
+      const storedEvents = JSON.parse(localStorage.getItem('kazi_events') || 'null');
+      if (storedEvents && Array.isArray(storedEvents)) {
+        const existingEventIds = new Set(storedEvents.map((e: EventItem) => e.id));
+        INITIAL_EVENTS.forEach((initE) => {
+          if (!existingEventIds.has(initE.id)) {
+            storedEvents.push(initE);
+          }
+        });
+        this.events = storedEvents.map((e: EventItem) => ({
+          ...e,
+          hasBeenPublished: e.hasBeenPublished ?? (e.status === 'PUBLISHED'),
+        }));
+      } else {
+        this.events = INITIAL_EVENTS.map((e: EventItem) => ({
+          ...e,
+          hasBeenPublished: e.hasBeenPublished ?? (e.status === 'PUBLISHED'),
+        }));
+      }
 
       const storedRegs = JSON.parse(localStorage.getItem('kazi_registrations') || 'null');
       if (storedRegs && Array.isArray(storedRegs)) {

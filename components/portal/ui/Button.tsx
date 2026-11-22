@@ -24,29 +24,22 @@ const variants: Record<Variant, string> = {
   // override bg-brand / the accent / bg-signal-danger in cn() — every filled
   // button rendered with a transparent background until this was changed.
   primary:
-    'text-brand-contrast bg-brand bg-linear-to-b from-white/15 to-transparent ' +
-    'shadow-[0_1px_0_rgba(255,255,255,0.18)_inset,0_2px_6px_rgba(12,26,22,0.18),0_8px_20px_-8px_rgb(var(--brand)/0.55)] ' +
-    'hover:shadow-[0_1px_0_rgba(255,255,255,0.22)_inset,0_4px_10px_rgba(12,26,22,0.2),0_14px_30px_-10px_rgb(var(--brand)/0.7)] ' +
-    'hover:-translate-y-px',
+    'text-brand-contrast font-bold bg-brand shadow-sm ' +
+    'hover:opacity-95 hover:shadow hover:-translate-y-px',
   accent:
-    // `color:` pins the arbitrary value to the colour group in tailwind-merge.
-    'text-accent-contrast font-bold bg-[color:rgb(var(--accent-vivid))] bg-linear-to-b from-white/25 to-transparent ' +
-    'shadow-[0_1px_0_rgba(255,255,255,0.35)_inset,0_2px_6px_rgba(12,26,22,0.16),0_8px_22px_-8px_rgb(var(--accent-vivid)/0.6)] ' +
-    'hover:shadow-[0_1px_0_rgba(255,255,255,0.4)_inset,0_4px_12px_rgba(12,26,22,0.18),0_16px_34px_-10px_rgb(var(--accent-vivid)/0.75)] ' +
-    'hover:-translate-y-px',
+    'text-accent-contrast font-bold bg-[color:rgb(var(--accent-vivid))] shadow-sm ' +
+    'hover:opacity-95 hover:shadow hover:-translate-y-px',
   secondary:
     'bg-surface-raised text-ink border border-hairline-strong shadow-e-1 ' +
-    'hover:border-ink-faint hover:shadow-e-2 hover:-translate-y-px',
+    'hover:bg-surface-sunken hover:border-ink-faint hover:shadow-e-2 hover:-translate-y-px',
   outline:
     'border border-hairline-strong text-ink bg-transparent ' +
-    'hover:bg-surface-raised hover:border-ink-faint hover:shadow-e-1',
+    'hover:bg-surface-sunken hover:border-ink-faint hover:shadow-e-1',
   ghost:
     'text-ink-muted bg-transparent hover:bg-surface-sunken hover:text-ink',
   danger:
-    'text-white bg-signal-danger bg-linear-to-b from-white/15 to-transparent ' +
-    'shadow-[0_1px_0_rgba(255,255,255,0.2)_inset,0_2px_6px_rgba(12,26,22,0.18),0_8px_20px_-8px_rgb(var(--signal-danger)/0.55)] ' +
-    'hover:shadow-[0_1px_0_rgba(255,255,255,0.24)_inset,0_4px_12px_rgba(12,26,22,0.2),0_14px_30px_-10px_rgb(var(--signal-danger)/0.7)] ' +
-    'hover:-translate-y-px',
+    'text-white font-bold bg-signal-danger shadow-sm ' +
+    'hover:opacity-95 hover:shadow hover:-translate-y-px',
   link:
     'text-accent bg-transparent underline-offset-4 hover:underline p-0 h-auto shadow-none',
 };

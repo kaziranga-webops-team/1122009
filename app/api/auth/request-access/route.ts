@@ -53,6 +53,11 @@ export async function POST(req: NextRequest) {
     const authHeader = req.headers.get('authorization') || '';
     const token = authHeader.startsWith('Bearer ') ? authHeader.slice('Bearer '.length) : undefined;
 
+    // A request is filed in someone's name, so it must come from that person.
+    if (!token) {
+      return NextResponse.json({ success: false, error: 'Sign in with your IITM account first.' }, { status: 401 });
+    }
+
     const { email, note } = await req.json();
 
     if (!email || typeof email !== 'string') {
@@ -60,7 +65,7 @@ export async function POST(req: NextRequest) {
     }
 
     const cleanEmail = email.trim().toLowerCase();
-    const cleanNote = typeof note === 'string' ? note.trim() : '';
+    const cleanNote = typeof note === 'string' ? note.trim().slice(0, 500) : '';
 
     if (!isIITMEmail(cleanEmail)) {
       return NextResponse.json(
@@ -69,18 +74,21 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (token && adminAuth) {
+    // With the Admin SDK the token is checked here; without it, the REST
+    // fallback below forwards the token and the Firestore rules check it.
+    if (adminAuth) {
+      let authenticatedEmail = '';
       try {
         const decodedToken = await adminAuth.verifyIdToken(token);
-        const authenticatedEmail = (decodedToken.email || '').trim().toLowerCase();
-        if (authenticatedEmail && authenticatedEmail !== cleanEmail) {
-          return NextResponse.json(
-            { success: false, error: 'Submitted email address does not match your authenticated identity.' },
-            { status: 403 }
-          );
-        }
-      } catch (tokenErr) {
-        console.warn('Token verification warning in request-access:', tokenErr);
+        authenticatedEmail = (decodedToken.email || '').trim().toLowerCase();
+      } catch {
+        return NextResponse.json({ success: false, error: 'Your session has expired. Sign in again.' }, { status: 401 });
+      }
+      if (authenticatedEmail !== cleanEmail) {
+        return NextResponse.json(
+          { success: false, error: 'Submitted email address does not match your authenticated identity.' },
+          { status: 403 }
+        );
       }
     }
 

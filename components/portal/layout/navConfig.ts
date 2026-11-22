@@ -57,7 +57,6 @@ const adminSection: NavSection = {
 const superAdminSection: NavSection = {
   id: 'super-admin',
   label: 'Super Admin',
-  accent: true,
   items: [
     { label: 'Overview', href: '/super-admin/dashboard', icon: Shield },
     { label: 'Allowed Users', href: '/super-admin/allowed-users', icon: FileSpreadsheet },
@@ -109,7 +108,6 @@ export function getNavSections(role?: UserRole): NavSection[] {
   if (website) sections.push(website);
 
   if (canManageRoles(role)) sections.push(superAdminSection);
-  sections.push(accountSection);
   return sections;
 }
 

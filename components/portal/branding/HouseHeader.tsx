@@ -92,8 +92,8 @@ export const HeaderStats: React.FC<{ items: HeaderStatItem[] }> = ({ items }) =>
       const cornerClass = cn(
         'grid h-8 w-8 shrink-0 place-items-center rounded-full border transition-colors',
         lead
-          ? 'border-white/35 text-brand-contrast hover:bg-white/15'
-          : 'border-hairline-strong text-ink-muted hover:bg-surface-sunken hover:text-ink'
+          ? 'border-hairline-strong text-brand hover:bg-brand-soft'
+          : 'border-hairline text-ink-muted hover:bg-surface-sunken hover:text-ink'
       );
       const corner = item.href ? (
         <Link href={item.href} aria-label={`Open ${item.label}`} className={cornerClass}>
@@ -110,47 +110,25 @@ export const HeaderStats: React.FC<{ items: HeaderStatItem[] }> = ({ items }) =>
           key={item.label}
           className={cn(
             'group relative flex flex-col justify-between overflow-hidden rounded-2xl p-5 min-h-[8.5rem]',
-            'transition-[transform,border-color] duration-300 ease-editorial hover:-translate-y-0.5',
+            'transition-[transform,border-color] duration-300 ease-editorial hover:-translate-y-0.5 shadow-e-1',
             lead
-              ? 'bg-brand text-brand-contrast'
+              ? 'bg-surface-raised border-2 border-hairline-strong text-ink shadow-e-2'
               : 'bg-surface-raised border border-hairline text-ink hover:border-hairline-strong'
           )}
         >
-          {lead && (
-            <span
-              aria-hidden
-              className="absolute -right-12 -bottom-16 h-44 w-44 rounded-full bg-white/10 transition-transform duration-700 group-hover:scale-110"
-            />
-          )}
-
           <div className="relative flex items-start justify-between gap-3">
-            <dt
-              className={cn(
-                'text-caption font-display font-bold',
-                lead ? 'text-brand-contrast/85' : 'text-ink-muted'
-              )}
-            >
+            <dt className="text-caption font-display font-bold text-ink-muted">
               {item.label}
             </dt>
             {corner}
           </div>
 
           <div className="relative">
-            <dd
-              className={cn(
-                'font-display font-semibold leading-none nums text-display-md',
-                lead ? 'text-brand-contrast' : 'text-ink'
-              )}
-            >
+            <dd className="font-display font-semibold leading-none nums text-display-md text-ink">
               {item.value}
             </dd>
             {item.meta && (
-              <p
-                className={cn(
-                  'mt-2.5 text-micro font-medium',
-                  lead ? 'text-brand-contrast/80' : 'text-ink-faint'
-                )}
-              >
+              <p className="mt-2.5 text-micro font-medium text-ink-faint">
                 {item.meta}
               </p>
             )}

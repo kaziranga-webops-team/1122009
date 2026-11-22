@@ -51,14 +51,14 @@ const Avatar: React.FC<{ src?: string; name: string; className?: string }> = ({
       src={src}
       alt=""
       className={cn(
-        'rounded-full object-cover ring-1 ring-[rgb(var(--accent-vivid))]/40',
+        'rounded-full object-cover ring-1 ring-hairline-strong',
         className
       )}
     />
   ) : (
     <span
       className={cn(
-        'grid place-items-center rounded-full bg-[rgb(var(--accent-vivid))] text-accent-contrast font-extrabold',
+        'grid place-items-center rounded-full bg-surface-sunken text-ink border border-hairline-strong font-extrabold',
         className
       )}
       aria-hidden
@@ -91,8 +91,8 @@ export const Navbar: React.FC = () => {
   return (
     <>
       <header
-        className="flex items-center gap-3 rounded-[20px] bg-surface-raised border border-hairline shadow-e-1
-          py-2.5 pl-3 pr-2.5 sm:pl-3.5 sm:pr-3"
+        className="navbar-sticky flex items-center gap-3 rounded-[20px] border border-hairline shadow-e-1
+          py-2.5 pl-3 pr-2.5 sm:pl-3.5 sm:pr-3 transition-shadow"
       >
         <button
           onClick={() => setDrawerOpen(true)}
@@ -164,7 +164,7 @@ export const Navbar: React.FC = () => {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
               onClick={() => setDrawerOpen(false)}
-              className="absolute inset-0 bg-ink/40 dark:bg-stage/75 backdrop-blur-md"
+              className="absolute inset-0 bg-black/60 backdrop-blur-md"
               aria-hidden
             />
 
@@ -176,27 +176,27 @@ export const Navbar: React.FC = () => {
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}
               transition={{ duration: 0.34, ease: EASE_EDITORIAL }}
-              className="relative w-[86%] max-w-[320px] h-full bg-surface-raised dark:ed-stage
-                border-r border-hairline dark:border-white/10 flex flex-col shadow-e-4"
+              className="relative w-[86%] max-w-[320px] h-full bg-surface-raised
+                border-r border-hairline flex flex-col shadow-e-4"
             >
               <div className="shrink-0 flex items-center justify-between gap-2 px-4 py-4 border-b border-hairline">
                 <BrandLockup />
                 <button
                   onClick={() => setDrawerOpen(false)}
                   aria-label="Close navigation menu"
-                  className="p-2 rounded-xl text-ink-muted hover:text-ink hover:bg-surface-sunken dark:text-white/60 dark:hover:text-white dark:hover:bg-white/10 transition-colors"
+                  className="p-2 rounded-xl text-ink-muted hover:text-ink hover:bg-surface-sunken transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
-              <div className="shrink-0 flex items-center gap-3 px-4 py-4 border-b border-hairline dark:border-white/[0.07]">
+              <div className="shrink-0 flex items-center gap-3 px-4 py-4 border-b border-hairline">
                 <Avatar src={user.avatarUrl} name={user.name} className="w-10 h-10 shrink-0" />
                 <div className="min-w-0 flex-1">
-                  <div className="text-caption font-semibold text-ink dark:text-white truncate">
+                  <div className="text-caption font-semibold text-ink truncate">
                     {user.name}
                   </div>
-                  <div className="text-[0.625rem] text-ink-faint dark:text-white/40 truncate">{user.email}</div>
+                  <div className="text-[0.625rem] text-ink-faint truncate">{user.email}</div>
                 </div>
                 {roleBadge(user.role)}
               </div>

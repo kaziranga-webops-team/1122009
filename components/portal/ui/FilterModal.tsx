@@ -67,7 +67,7 @@ export const FilterModal: React.FC<FilterModalProps> = ({
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
             onClick={onClose}
-            className="absolute inset-0 bg-stage-950/60 backdrop-blur-sm"
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
           />
 
           {/* Dialog Panel: Bottom-sheet on mobile, centered modal on sm+ */}
@@ -79,20 +79,20 @@ export const FilterModal: React.FC<FilterModalProps> = ({
             transition={{ duration: 0.25, ease: EASE_EDITORIAL }}
             className={cn(
               'relative w-full max-w-lg max-h-[85vh] flex flex-col',
-              'bg-surface-raised dark:bg-surface-sunken border border-hairline',
+              'bg-surface-raised border border-hairline',
               'rounded-t-3xl sm:rounded-2xl shadow-2xl overflow-hidden'
             )}
           >
             {/* Header */}
             <div className="flex items-center justify-between px-5 py-4 border-b border-hairline">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-brand-soft/60 dark:bg-brand/10 text-brand grid place-items-center">
+                <div className="w-8 h-8 rounded-xl bg-brand-soft text-brand grid place-items-center">
                   <SlidersHorizontal className="w-4 h-4" aria-hidden="true" />
                 </div>
                 <div>
                   <h3 className="font-display font-bold text-title-sm text-ink">{title}</h3>
                   {activeFilterCount > 0 && (
-                    <p className="text-micro font-medium text-brand dark:text-accent">
+                    <p className="text-micro font-medium text-brand">
                       {activeFilterCount} active filter{activeFilterCount > 1 ? 's' : ''}
                     </p>
                   )}

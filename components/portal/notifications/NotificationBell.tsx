@@ -25,8 +25,8 @@ const ICON_META: Record<string, { Icon: React.ElementType; tone: string }> = {
   SUCCESS: { Icon: CheckCircle2, tone: 'bg-signal-live/10 text-signal-live' },
   WARNING: { Icon: AlertTriangle, tone: 'bg-signal-warn/10 text-signal-warn' },
   EVENT: { Icon: Calendar, tone: 'bg-signal-info/10 text-signal-info' },
-  ROLE_CHANGE: { Icon: Crown, tone: 'bg-accent-soft text-accent' },
-  TEAM_INVITE: { Icon: Users, tone: 'bg-brand-soft text-brand' },
+  ROLE_CHANGE: { Icon: Crown, tone: 'bg-surface-sunken text-ink' },
+  TEAM_INVITE: { Icon: Users, tone: 'bg-signal-info/10 text-signal-info' },
 };
 
 const DEFAULT_META = { Icon: Info, tone: 'bg-surface-sunken text-ink-faint' };
@@ -120,11 +120,11 @@ export const NotificationBell: React.FC = () => {
             className="fixed inset-x-3 top-[5.5rem] sm:absolute sm:inset-x-auto sm:right-0 sm:top-full sm:mt-2.5 sm:w-96 origin-top sm:origin-top-right z-50
               rounded-2xl bg-surface-raised border border-hairline dark:border-white/10 shadow-e-4 overflow-hidden"
           >
-            <div className="bg-surface-sunken dark:ed-stage px-3.5 py-2.5 flex items-center justify-between gap-3 border-b border-hairline dark:border-white/10">
-              <h2 className="font-display font-bold text-micro text-ink dark:text-white">
+            <div className="bg-surface-sunken px-3.5 py-2.5 flex items-center justify-between gap-3 border-b border-hairline">
+              <h2 className="font-display font-bold text-micro text-ink">
                 Notifications
                 {unreadCount > 0 && (
-                  <span className="ml-1.5 text-[rgb(var(--accent-vivid))] text-[0.6875rem] font-semibold nums">
+                  <span className="ml-1.5 text-accent text-[0.6875rem] font-semibold nums">
                     {unreadCount} new
                   </span>
                 )}
@@ -255,11 +255,11 @@ export const NotificationBell: React.FC = () => {
               )}
             </div>
 
-            <div className="px-3.5 py-2.5 border-t border-hairline dark:border-white/10 bg-surface-sunken dark:ed-stage text-center">
+            <div className="px-3.5 py-2.5 border-t border-hairline bg-surface-sunken text-center">
               <Link
                 href="/dashboard/notifications"
                 onClick={() => setIsOpen(false)}
-                className="text-micro font-display font-bold text-brand dark:text-[rgb(var(--accent-vivid))] hover:underline underline-offset-4"
+                className="text-micro font-display font-bold text-ink hover:text-brand hover:underline underline-offset-4"
               >
                 View all activity
               </Link>

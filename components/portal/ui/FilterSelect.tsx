@@ -49,7 +49,7 @@ export const FilterSelect: React.FC<FilterSelectProps> = ({
         'bg-surface-raised dark:bg-surface-sunken text-ink',
         isDefault
           ? 'border-hairline hover:border-hairline-strong'
-          : 'border-accent/40 dark:border-accent/40 bg-accent/[0.04] dark:bg-accent/[0.04]',
+          : 'border-brand/40 bg-brand-soft/30',
         disabled && 'opacity-50 cursor-not-allowed',
         containerClassName
       )}
@@ -59,7 +59,7 @@ export const FilterSelect: React.FC<FilterSelectProps> = ({
           className={cn(
             'pointer-events-none shrink-0 transition-colors',
             isSm ? 'pl-2.5 [&>svg]:w-3.5 [&>svg]:h-3.5' : 'pl-3 [&>svg]:w-4 [&>svg]:h-4',
-            isDefault ? 'text-ink-faint' : 'text-accent'
+            isDefault ? 'text-ink-faint' : 'text-brand'
           )}
           aria-hidden="true"
         >
@@ -81,12 +81,12 @@ export const FilterSelect: React.FC<FilterSelectProps> = ({
           className
         )}
       >
-        {placeholder && <option value="" className="bg-surface-raised dark:bg-stage-900 text-ink">{placeholder}</option>}
+        {placeholder && <option value="" className="bg-surface-raised text-ink">{placeholder}</option>}
         {options.map((opt) => (
           <option
             key={opt.value}
             value={opt.value}
-            className="bg-surface-raised dark:bg-stage-900 text-ink"
+            className="bg-surface-raised text-ink"
           >
             {opt.label}
             {typeof opt.count === 'number' ? ` (${opt.count})` : ''}

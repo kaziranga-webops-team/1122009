@@ -23,7 +23,7 @@ const variants: Record<Variant, string> = {
     'bg-surface-overlay border border-hairline bg-linear-to-b from-white/[0.6] to-transparent dark:from-white/[0.04]',
   sunken: 'bg-surface-sunken border border-hairline',
   outline: 'bg-transparent border border-hairline-strong',
-  stage: 'ed-stage ed-edge-light border border-white/10 text-white',
+  stage: 'bg-surface-sunken border border-hairline text-ink',
   ghost: 'bg-transparent border-0',
 };
 
@@ -38,7 +38,7 @@ const elevations: Record<Elevation, string> = {
 const accents = {
   none: '',
   brand: 'before:bg-brand',
-  accent: 'before:bg-[rgb(var(--accent-vivid))]',
+  accent: 'before:bg-accent',
   danger: 'before:bg-signal-danger',
 };
 

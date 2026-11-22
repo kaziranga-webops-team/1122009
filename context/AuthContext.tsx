@@ -124,6 +124,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
       return () => unsubscribe();
     } else {
+      if (typeof window !== 'undefined') {
+        try {
+          localStorage.removeItem('kazi_active_user');
+        } catch {
+          // ignore localStorage access errors
+        }
+      }
       let unsubscribeProfileDoc: Unsubscribe | null = null;
 
       // Real Firebase Auth Listener with real-time Firestore profile subscription

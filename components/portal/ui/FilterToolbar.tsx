@@ -65,14 +65,14 @@ export const FilterToolbar: React.FC<FilterToolbarProps> = ({
               'w-10 sm:w-auto px-0 sm:px-3.5 gap-1.5 sm:gap-2',
               'focus:outline-none focus:ring-2 focus:ring-brand/20 dark:focus:ring-accent/20',
               hasActiveFilters
-                ? 'bg-brand text-brand-contrast border-brand shadow-sm dark:bg-accent/20 dark:text-accent dark:border-accent/40'
-                : 'bg-surface-raised dark:bg-surface-sunken text-ink border-hairline hover:border-hairline-strong hover:bg-surface-sunken/60'
+                ? 'bg-brand text-brand-contrast border-brand shadow-sm'
+                : 'bg-surface-raised text-ink border-hairline hover:border-hairline-strong hover:bg-surface-sunken/60'
             )}
           >
             <SlidersHorizontal
               className={cn(
                 'w-4 h-4 shrink-0 transition-colors',
-                hasActiveFilters ? 'text-brand-contrast dark:text-accent' : 'text-ink-muted'
+                hasActiveFilters ? 'text-brand-contrast' : 'text-ink-muted'
               )}
               aria-hidden="true"
             />
@@ -83,10 +83,10 @@ export const FilterToolbar: React.FC<FilterToolbarProps> = ({
                   'rounded-full font-mono font-bold leading-none',
                   // Mobile: badge at top right corner of the square icon button
                   'max-sm:absolute max-sm:-top-1.5 max-sm:-right-1.5 max-sm:min-w-[1.125rem] max-sm:h-[1.125rem] max-sm:px-1 max-sm:text-[0.625rem] max-sm:flex max-sm:items-center max-sm:justify-center max-sm:shadow-sm',
-                  'max-sm:bg-accent max-sm:text-white dark:max-sm:bg-accent dark:max-sm:text-slate-950',
+                  'max-sm:bg-accent max-sm:text-white',
                   // Desktop: inline chip next to text
                   'sm:px-1.5 sm:py-0.5 sm:text-[0.625rem]',
-                  'sm:bg-white/25 sm:text-white dark:sm:bg-accent/30 dark:sm:text-accent'
+                  'sm:bg-white/25 sm:text-white'
                 )}
               >
                 {computedFilterCount}

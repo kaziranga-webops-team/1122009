@@ -10,93 +10,99 @@
   The gold accent the portal used to carry belonged to no other surface here.
 */
 :root {
-  /* Surfaces
-     Built from the house green scale: #051F20 · #0B2B26 · #163832 · #235347
-     · #8EB69B · #DAF1DE. Light mode derives two tints above the palest mint
-     so body text keeps its contrast — #8EB69B on white is about 2.4:1, which
-     is under the floor for anything you have to read. */
-  --surface: 239 246 240;        /* #eff6f0 page */
-  --surface-raised: 255 255 255; /* panels, cards, tables */
-  --surface-sunken: 218 241 222; /* #DAF1DE wells, inputs */
-  --surface-overlay: 255 255 255;
-  --surface-tint: 218 241 222;   /* #DAF1DE */
+  /* Surfaces — Light Mode
+     Clean, crisp neutral canvas with pristine white raised cards
+     and subtle slate-100 wells/inputs/stripes. */
+  --surface: 248 250 252;        /* #F8FAFC - slate-50 light background */
+  --surface-raised: 255 255 255; /* #FFFFFF - pure white panels, cards, tables */
+  --surface-sunken: 241 245 249; /* #F1F5F9 - slate-100 neutral wells, inputs, thead */
+  --surface-overlay: 255 255 255;/* #FFFFFF - modals, popovers, dropdowns */
+  --surface-tint: 226 232 240;   /* #E2E8F0 - slate-200 */
 
-  /* Ink & Typography */
-  --ink: 5 31 32;                /* #051F20 */
-  --ink-muted: 35 83 71;         /* #235347 */
-  --ink-faint: 79 122 104;       /* derived — #8EB69B is too light to read */
-  --ink-invert: 218 241 222;
+  /* Ink & Typography — Light Mode
+     Deep charcoal/slate for high-contrast, effortless legibility */
+  --ink: 15 23 42;                /* #0F172A - slate-900 primary text */
+  --ink-muted: 71 85 105;         /* #475569 - slate-600 secondary text */
+  --ink-faint: 148 163 184;       /* #94A3B8 - slate-400 captions & tertiary */
+  --ink-invert: 255 255 255;
 
-  /* Lines */
-  --hairline: 204 227 210;
-  --hairline-strong: 168 201 179;
+  /* Lines & Borders — Light Mode */
+  --hairline: 226 232 240;        /* #E2E8F0 - slate-200 subtle border */
+  --hairline-strong: 203 213 225; /* #CBD5E1 - slate-300 strong border */
 
-  /* Brand: pine green (#235347) */
-  --brand: 35 83 71;
-  --brand-soft: 218 241 222;
-  --brand-contrast: 218 241 222;
+  /* Brand / Primary Action
+     Used specifically for highlight buttons, subtle active states & key accents.
+     Vibrant Emerald (#10B981) — never muddy forest green */
+  --brand: 16 185 129;           /* #10B981 emerald highlight */
+  --brand-soft: 236 253 245;     /* #ECFDF5 subtle emerald tint */
+  --brand-contrast: 255 255 255; /* white text on brand */
 
-  /* Accent: the house red. The green scale has no warm tone, and a dashboard
-     needs one colour that means "act on this" — all-green means nothing
-     stands out. */
-  --ed-accent: 198 1 31;
-  --accent-vivid: 224 20 58;
-  --accent-soft: 250 223 227;
+  /* Accent / Signals
+     Used exclusively for highlights, urgency badges & small alert accents.
+     Refined Crimson/Rose (#EF4444) — never overused */
+  --ed-accent: 239 68 68;        /* #EF4444 red highlight */
+  --accent-vivid: 239 68 68;
+  --accent-soft: 254 242 242;    /* #FEF2F2 subtle rose tint */
   --accent-contrast: 255 255 255;
 
-  /* Signals */
-  --signal-live: 35 83 71;
-  --signal-warn: 180 83 9;
-  --signal-danger: 198 1 31;
-  --signal-info: 3 105 161;
+  /* Semantic Signals */
+  --signal-live: 16 185 129;     /* #10B981 Emerald */
+  --signal-warn: 245 158 11;     /* #F59E0B Amber */
+  --signal-danger: 239 68 68;    /* #EF4444 Red */
+  --signal-info: 59 130 246;     /* #3B82F6 Blue */
 
-  /* Shadows */
-  --elev-1: 0 1px 2px rgba(5, 31, 32, 0.05), 0 2px 8px -2px rgba(5, 31, 32, 0.06);
-  --elev-2: 0 2px 4px rgba(5, 31, 32, 0.05), 0 8px 20px -6px rgba(5, 31, 32, 0.10);
-  --elev-3: 0 4px 10px rgba(5, 31, 32, 0.06), 0 20px 40px -12px rgba(5, 31, 32, 0.16);
-  --elev-4: 0 10px 24px rgba(5, 31, 32, 0.08), 0 40px 80px -20px rgba(5, 31, 32, 0.22);
+  /* Elevation / Shadows — Crisp, modern neutral drop shadows */
+  --elev-1: 0 1px 2px rgba(15, 23, 42, 0.04), 0 2px 6px -1px rgba(15, 23, 42, 0.05);
+  --elev-2: 0 3px 8px -2px rgba(15, 23, 42, 0.05), 0 8px 20px -4px rgba(15, 23, 42, 0.08);
+  --elev-3: 0 6px 16px -4px rgba(15, 23, 42, 0.07), 0 16px 36px -8px rgba(15, 23, 42, 0.10);
+  --elev-4: 0 12px 28px -6px rgba(15, 23, 42, 0.09), 0 28px 64px -12px rgba(15, 23, 42, 0.15);
 
-  /* The sidebar and top bar are floating panels, and the top bar scrolls with
-     the page, so nothing is pinned above sticky content: --navbar-height is 0
-     and sticky elements add their own breathing room. */
   --sidebar-width: 260px;
   --navbar-height: 0px;
 }
 
 .dark {
-  --surface: 5 31 32;           /* #051F20 page */
-  --surface-raised: 11 43 38;   /* #0B2B26 panels */
-  --surface-sunken: 8 36 31;    /* between the two — inputs, table stripes */
-  --surface-overlay: 22 56 50;  /* #163832 */
-  --surface-tint: 22 56 50;
+  /* Surfaces — Dark Mode
+     True Black & Charcoal Greys — no muddy green bogs or swamp tones */
+  --surface: 10 12 16;           /* #0A0C10 - deep black page ground */
+  --surface-raised: 18 21 27;    /* #12151B - dark charcoal panels, cards, tables */
+  --surface-sunken: 26 31 40;    /* #1A1F28 - mid charcoal wells, inputs, thead */
+  --surface-overlay: 30 36 46;   /* #1E242E - elevated charcoal modals, dropdowns */
+  --surface-tint: 38 45 58;      /* #262D3A */
 
-  --ink: 218 241 222;           /* #DAF1DE */
-  --ink-muted: 142 182 155;     /* #8EB69B */
-  --ink-faint: 94 133 113;
+  /* Ink & Typography — Dark Mode
+     Crisp white & cool slate greys */
+  --ink: 248 250 252;            /* #F8FAFC - crisp bright white */
+  --ink-muted: 156 163 175;      /* #9CA3AF - slate-400 clean neutral grey */
+  --ink-faint: 107 114 128;      /* #6B7280 - slate-500 captions & metadata */
+  --ink-invert: 10 12 16;
 
-  --ink-invert: 5 31 32;
+  /* Lines & Borders — Dark Mode */
+  --hairline: 38 45 58;          /* #262D3A - crisp subtle border */
+  --hairline-strong: 55 65 81;   /* #374151 - defined divider */
 
-  --hairline: 22 56 50;         /* #163832 */
-  --hairline-strong: 35 83 71;  /* #235347 */
+  /* Brand / Highlight Buttons & Small Accents — Dark Mode */
+  --brand: 16 185 129;           /* #10B981 emerald highlight */
+  --brand-soft: 6 78 59;         /* dark emerald for subtle badge backgrounds */
+  --brand-contrast: 255 255 255;
 
-  --brand: 142 182 155;         /* #8EB69B — pine is too dark on this ground */
-  --brand-soft: 22 56 50;
-  --brand-contrast: 5 31 32;
-
-  --ed-accent: 239 59 87;       /* the house red, lifted to clear the dark */
-  --accent-vivid: 239 59 87;
-  --accent-soft: 60 12 20;
+  /* Accent / Small Urgency Alerts — Dark Mode */
+  --ed-accent: 244 63 94;        /* #F43F5E rose/crimson highlight */
+  --accent-vivid: 244 63 94;
+  --accent-soft: 76 5 25;        /* dark rose for subtle alert badge backgrounds */
   --accent-contrast: 255 255 255;
 
-  --signal-live: 142 182 155;
-  --signal-warn: 251 191 36;
-  --signal-danger: 239 59 87;
-  --signal-info: 56 189 248;
+  /* Semantic Signals — Dark Mode */
+  --signal-live: 16 185 129;
+  --signal-warn: 245 158 11;
+  --signal-danger: 239 68 68;
+  --signal-info: 59 130 246;
 
-  --elev-1: 0 1px 2px rgba(0, 0, 0, 0.4);
-  --elev-2: 0 2px 6px rgba(0, 0, 0, 0.4), 0 10px 24px -6px rgba(0, 0, 0, 0.5);
-  --elev-3: 0 4px 12px rgba(0, 0, 0, 0.45), 0 24px 48px -12px rgba(0, 0, 0, 0.6);
-  --elev-4: 0 10px 24px rgba(0, 0, 0, 0.5), 0 48px 96px -24px rgba(0, 0, 0, 0.7);
+  /* Elevation / Shadows — Dark Mode deep shadows */
+  --elev-1: 0 1px 3px rgba(0, 0, 0, 0.5), 0 2px 8px rgba(0, 0, 0, 0.4);
+  --elev-2: 0 4px 12px rgba(0, 0, 0, 0.6), 0 10px 24px -4px rgba(0, 0, 0, 0.5);
+  --elev-3: 0 8px 24px rgba(0, 0, 0, 0.7), 0 20px 48px -8px rgba(0, 0, 0, 0.6);
+  --elev-4: 0 16px 40px rgba(0, 0, 0, 0.8), 0 36px 80px -12px rgba(0, 0, 0, 0.7);
 }
 
 /* ─── Semantic Background Utilities ─── */
@@ -247,8 +253,8 @@
 
 /* ─── Editorial Primitives ─── */
 .ed-stage {
-  background-color: #002820;
-  color: #f9fbe5;
+  background-color: #0a0c10;
+  color: #f8fafc;
   isolation: isolate;
 }
 
@@ -259,11 +265,28 @@
 }
 
 .dark .ed-chrome {
-  background-color: #002820;
+  background-color: #12151b;
   background-image:
-    radial-gradient(120% 60% at 50% -10%, rgba(150, 180, 165, 0.10) 0%, transparent 60%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0%, transparent 25%);
+    radial-gradient(120% 60% at 50% -10%, rgba(255, 255, 255, 0.04) 0%, transparent 60%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.02) 0%, transparent 25%);
   color: rgb(var(--ink));
+}
+
+.bg-stage { background-color: rgb(var(--surface-sunken)); }
+.dark .bg-stage { background-color: #12151b; }
+
+.navbar-sticky {
+  position: sticky;
+  top: 0.75rem;
+  z-index: 30;
+  background-color: rgb(var(--surface-raised) / 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+@media (min-width: 640px) {
+  .navbar-sticky {
+    top: 1rem;
+  }
 }
 
 .ed-eyebrow {
@@ -283,7 +306,7 @@
   display: inline-block;
   width: 1.5rem;
   height: 1px;
-  background-color: rgb(var(--ed-accent) / 0.6);
+  background-color: rgb(var(--brand) / 0.7);
   flex-shrink: 0;
 }
 
@@ -308,29 +331,29 @@
   color: rgb(var(--ink));
   border: 1px solid rgb(var(--hairline));
   transition: all 0.2s ease;
-  box-shadow: 0 1px 2px rgba(12, 26, 22, 0.04);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
 }
 
 .dark .ed-field {
   background-color: rgb(var(--surface-sunken));
-  border-color: rgba(255, 255, 255, 0.1);
+  border-color: rgb(var(--hairline));
   color: rgb(var(--ink));
 }
 
 .ed-field:focus {
   outline: none;
   border-color: rgb(var(--brand));
-  box-shadow: 0 0 0 3px rgba(30, 86, 49, 0.15);
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
 }
 
 .dark .ed-field:focus {
-  border-color: rgb(var(--ed-accent));
-  box-shadow: 0 0 0 3px rgba(212, 168, 83, 0.2);
+  border-color: rgb(var(--brand));
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.25);
 }
 
 .ed-select {
   appearance: none;
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23445A52' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.75' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2364748B' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.75' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
   background-repeat: no-repeat;
   background-position: right 0.85rem center;
   background-size: 1.15rem 1.15rem;
@@ -338,7 +361,7 @@
 }
 
 .dark .ed-select {
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23D4AF37' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.75' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2394A3B8' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.75' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
 }
 
 .no-scrollbar {
@@ -402,15 +425,15 @@
    with the theme rather than over 1.6s — a slow fade would pass through pale
    text on pale glass midway. */
 .dn-hero {
-  --hero-ink: #0E3A2D; --hero-muted: #2F5146; --hero-accent: #C1121F;
-  --hero-btn: #0E4B39; --hero-btn-ink: #FFFFFF; --hero-line: rgba(14, 58, 45, 0.35);
-  --hero-panel: rgba(255, 255, 255, 0.82); --hero-panel-line: rgba(255, 255, 255, 0.7);
+  --hero-ink: #0F172A; --hero-muted: #475569; --hero-accent: #EF4444;
+  --hero-btn: #0F172A; --hero-btn-ink: #FFFFFF; --hero-line: rgba(15, 23, 42, 0.18);
+  --hero-panel: rgba(255, 255, 255, 0.88); --hero-panel-line: rgba(255, 255, 255, 0.8);
   color: var(--hero-ink);
 }
 .dark .dn-hero {
-  --hero-ink: #EEF5F1; --hero-muted: #C6D3E3; --hero-accent: #FF8A8F;
-  --hero-btn: #EEF5F1; --hero-btn-ink: #0E3A2D; --hero-line: rgba(238, 245, 241, 0.35);
-  --hero-panel: rgba(9, 18, 40, 0.62); --hero-panel-line: rgba(255, 255, 255, 0.14);
+  --hero-ink: #F8FAFC; --hero-muted: #CBD5E1; --hero-accent: #F43F5E;
+  --hero-btn: #10B981; --hero-btn-ink: #FFFFFF; --hero-line: rgba(255, 255, 255, 0.18);
+  --hero-panel: rgba(10, 12, 16, 0.75); --hero-panel-line: rgba(255, 255, 255, 0.12);
 }
 .dn-panel { background-color: var(--hero-panel); border-color: var(--hero-panel-line);
   box-shadow: 0 24px 50px -28px rgba(0, 0, 0, 0.45);

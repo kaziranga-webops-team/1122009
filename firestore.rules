@@ -1,58 +1,97 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    
-    // Helper Functions
+
+    // ─── Helpers ────────────────────────────────────────────────────────────
+
     function isAuthenticated() {
       return request.auth != null;
     }
-    
+
+    function myEmail() {
+      return request.auth.token.email.lower();
+    }
+
     function getUserData() {
       return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
     }
-    
+
     function getUserRole() {
       return isAuthenticated() && exists(/databases/$(database)/documents/users/$(request.auth.uid))
-        ? getUserData().role 
+        ? getUserData().role
         : null;
     }
-    
+
     function isAdmin() {
       return getUserRole() == 'ADMIN' || getUserRole() == 'SUPER_ADMIN';
     }
-    
+
     function isSuperAdmin() {
       return getUserRole() == 'SUPER_ADMIN';
     }
-    
+
     function isOwner(userId) {
       return isAuthenticated() && request.auth.uid == userId;
     }
 
-    // USERS COLLECTION
+    // The house's founding super admins (mirrors INITIAL_SUPER_ADMIN_EMAILS).
+    // Only these addresses may create their own profile as SUPER_ADMIN.
+    function isFoundingAdmin() {
+      return isAuthenticated()
+        && request.auth.token.email_verified == true
+        && myEmail() in ['24f2002110@ds.study.iitm.ac.in', '25f2002531@ds.study.iitm.ac.in'];
+    }
+
+    function isAllowedMember() {
+      return isAuthenticated()
+        && (exists(/databases/$(database)/documents/allowedUsers/$(myEmail())) || isFoundingAdmin());
+    }
+
+    // Fields only an admin may set on a user profile.
+    function privilegedUserFields() {
+      return ['role', 'email', 'uid', 'createdAt', 'isAccessRevoked', 'revokedAt', 'revokedBy', 'councilMemberId'];
+    }
+
+    // ─── Users ──────────────────────────────────────────────────────────────
     match /users/{userId} {
       allow read: if isAuthenticated() && (isOwner(userId) || isAdmin());
-      // Self can update editable profile fields only; cannot self-promote role!
-      allow create: if isAuthenticated() && isOwner(userId);
-      allow update: if isAuthenticated() && (
-        (isOwner(userId) && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'email'])) ||
-        isSuperAdmin()
-      );
-      allow delete: if false; // Users cannot be deleted directly
+
+      // First sign-in: an allowed member creates their own profile as a plain
+      // USER. Nobody can create themselves with a higher role, except the
+      // founding super admins.
+      allow create: if isOwner(userId)
+        && isAllowedMember()
+        && request.resource.data.uid == userId
+        && request.resource.data.email.lower() == myEmail()
+        && (
+          request.resource.data.role == 'USER'
+          || (request.resource.data.role == 'SUPER_ADMIN' && isFoundingAdmin())
+        )
+        && !request.resource.data.keys().hasAny(['isAccessRevoked', 'revokedAt', 'revokedBy', 'councilMemberId']);
+
+      // Owners edit their own profile but never their role, email or access state.
+      allow update: if (
+          isOwner(userId)
+          && !request.resource.data.diff(resource.data).affectedKeys().hasAny(privilegedUserFields())
+        ) || isSuperAdmin();
+
+      allow delete: if false;
     }
 
-    // ALLOWED USERS COLLECTION
+    // ─── Allowed users (the member registry) ────────────────────────────────
+    // Signed-in members may look up one exact email (sign-in, teammate checks);
+    // only super admins may list the whole registry.
     match /allowedUsers/{emailId} {
-      allow read: if isAuthenticated();
-      allow write: if isAuthenticated() && isSuperAdmin();
-    }
-    
-    // ALLOWED USER IMPORT BATCHES
-    match /allowedUserImportBatches/{batchId} {
-      allow read, write: if isAuthenticated() && isSuperAdmin();
+      allow get: if isAuthenticated();
+      allow list: if isSuperAdmin();
+      allow write: if isSuperAdmin();
     }
 
-    // TENURES COLLECTION (New Hierarchy)
+    match /allowedUserImportBatches/{batchId} {
+      allow read, write: if isSuperAdmin();
+    }
+
+    // ─── Tenures and main events ────────────────────────────────────────────
     match /tenures/{tenureId} {
       allow read: if isAuthenticated();
       allow write: if isAdmin();
@@ -63,98 +102,144 @@ service cloud.firestore {
       }
     }
 
-    // EVENTS COLLECTION (Supports root-level access if used, and collectionGroup)
+    // ─── Events and sub-events ──────────────────────────────────────────────
+    // A member's only write is moving the seat count by exactly one, when they
+    // register (+1) or cancel (−1); never to an arbitrary number.
+    function isSeatCountStep() {
+      let before = resource.data.get('currentRegistrationCount', 0);
+      let after = request.resource.data.currentRegistrationCount;
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['currentRegistrationCount'])
+        && after is int
+        && after >= 0
+        && (after == before + 1 || after == before - 1);
+    }
+
+    function isVisibleStatus() {
+      return resource.data.status in ['PUBLISHED', 'CLOSED', 'COMPLETED'];
+    }
+
     match /{path=**}/events/{eventId} {
-      allow read: if isAuthenticated() && (
-        resource.data.status == 'PUBLISHED' || 
-        resource.data.status == 'CLOSED' || 
-        resource.data.status == 'COMPLETED' || 
-        isAdmin()
-      );
-      allow create: if isAuthenticated() && isAdmin();
-      allow update: if isAuthenticated() && (
-        isAdmin() || 
-        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['currentRegistrationCount'])
-      );
-      allow delete: if isAuthenticated() && isSuperAdmin();
+      allow read: if isAuthenticated() && (isVisibleStatus() || isAdmin());
+      allow create: if isAdmin();
+      allow update: if isAdmin() || (isAuthenticated() && isSeatCountStep());
+      allow delete: if isSuperAdmin();
     }
 
-    // SUB-EVENTS COLLECTION (Supports collectionGroup)
     match /{path=**}/subEvents/{subEventId} {
-      allow read: if isAuthenticated() && (
-        resource.data.status == 'PUBLISHED' || 
-        resource.data.status == 'CLOSED' || 
-        resource.data.status == 'COMPLETED' || 
-        isAdmin()
-      );
-      allow create: if isAuthenticated() && isAdmin();
-      allow update: if isAuthenticated() && (
-        isAdmin() || 
-        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['currentRegistrationCount'])
-      );
-      allow delete: if isAuthenticated() && isSuperAdmin();
+      allow read: if isAuthenticated() && (isVisibleStatus() || isAdmin());
+      allow create: if isAdmin();
+      allow update: if isAdmin() || (isAuthenticated() && isSeatCountStep());
+      allow delete: if isSuperAdmin();
     }
 
-    // REGISTRATIONS COLLECTION (Supports collectionGroup)
+    // ─── Registrations ──────────────────────────────────────────────────────
+    // What a member may change on their own registration: their details,
+    // answers and submissions, and cancelling it. Never its event, owner,
+    // team or confirmation state.
+    function memberEditableRegistrationFields() {
+      return ['phoneSnapshot', 'regionSnapshot', 'levelSnapshot', 'programmeSnapshot',
+              'customAnswers', 'submissionAnswers', 'submissionContent', 'submittedAt',
+              'updatedAt', 'status'];
+    }
+
     match /{path=**}/registrations/{registrationId} {
-      allow read: if isAuthenticated() && (
-        resource.data.userId == request.auth.uid || 
-        isAdmin()
+      allow read: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
+
+      allow create: if isAuthenticated()
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.status in ['CONFIRMED', 'WAITLISTED']
+        && request.resource.data.emailSnapshot.lower() == myEmail();
+
+      allow update: if isAdmin() || (
+        isAuthenticated()
+        && resource.data.userId == request.auth.uid
+        && request.resource.data.userId == resource.data.userId
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(memberEditableRegistrationFields())
+        && (request.resource.data.status == resource.data.status || request.resource.data.status == 'CANCELLED')
       );
-      // Registration creation: Must be owner, and role user/admin/super_admin
-      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
-      allow update: if isAuthenticated() && (
-        (resource.data.userId == request.auth.uid && request.resource.data.status == 'CANCELLED') ||
-        isAdmin()
-      );
-      // CRITICAL: Admins and Users CANNOT delete registrations to preserve audit history
+
+      // Registrations are kept for the record.
       allow delete: if false;
     }
 
-    // TEAM INVITATIONS COLLECTION
+    // ─── Team invitations ───────────────────────────────────────────────────
     match /teamInvitations/{invitationId} {
       allow read: if isAuthenticated() && (
-        resource.data.inviteeEmail == request.auth.token.email ||
-        resource.data.inviterUserId == request.auth.uid ||
-        isAdmin()
+        resource.data.inviteeEmail.lower() == myEmail()
+        || resource.data.inviterUserId == request.auth.uid
+        || isAdmin()
       );
-      allow create: if isAuthenticated() && request.resource.data.inviterUserId == request.auth.uid;
-      allow update: if isAuthenticated() && (
-        resource.data.inviteeEmail == request.auth.token.email ||
-        resource.data.inviterUserId == request.auth.uid ||
-        isAdmin()
+
+      allow create: if isAuthenticated()
+        && request.resource.data.inviterUserId == request.auth.uid
+        && request.resource.data.status == 'PENDING';
+
+      // The invitee answers; the inviter may withdraw. Neither can rewrite
+      // the event, team or the people involved.
+      allow update: if isAdmin() || (
+        isAuthenticated()
+        && resource.data.inviteeEmail.lower() == myEmail()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'inviteeUserId', 'updatedAt'])
+        && request.resource.data.status in ['ACCEPTED', 'REJECTED']
+        && request.resource.data.inviteeUserId == request.auth.uid
+      ) || (
+        isAuthenticated()
+        && resource.data.inviterUserId == request.auth.uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'updatedAt'])
+        && request.resource.data.status == 'REJECTED'
       );
+
       allow delete: if false;
     }
 
-    // NOTIFICATIONS COLLECTION
+    // ─── Notifications ──────────────────────────────────────────────────────
+    // Admins notify anyone; a member may only file a note to themselves.
+    // Nobody but an admin can post to everyone.
     match /notifications/{notificationId} {
       allow read: if isAuthenticated() && (
-        resource.data.userId == request.auth.uid ||
-        resource.data.userId == 'GLOBAL' ||
-        resource.data.isGlobal == true ||
-        (resource.data.userId == 'SUPER_ADMIN' && isSuperAdmin())
+        resource.data.userId == request.auth.uid
+        || resource.data.userId == 'GLOBAL'
+        || resource.data.isGlobal == true
+        || (resource.data.userId == 'SUPER_ADMIN' && isSuperAdmin())
       );
-      allow update: if isAuthenticated() && (
-        resource.data.userId == request.auth.uid ||
-        (resource.data.userId == 'SUPER_ADMIN' && isSuperAdmin())
-      ); // e.g., marking read
-      allow create: if isAuthenticated() && isAdmin();
+
+      allow create: if isAdmin() || (
+        isAuthenticated()
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.get('isGlobal', false) == false
+      );
+
+      // Marking as read is the only change a recipient makes.
+      allow update: if isAuthenticated()
+        && (
+          resource.data.userId == request.auth.uid
+          || (resource.data.userId == 'SUPER_ADMIN' && isSuperAdmin())
+        )
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']);
+
       allow delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
     }
 
-    // ACCESS REQUESTS COLLECTION
+    // ─── Access requests ────────────────────────────────────────────────────
+    // A signed-in student asks for access in their own name only.
     match /accessRequests/{requestId} {
-      allow create: if true;
-      allow read, update: if isAuthenticated() && isSuperAdmin();
+      allow create: if isAuthenticated()
+        && request.resource.data.email == myEmail()
+        && request.resource.data.status == 'PENDING'
+        && request.resource.data.keys().hasOnly(['email', 'note', 'status', 'read', 'createdAt'])
+        && request.resource.data.note is string
+        && request.resource.data.note.size() <= 500;
+      allow read, update: if isSuperAdmin();
       allow delete: if false;
     }
 
-    // AUDIT LOGS COLLECTION
+    // ─── Audit logs ─────────────────────────────────────────────────────────
+    // Append-only. The server writes most entries with the Admin SDK; from the
+    // browser only a super admin may add one, and only in their own name.
     match /auditLogs/{logId} {
-      allow read: if isAuthenticated() && isSuperAdmin();
-      allow create: if isAuthenticated();
-      allow update, delete: if false; // Audit logs are append-only & immutable
+      allow read: if isSuperAdmin();
+      allow create: if isSuperAdmin() && request.resource.data.actorUserId == request.auth.uid;
+      allow update, delete: if false;
     }
   }
 }

@@ -86,7 +86,7 @@ export const CountdownTimer: React.FC<CountdownTimerProps> = ({
     <div
       className={cn(
         'inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg pointer-events-none',
-        'bg-stage/75 backdrop-blur-md border border-white/15',
+        'bg-black/75 backdrop-blur-md border border-white/15',
         className
       )}
     >

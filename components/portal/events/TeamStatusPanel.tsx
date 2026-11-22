@@ -5,7 +5,7 @@ import { Registration, EventItem, TeamInvitation } from '@/types/portal';
 import { useAuth } from '@/context/AuthContext';
 import { isMockMode, db } from '@/lib/firebase';
 import { mockStore } from '@/lib/portal/firebase/mockStore';
-import { query, where, getDocs, onSnapshot } from 'firebase/firestore';
+import { query, where, getDocs, onSnapshot, doc, getDoc } from 'firebase/firestore';
 import { getTeamInvitationsCollectionRef, getAllRegistrationsGroupRef, DEFAULT_MAIN_EVENT_ID, DEFAULT_TENURE_ID } from '@/lib/portal/firebase/paths';
 import { Badge } from '@/components/portal/ui/Badge';
 import { Button } from '@/components/portal/ui/Button';
@@ -81,15 +81,13 @@ export const TeamStatusPanel: React.FC<TeamStatusPanelProps> = ({ registration, 
     setInviting(true);
 
     try {
-      // Instant verification against allowed users
-      const checkRes = await fetch('/api/auth/allowed-check', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email })
-      });
-      const checkData = await checkRes.json();
-      
-      if (!checkRes.ok || !checkData.isAllowed) {
+      // Instant verification against allowed users: one exact-email lookup,
+      // which signed-in members may do but which cannot list the registry.
+      const isAllowed = isMockMode
+        ? mockStore.isEmailAllowed(email)
+        : (await getDoc(doc(db, 'allowedUsers', email))).exists();
+
+      if (!isAllowed) {
         setInviteError('Either it is an invalid email or it is not an email associated with Kaziranga.');
         setInviting(false);
         return;

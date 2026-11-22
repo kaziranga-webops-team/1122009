@@ -40,8 +40,8 @@ export const BottomNav: React.FC = () => {
   return (
     <nav
       aria-label="Primary"
-      className="lg:hidden fixed bottom-0 inset-x-0 z-40 ed-stage-blur backdrop-blur-xl
-        border-t border-hairline dark:border-white/[0.07]
+      className="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-surface-raised/90 backdrop-blur-xl
+        border-t border-hairline
         shadow-[0_-4px_16px_rgba(0,0,0,0.05)] dark:shadow-none
         pb-[env(safe-area-inset-bottom)]"
     >
@@ -57,13 +57,13 @@ export const BottomNav: React.FC = () => {
                 className={cn(
                   'relative flex flex-col items-center gap-1 py-1.5 rounded-xl transition-colors',
                   active
-                    ? 'text-brand dark:text-[rgb(var(--accent-vivid))]'
-                    : 'text-ink-muted hover:text-ink dark:text-white/45 dark:hover:text-white/80'
+                    ? 'text-brand'
+                    : 'text-ink-muted hover:text-ink'
                 )}
               >
                 <span
                   className={cn(
-                    'absolute -top-1.5 h-[2px] rounded-full bg-[rgb(var(--accent-vivid))] transition-all duration-300 ease-editorial',
+                    'absolute -top-1.5 h-[2px] rounded-full bg-brand transition-all duration-300 ease-editorial',
                     active ? 'w-7 opacity-100' : 'w-0 opacity-0'
                   )}
                   aria-hidden

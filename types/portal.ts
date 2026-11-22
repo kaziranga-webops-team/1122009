@@ -128,6 +128,10 @@ export interface EventItem {
   submissionRequirements?: SubmissionRequirement[];
   hasGuests?: boolean;
   guests?: EventGuest[];
+  winner?: string;
+  runnerUp1?: string;
+  runnerUp2?: string;
+  honourableMentions?: string;
 }
 
 export type RegistrationStatus = 'CONFIRMED' | 'WAITLISTED' | 'CANCELLED';
