@@ -39,6 +39,11 @@ const SEARCH_COLUMNS: Record<ContentResource, string[]> = {
   episodes: ['title', 'host'],
   study_links: ['degree'],
   revision_sessions: ['degree', 'level', 'exam_type'],
+  study_resources: ['title', 'subject', 'author'],
+  iitm_links: ['title', 'group_name'],
+  course_channels: ['subject', 'title'],
+  site_images: ['slot'],
+  site_sections: ['section'],
 };
 
 function parseResource(value: string): ContentResource {
@@ -114,14 +119,16 @@ export async function GET(req: Request, ctx: Ctx) {
     if (!can(user.role, resource, 'read')) throw new ApiError(403, 'Not allowed.');
 
     const url = new URL(req.url);
-    const limit = Math.min(Number(url.searchParams.get('limit')) || 200, 500);
-    const offset = Number(url.searchParams.get('offset')) || 0;
-    const q = (url.searchParams.get('q') || '').trim();
+    const limit = Math.min(Math.max(Math.floor(Number(url.searchParams.get('limit')) || 200), 1), 500);
+    const offset = Math.max(Math.floor(Number(url.searchParams.get('offset')) || 0), 0);
+    const q = (url.searchParams.get('q') || '').trim().slice(0, 100);
 
     const parts = [`select=*`, `order=sort_order.asc`, `limit=${limit}`, `offset=${offset}`];
     if (q) {
-      const escaped = q.replace(/[,()*]/g, ' ');
-      parts.push(`or=(${SEARCH_COLUMNS[resource].map((c) => `${c}.ilike.*${escaped}*`).join(',')})`);
+      // Characters that mean something in a filter become spaces, and the
+      // rest is URL-encoded, so a search can never add a filter of its own.
+      const term = encodeURIComponent(q.replace(/[,()*.:&=?#%\\"]/g, ' ').trim());
+      if (term) parts.push(`or=(${SEARCH_COLUMNS[resource].map((c) => `${c}.ilike.*${term}*`).join(',')})`);
     }
 
     const res = await supabase(`${resource}?${parts.join('&')}`, {
@@ -131,6 +138,22 @@ export async function GET(req: Request, ctx: Ctx) {
 
     return NextResponse.json({ rows: await res.json(), total, resource });
   });
+}
+
+/**
+ * One date per event or meetup: the one picked in the editor (starts_at).
+ * The old typed "date as shown" is written from it on every save, so the two
+ * can never disagree and the site always shows the date that was entered.
+ */
+function withDisplayDate(resource: ContentResource, data: Record<string, unknown>): Record<string, unknown> {
+  if ((resource !== 'events' && resource !== 'meetups') || !('starts_at' in data)) return data;
+  const iso = data.starts_at ? String(data.starts_at) : '';
+  const t = iso ? new Date(iso) : null;
+  const date_text =
+    t && !Number.isNaN(t.getTime())
+      ? new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Kolkata', day: '2-digit', month: '2-digit', year: 'numeric' }).format(t)
+      : '';
+  return { ...data, starts_at: iso || null, date_text };
 }
 
 // ─── POST: create ────────────────────────────────────────────────────
@@ -152,7 +175,7 @@ export async function POST(req: Request, ctx: Ctx) {
     const res = await supabase(resource, {
       method: 'POST',
       headers: { Prefer: 'return=representation' },
-      body: JSON.stringify(parsed.data),
+      body: JSON.stringify(withDisplayDate(resource, parsed.data as Record<string, unknown>)),
     });
     const [row] = (await res.json()) as Record<string, unknown>[];
 
@@ -197,7 +220,7 @@ export async function PATCH(req: Request, ctx: Ctx) {
     const res = await supabase(`${resource}?id=eq.${encodeURIComponent(id)}`, {
       method: 'PATCH',
       headers: { Prefer: 'return=representation' },
-      body: JSON.stringify(data),
+      body: JSON.stringify(withDisplayDate(resource, data)),
     });
     const [row] = (await res.json()) as Record<string, unknown>[];
 

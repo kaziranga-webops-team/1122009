@@ -6,12 +6,12 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useLenis } from "lenis/react";
-import { ArrowLeft, ArrowUpRight, Compass, Menu, X } from "lucide-react";
+import { ArrowLeft, ArrowUpRight, Compass, Landmark, Menu, X } from "lucide-react";
 import { PanelLink } from "@/components/study/hub/parts";
 import { HUB_GROUPS, HUB_ITEMS, HUB_PATH, getHubItem, type HubItem } from "@/lib/study/hub";
 
 const SOFT = [0.22, 1, 0.36, 1] as const;
-const row = "kz-focus group flex h-11 w-full items-center gap-3 rounded-full px-3.5 text-[0.88rem] transition-colors";
+const row = "kz-focus group flex h-9 w-full items-center gap-2.5 rounded-xl px-2.5 text-[0.85rem] transition-colors";
 
 /** Every hub item, grouped like the hub. Pages navigate, panels open over the page, Notes leaves the hub. */
 function HubNav({ onNavigate }: { onNavigate?: () => void }) {
@@ -23,7 +23,7 @@ function HubNav({ onNavigate }: { onNavigate?: () => void }) {
     const className = `${row} ${current ? "bg-[#0f5e48] font-semibold text-[#f5e9cf]" : "font-medium text-[#1c130c]/75 hover:bg-[#1c130c]/6 hover:text-[#1c130c]"}`;
     const body = (
       <>
-        <Icon size={18} className={`shrink-0 ${current ? "" : "text-[#5e4a35] group-hover:text-[#1c130c]"}`} aria-hidden="true" />
+        <Icon size={16} className={`shrink-0 ${current ? "" : "text-[#5e4a35] group-hover:text-[#1c130c]"}`} aria-hidden="true" />
         <span className="min-w-0 flex-1 truncate">{item.title}</span>
         {item.opens === "panel" && <span className="sr-only">(opens a panel)</span>}
         {item.opens === "link" && (
@@ -53,22 +53,35 @@ function HubNav({ onNavigate }: { onNavigate?: () => void }) {
     );
   };
 
+  // Tools still being built are left out, as on the Study zone page.
+  const ready = HUB_ITEMS.filter((i) => !i.comingSoon);
+
   return (
-    <nav aria-label="Study zone" className="space-y-5">
+    <nav aria-label="Study zone" className="space-y-4">
       <Link href={HUB_PATH} onClick={onNavigate} className={`${row} font-bold text-[#1c130c] hover:bg-[#1c130c]/6`}>
-        <Compass size={18} className="shrink-0 text-[#0f5e48]" aria-hidden="true" />
+        <Compass size={16} className="shrink-0 text-[#0f5e48]" aria-hidden="true" />
         <span className="truncate">Study zone</span>
       </Link>
-      {HUB_GROUPS.map((group) => (
-        <div key={group.id}>
-          <h2 className="kz-label mb-1.5 px-3.5 text-[0.66rem] text-[#5e4a35]">{group.title}</h2>
-          <ul className="space-y-0.5">
-            {HUB_ITEMS.filter((i) => i.group === group.id).map((item) => (
-              <li key={item.slug}>{itemLink(item)}</li>
-            ))}
-          </ul>
-        </div>
-      ))}
+      {HUB_GROUPS.map((group) => {
+        const items = ready.filter((i) => i.group === group.id);
+        if (!items.length) return null;
+        return (
+          <div key={group.id}>
+            <h2 className="kz-label mb-1 px-2.5 text-[0.62rem] text-[#5e4a35]/80">{group.title}</h2>
+            <ul className="space-y-0.5">
+              {items.map((item) => (
+                <li key={item.slug}>{itemLink(item)}</li>
+              ))}
+            </ul>
+          </div>
+        );
+      })}
+      {/* Official links live in the IITM corner. */}
+      <Link href="/iitm" onClick={onNavigate} className={`${row} font-semibold text-[#2343b8] hover:bg-[#2343b8]/8`}>
+        <Landmark size={16} className="shrink-0" aria-hidden="true" />
+        <span className="min-w-0 flex-1 truncate">IITM corner</span>
+        <ArrowUpRight size={14} className="shrink-0 opacity-60" aria-hidden="true" />
+      </Link>
     </nav>
   );
 }
@@ -110,16 +123,18 @@ export default function HubShell({ children }: { children: ReactNode }) {
   if (pathname === HUB_PATH) return <>{children}</>;
 
   return (
-    <div className="mx-auto flex w-full max-w-[90rem] gap-10 px-5 pt-[var(--kz-header-h)] sm:px-8 md:px-12">
+    <div className="flex w-full items-start gap-8 px-5 pt-[var(--kz-header-h)] sm:px-8 md:px-12 lg:pl-0 xl:gap-12">
+      {/* Attached to the left edge of the window, only as tall as its links,
+          and in view while the page scrolls. */}
       <aside
         aria-label="Study zone navigation"
-        className="sticky top-[var(--kz-header-h)] hidden h-[calc(100dvh-var(--kz-header-h))] w-64 shrink-0 overflow-y-auto border-r border-[#1c130c]/10 py-10 pr-5 lg:block"
+        className="sticky top-[calc(var(--kz-header-h)+1.5rem)] mt-8 hidden max-h-[calc(100dvh-var(--kz-header-h)-3rem)] w-60 shrink-0 overflow-y-auto rounded-r-2xl border border-l-0 border-[#1c130c]/10 bg-[#fffaf0] py-2 pl-4 pr-2 shadow-[0_14px_30px_-26px_rgba(28,19,12,0.6)] lg:block"
         data-lenis-prevent
       >
         <HubNav />
       </aside>
 
-      <div className="min-w-0 flex-1">
+      <div className="mx-auto min-w-0 max-w-[80rem] flex-1">
         <div className="flex items-center justify-between gap-3 pt-6 lg:hidden">
           <Link href={HUB_PATH} className="kz-focus inline-flex min-h-10 items-center gap-1.5 rounded-full text-[0.85rem] font-bold text-[#0f5e48] hover:text-[#1c130c]">
             <ArrowLeft size={15} aria-hidden="true" />
@@ -189,19 +204,12 @@ export default function HubShell({ children }: { children: ReactNode }) {
 /** Title block for a hub tool page. */
 export function ToolPageShell({ slug, description, children }: { slug: string; description?: string; children: ReactNode }) {
   const tool = getHubItem(slug);
-  const Icon = tool.icon;
+  // Every Study page opens the same way: the title, one line, then the tool.
   return (
-    <div className="max-w-5xl space-y-7 pb-24 pt-6 lg:pt-10">
+    <div className="space-y-6 pb-24 pt-6 lg:pt-8">
       <header>
-        <div className="flex items-center gap-4">
-          <span className="hidden h-14 w-14 shrink-0 place-items-center rounded-2xl bg-[#0f5e48] text-[#f5e9cf] sm:grid">
-            <Icon size={26} aria-hidden="true" />
-          </span>
-          <div className="min-w-0">
-            <h1 className="kz-serif text-[clamp(2rem,4vw,3rem)] leading-none">{tool.title}</h1>
-            <p className="kz-body mt-2 text-[#5e4a35]">{description ?? tool.summary}</p>
-          </div>
-        </div>
+        <h1 className="kz-serif text-[clamp(2rem,4vw,3rem)] leading-none">{tool.title}</h1>
+        <p className="kz-body mt-2 max-w-2xl text-[#5e4a35]">{description ?? tool.summary}</p>
       </header>
       {children}
     </div>

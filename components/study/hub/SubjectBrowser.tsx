@@ -5,7 +5,8 @@ import type { LucideIcon } from "lucide-react";
 import { BookOpenText, FileText, Library, Search, X, Youtube } from "lucide-react";
 import { Segmented } from "@/components/kz/PageHero";
 import { ToolLink, card } from "@/components/study/hub/parts";
-import { RECOMMENDED_BOOKS, YOUTUBE_CHANNELS } from "@/lib/study/hub";
+import { RECOMMENDED_BOOKS } from "@/lib/study/hub";
+import { useCourseChannels } from "@/lib/iitm";
 import { LEVELS, SUBJECTS, formatSubjectTitle, getSubjectShortName, type Level } from "@/lib/study/subjects";
 
 const plural = (n: number, noun: string) => `${n} ${noun}${n === 1 ? "" : "s"}`;
@@ -122,22 +123,25 @@ function SubjectBrowser({
 
 const itemRow = "flex items-center gap-3 rounded-2xl bg-[#f5e9cf] px-3.5 py-3";
 
+/** Each course's YouTube channel, kept under Website → YouTube channels. */
 export function YouTubeChannelsBrowser() {
+  const channels = useCourseChannels();
+  const forSubject = (s: string) => channels.filter((p) => p.subject.toLowerCase() === s.toLowerCase());
   return (
     <SubjectBrowser
       noun="channel"
       icon={Youtube}
-      countFor={(s) => YOUTUBE_CHANNELS[s]?.length ?? 0}
+      countFor={(s) => forSubject(s).length}
       renderItems={(s) => (
         <ul className="space-y-1.5">
-          {(YOUTUBE_CHANNELS[s] ?? []).map((c) => (
-            <li key={c.name} className={itemRow}>
+          {forSubject(s).map((c) => (
+            <li key={c.url} className={itemRow}>
               <Youtube size={20} className="shrink-0 text-[#c8102e]" aria-hidden="true" />
               <div className="min-w-0 flex-1">
-                <p className="truncate text-[0.9rem] font-semibold text-[#1c130c]">{c.name}</p>
+                <p className="truncate text-[0.9rem] font-semibold text-[#1c130c]">{c.title || "YouTube channel"}</p>
                 {c.note && <p className="truncate text-[0.75rem] text-[#5e4a35]">{c.note}</p>}
               </div>
-              <ToolLink url={c.url} label="Watch" accessibleName={`Watch ${c.name} on YouTube`} />
+              <ToolLink url={c.url} label="Watch" accessibleName={`Watch ${s} ${c.title} on YouTube`} />
             </li>
           ))}
         </ul>

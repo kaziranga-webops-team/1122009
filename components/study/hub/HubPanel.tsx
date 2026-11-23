@@ -6,8 +6,8 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useLenis } from "lenis/react";
 import { AppWindow, PanelRight, X } from "lucide-react";
-import { DocumentList, GradeScaleTable, ImportantLinksList, PANEL_OPENED_KEY } from "@/components/study/hub/parts";
-import { GRADING_DOCUMENTS, IMPORTANT_LINK_GROUPS, PANEL_SLUGS, STUDENT_HANDBOOKS, getHubItem } from "@/lib/study/hub";
+import { GradeScaleTable, ImportantLinksList, LiveDocumentList, PANEL_OPENED_KEY } from "@/components/study/hub/parts";
+import { IMPORTANT_LINK_GROUPS, PANEL_SLUGS, getHubItem } from "@/lib/study/hub";
 
 type PanelMode = "side" | "center";
 const MODE_KEY = "kz-hub-panel-mode";
@@ -16,13 +16,13 @@ const SOFT = [0.22, 1, 0.36, 1] as const;
 const PANELS: Record<string, { description: string; body: ReactNode }> = {
   "student-handbook": {
     description: "The official rules for your programme: eligibility, exams, grading and policies.",
-    body: <DocumentList documents={STUDENT_HANDBOOKS} kind="student handbook" />,
+    body: <LiveDocumentList which="handbook" />,
   },
   "grading-documents": {
     description: "The formula each course uses for its final score, published per programme.",
     body: (
       <div className="space-y-6">
-        <DocumentList documents={GRADING_DOCUMENTS} kind="grading document" />
+        <LiveDocumentList which="grading" />
         <GradeScaleTable />
       </div>
     ),

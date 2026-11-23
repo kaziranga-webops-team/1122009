@@ -104,6 +104,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const allowedSnap = await getDoc(allowedDocRef);
 
     if (!allowedSnap.exists() && !isInitialSuperAdmin) {
+      // Tell the super admins straight away, so they can let the person in
+      // without waiting to be asked. Every attempt is recorded (personal
+      // accounts are marked as such). Once per browser session.
+      {
+        try {
+          if (!sessionStorage.getItem(`kz-asked-${email}`)) {
+            sessionStorage.setItem(`kz-asked-${email}`, '1');
+            const token = await fbUser.getIdToken();
+            void fetch('/api/auth/request-access', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+              body: JSON.stringify({ email, auto: true }),
+            }).catch(() => {});
+          }
+        } catch {
+          // storage or token unavailable: they can still ask from the page
+        }
+      }
       setIsAccessDenied(true);
       setDeniedEmail(email);
       setAccount(null);

@@ -25,11 +25,17 @@ function toEpisode(row: EpisodeRow, i: number): Episode {
   };
 }
 
-/** The episodes sheet writes dates month/day/year. */
+/**
+ * The air date as entered in the portal's date picker (YYYY-MM-DD). Older
+ * rows written month/day/year still read the way they always did.
+ */
 function airDate(d: string): string {
+  const fmt = (y: number, m: number, day: number) =>
+    new Intl.DateTimeFormat("en-IN", { day: "numeric", month: "short", year: "numeric" }).format(new Date(y, m - 1, day));
+  const iso = /^(\d{4})-(\d{2})-(\d{2})/.exec(d);
+  if (iso) return fmt(+iso[1], +iso[2], +iso[3]);
   const m = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(d);
-  if (!m) return "";
-  return new Intl.DateTimeFormat("en-IN", { day: "numeric", month: "short", year: "numeric" }).format(new Date(+m[3], +m[1] - 1, +m[2]));
+  return m ? fmt(+m[3], +m[1], +m[2]) : "";
 }
 
 const pad = (n: number) => String(n).padStart(2, "0");

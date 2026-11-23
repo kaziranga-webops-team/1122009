@@ -10,6 +10,7 @@ import { DemoRoleSwitcher } from './DemoRoleSwitcher';
 import { ViewAsBanner } from './ViewAsSwitcher';
 import { CommandPalette } from './CommandPalette';
 import { PageTransition } from '@/components/portal/ui/Motion';
+import { WelcomeDetails } from './WelcomeDetails';
 
 const AUTH_PAGES = ['/login', '/access-denied'];
 
@@ -49,6 +50,7 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) 
     <div className="ed-app relative z-[1] min-h-screen flex flex-col bg-surface">
       <DemoRoleSwitcher />
       <ViewAsBanner />
+      <WelcomeDetails />
       <CommandPalette
         isOpen={isCommandPaletteOpen}
         onClose={() => setIsCommandPaletteOpen(false)}

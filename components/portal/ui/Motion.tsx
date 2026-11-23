@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import { motion, useReducedMotion, type Variants } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
 /**
@@ -10,103 +9,26 @@ import { cn } from '@/lib/utils';
  */
 export const EASE_EDITORIAL = [0.22, 1, 0.36, 1] as const;
 
-/** Fades and lifts a block into place. */
-export const Reveal: React.FC<{
-  children: React.ReactNode;
-  delay?: number;
-  y?: number;
-  className?: string;
-  /** Animate when scrolled into view rather than on mount. */
-  onScroll?: boolean;
-}> = ({ children, delay = 0, y = 16, className, onScroll = false }) => {
-  const reduce = useReducedMotion();
+/*
+ * The portal keeps motion to a minimum so it stays quick on every device:
+ * lists and blocks simply appear (animating each card in turn made long
+ * lists stutter on low-end phones), and a page gets one short CSS fade.
+ * These keep their old names so screens did not need rewriting.
+ */
 
-  const motionProps = reduce
-    ? {}
-    : onScroll
-      ? {
-          initial: { opacity: 0, y },
-          whileInView: { opacity: 1, y: 0 },
-          viewport: { once: true, margin: '-80px' },
-        }
-      : {
-          initial: { opacity: 0, y },
-          animate: { opacity: 1, y: 0 },
-        };
+type Box = { children: React.ReactNode; className?: string };
 
-  return (
-    <motion.div
-      className={className}
-      transition={{ duration: 0.55, delay, ease: EASE_EDITORIAL }}
-      {...motionProps}
-    >
-      {children}
-    </motion.div>
-  );
-};
+/** A block. (It used to fade and lift in.) */
+export const Reveal: React.FC<Box & { delay?: number; y?: number; onScroll?: boolean }> = ({ children, className }) => (
+  <div className={className}>{children}</div>
+);
 
-const listVariants: Variants = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.03, delayChildren: 0.02 } },
-};
+/** A grid or list. (Its items used to enter one after another.) */
+export const Stagger: React.FC<Box> = ({ children, className }) => <div className={className}>{children}</div>;
 
-const itemVariants: Variants = {
-  hidden: { opacity: 0, y: 10 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.28, ease: EASE_EDITORIAL } },
-};
+export const StaggerItem: React.FC<Box> = ({ children, className }) => <div className={className}>{children}</div>;
 
-/** Wrap a grid or list; each `<StaggerItem>` child enters in sequence. */
-export const Stagger: React.FC<{
-  children: React.ReactNode;
-  className?: string;
-}> = ({ children, className }) => {
-  const reduce = useReducedMotion();
-  if (reduce) return <div className={className}>{children}</div>;
-
-  return (
-    <motion.div
-      className={className}
-      variants={listVariants}
-      initial="hidden"
-      animate="show"
-    >
-      {children}
-    </motion.div>
-  );
-};
-
-export const StaggerItem: React.FC<{
-  children: React.ReactNode;
-  className?: string;
-}> = ({ children, className }) => {
-  const reduce = useReducedMotion();
-  if (reduce) return <div className={className}>{children}</div>;
-
-  return (
-    <motion.div className={className} variants={itemVariants}>
-      {children}
-    </motion.div>
-  );
-};
-
-/** Page-level entrance used by the app shell. */
-export const PageTransition: React.FC<{
-  children: React.ReactNode;
-  className?: string;
-}> = ({ children, className }) => {
-  const reduce = useReducedMotion();
-  if (reduce) return <div className={className}>{children}</div>;
-
-  return (
-    <motion.div
-      className={cn(className)}
-      // Short and opacity-only: a page that takes its time to arrive reads as
-      // a slow portal, however fast the data came back.
-      initial={{ opacity: 0.35 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.16, ease: 'easeOut' }}
-    >
-      {children}
-    </motion.div>
-  );
-};
+/** Page-level entrance used by the app shell: a 0.16s fade in CSS. */
+export const PageTransition: React.FC<Box> = ({ children, className }) => (
+  <div className={cn('ed-page-in', className)}>{children}</div>
+);

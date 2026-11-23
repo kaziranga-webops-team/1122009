@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { isPageHidden, useHiddenSections } from "@/lib/siteSections";
 import { ArrowRight } from "lucide-react";
 import { FaInstagram, FaLinkedinIn, FaWhatsapp, FaYoutube } from "react-icons/fa";
 import { SiLinktree } from "react-icons/si";
@@ -43,6 +44,7 @@ const COLUMNS = [
       { label: "Study zone", href: "/study" },
       { label: "Notes", href: "/study/notes" },
       { label: "GPA calculator", href: "/study/grade-calculator" },
+      { label: "IITM corner", href: "/iitm" },
     ],
   },
 ];
@@ -54,6 +56,7 @@ const COLUMNS = [
  * still have (`ask`); other pages go straight to the footer.
  */
 export default function KzFooter({ ask = false, under }: { ask?: boolean; under?: string }) {
+  const hidden = useHiddenSections();
   // `under`: the colour of the section above, showing in the rounded corners.
   return (
     <div style={under ? { background: under } : undefined}>
@@ -84,23 +87,27 @@ export default function KzFooter({ ask = false, under }: { ask?: boolean; under?
           <p aria-hidden="true" className="kz-display kz-hang min-w-0 flex-1 text-[clamp(3.6rem,13vw,12rem)] text-[#f5e9cf]" style={{ ["--hang-color" as string]: "#c8102e" }}>
             <span>Kaziranga</span>
           </p>
-          <Postmark
-            className="hidden w-32 shrink-0 rotate-[-10deg] text-[0.95rem] md:inline-grid lg:w-40"
-            color="#f6b51e"
-            top="BEYOND LIMITS"
-            bottom="IIT MADRAS BS"
-            center={
-              <>
-                HOUSE
-                <br />
-                {new Date().getFullYear()}
-              </>
-            }
-          />
+          {/* Only where there is room beside the name. The stamp sets its own
+              display, so the wrapper is what hides it on smaller screens. */}
+          <span className="hidden shrink-0 lg:block">
+            <Postmark
+              className="w-36 rotate-[-10deg] text-[0.95rem] xl:w-40"
+              color="#f6b51e"
+              top="BEYOND LIMITS"
+              bottom="IIT MADRAS BS"
+              center={
+                <>
+                  HOUSE
+                  <br />
+                  {new Date().getFullYear()}
+                </>
+              }
+            />
+          </span>
         </div>
 
-        <div className="mt-12 grid gap-12 pb-16 md:grid-cols-[1.3fr_1fr_1fr_1fr] md:pb-20">
-          <div>
+        <div className="mt-10 grid grid-cols-2 gap-x-6 gap-y-10 pb-14 md:mt-12 md:grid-cols-[1.3fr_1fr_1fr_1fr] md:gap-12 md:pb-20">
+          <div className="col-span-2 md:col-span-1">
             <p className="kz-lead max-w-sm text-[#f5e9cf]/75">Creators, leaders, dreamers — a student house of the IIT Madras BS degree, named for a floodplain in Assam.</p>
             <ul className="mt-7 flex flex-wrap gap-2">
               {SOCIALS.map(({ Icon, href, label, bg, ink }) => (
@@ -124,7 +131,7 @@ export default function KzFooter({ ask = false, under }: { ask?: boolean; under?
             <nav key={col.heading} aria-label={col.heading}>
               <h2 className="kz-label text-[#f6b51e]">{col.heading}</h2>
               <ul className="mt-5 space-y-3">
-                {col.links.map((l) => (
+                {col.links.filter((l) => !isPageHidden(hidden, l.href)).map((l) => (
                   <li key={l.label}>
                     <Link href={l.href} className="kz-focus text-[1.05rem] text-[#f5e9cf]/85 transition-colors hover:text-[#f6b51e]">
                       {l.label}

@@ -3,6 +3,7 @@ import type { UserRole } from '@/types/portal';
 import { adminAuth, adminDb } from '@/lib/portal/firebase/admin';
 import { ALL_ROLES } from '@/lib/portal/roles';
 import { COMMUNITIES } from '@/lib/communities';
+import { REGIONS } from '@/lib/portal/regions';
 
 export const runtime = 'nodejs';
 
@@ -175,7 +176,7 @@ const updateRoleWithFirestoreRest = async (
 
 export async function POST(req: NextRequest) {
   let token = '';
-  let payload: { targetUserId?: string; newRole?: UserRole; communitySlugs?: unknown; actorUserId?: string; actorEmail?: string } = {};
+  let payload: { targetUserId?: string; newRole?: UserRole; communitySlugs?: unknown; rcRegion?: unknown; actorUserId?: string; actorEmail?: string } = {};
   let communitySlugs: string[] = [];
 
   try {
@@ -203,6 +204,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: 'Choose at least one community for a Community Head' }, { status: 400 });
     }
     communitySlugs = cleaned;
+
+    // A regional coordinator coordinates one region, chosen with the role.
+    const rcRegion = validatedRole === 'RC' ? String(payload.rcRegion || '') : '';
+    if (validatedRole === 'RC' && (!REGIONS.includes(rcRegion as (typeof REGIONS)[number]) || rcRegion === 'Other')) {
+      return NextResponse.json({ success: false, error: 'Choose the region this RC coordinates' }, { status: 400 });
+    }
 
     if (!adminDb || !adminAuth) {
       return updateRoleWithFirestoreRest(token, targetUserId, validatedRole, communitySlugs, { actorUserId, actorEmail });
@@ -246,7 +253,11 @@ export async function POST(req: NextRequest) {
       const target = targetSnap.data();
       const oldRole = target?.role as UserRole | undefined;
 
-      if (oldRole === validatedRole && sameSet(communitySlugs, (target?.communitySlugs as string[]) ?? [])) {
+      if (
+        oldRole === validatedRole &&
+        sameSet(communitySlugs, (target?.communitySlugs as string[]) ?? []) &&
+        String(target?.rcRegion || '') === rcRegion
+      ) {
         return {
           oldRole,
           newRole: validatedRole,
@@ -263,6 +274,7 @@ export async function POST(req: NextRequest) {
       transaction.update(targetRef, {
         role: validatedRole,
         communitySlugs,
+        rcRegion: rcRegion || null,
         updatedAt: timestamp,
       });
 

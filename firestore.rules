@@ -62,7 +62,7 @@ service cloud.firestore {
 
     // Fields only an admin may set on a user profile.
     function privilegedUserFields() {
-      return ['role', 'email', 'uid', 'createdAt', 'isAccessRevoked', 'revokedAt', 'revokedBy', 'councilMemberId', 'communitySlugs'];
+      return ['role', 'email', 'uid', 'createdAt', 'isAccessRevoked', 'revokedAt', 'revokedBy', 'councilMemberId', 'communitySlugs', 'rcRegion'];
     }
 
     // ─── Users ──────────────────────────────────────────────────────────────
@@ -80,7 +80,7 @@ service cloud.firestore {
           request.resource.data.role == 'USER'
           || (request.resource.data.role == 'SUPER_ADMIN' && isFoundingAdmin())
         )
-        && !request.resource.data.keys().hasAny(['isAccessRevoked', 'revokedAt', 'revokedBy', 'councilMemberId', 'communitySlugs']);
+        && !request.resource.data.keys().hasAny(['isAccessRevoked', 'revokedAt', 'revokedBy', 'councilMemberId', 'communitySlugs', 'rcRegion']);
 
       // Owners edit their own profile but never their role, email or access state.
       allow update: if (
@@ -173,7 +173,8 @@ service cloud.firestore {
         || leadsCommunity(resource.data.get('communitySlug', null))
       );
 
-      allow create: if isAuthenticated()
+      // Only members of the house (on the access list) may register.
+      allow create: if isAllowedMember()
         && request.resource.data.userId == request.auth.uid
         && request.resource.data.status in ['CONFIRMED', 'WAITLISTED']
         && request.resource.data.emailSnapshot.lower() == myEmail();

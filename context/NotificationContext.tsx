@@ -8,6 +8,7 @@ import { sendNotice } from '@/lib/portal/portalApi';
 import { collection, query, where, onSnapshot, updateDoc, doc, getDocs, getDoc, setDoc } from 'firebase/firestore';
 import { mockStore } from '@/lib/portal/firebase/mockStore';
 import { getAllEventsGroupRef } from '@/lib/portal/firebase/paths';
+import { useToast } from '@/components/portal/ui/Toast';
 
 interface NotificationContextType {
   notifications: NotificationItem[];
@@ -49,6 +50,7 @@ const saveAllReadGlobalIds = (uid: string, notifIds: string[]) => {
 
 export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user } = useAuth();
+  const toast = useToast();
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
 
   useEffect(() => {
@@ -171,19 +173,37 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
           : undefined;
 
       // 4. Access Requests (Super Admin)
+      let firstAccessSnapshot = true;
       const unsubAccessRequests =
         user.role === 'SUPER_ADMIN'
           ? onSnapshot(
               query(collection(db, 'accessRequests'), where('status', '==', 'PENDING')),
               (snapshot) => {
+                // Someone was just turned away at sign-in (or asked again):
+                // say so on screen, not only in the bell. Not for the requests
+                // already waiting when the page loads.
+                if (!firstAccessSnapshot) {
+                  snapshot.docChanges().forEach((c) => {
+                    if (c.type === 'removed' || c.doc.get('read')) return;
+                    const personal = c.doc.get('studyEmail') === false ? ' (personal email)' : '';
+                    const tries = Number(c.doc.get('attempts')) > 1 ? `, try ${c.doc.get('attempts')}` : '';
+                    toast.toast({
+                      tone: 'info',
+                      title: 'Someone tried to sign in',
+                      description: `${c.doc.get('email')}${personal}${tries}. Approve or reject in House → Access list.`,
+                    });
+                  });
+                }
+                firstAccessSnapshot = false;
                 accessRequestItems = [];
                 snapshot.forEach((docSnap) => {
                   const request = docSnap.data();
+                  const tries = Number(request.attempts) > 1 ? ` (${request.attempts} tries)` : '';
                   accessRequestItems.push({
                     id: `accessRequest:${docSnap.id}`,
                     userId: 'SUPER_ADMIN',
-                    title: `Access Request: ${request.email}`,
-                    message: `Student ${request.email} has requested access to the Kaziranga House Portal.${request.note ? ` Note: "${request.note}"` : ''}`,
+                    title: 'Wants access',
+                    message: `${request.email} tried to sign in${tries}.${request.note ? ` "${request.note}"` : ''}`,
                     type: 'WARNING',
                     linkUrl: `/super-admin/allowed-users?email=${encodeURIComponent(request.email || '')}`,
                     read: Boolean(request.read),

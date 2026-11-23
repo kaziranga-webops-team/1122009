@@ -1,5 +1,6 @@
 'use client';
 
+import { sanitizeHtml } from '@/lib/safeHtml';
 import React, { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { EventItem, EventStatus, RegistrationType, MainEvent } from '@/types/portal';
@@ -128,6 +129,7 @@ export const EventForm: React.FC<EventFormProps> = ({
   const [coverImageUrl, setCoverImageUrl] = useState(initialData?.coverImageUrl || '');
   const [status, setStatus] = useState<EventStatus | ''>(initialData?.status || '');
   const [customQuestions, setCustomQuestions] = useState<any[]>(initialData?.customQuestions || []);
+  const [showOnWebsite, setShowOnWebsite] = useState(initialData?.showOnWebsite !== false);
   const [requireSubmission, setRequireSubmission] = useState(
     initialData?.requireSubmission || false,
   );
@@ -993,6 +995,7 @@ export const EventForm: React.FC<EventFormProps> = ({
         status: (status as EventStatus) || (initialData?.status as EventStatus) || 'DRAFT',
         customQuestions: sanitizedQuestions,
         requireSubmission,
+        showOnWebsite,
         submissionTiming,
         submissionInstructions: duringSubmissionInstructions || afterSubmissionInstructions || null,
         duringSubmissionInstructions: duringSubmissionInstructions || null,
@@ -2620,7 +2623,7 @@ export const EventForm: React.FC<EventFormProps> = ({
                     </h3>
                     <div
                       className="text-caption sm:text-sm text-ink leading-relaxed break-words overflow-x-auto prose prose-sm dark:prose-invert max-w-none"
-                      dangerouslySetInnerHTML={{ __html: validatedPayload.description }}
+                      dangerouslySetInnerHTML={{ __html: typeof window === 'undefined' ? '' : sanitizeHtml(validatedPayload.description || '') }}
                     />
 
                     {validatedPayload.rulebookUrl && (
@@ -2916,6 +2919,24 @@ export const EventForm: React.FC<EventFormProps> = ({
                       <option value="CLOSED">CLOSED (Registration locked)</option>
                       <option value="COMPLETED">COMPLETED (Finished)</option>
                     </select>
+
+                    <label className="flex items-start gap-3 rounded-xl border border-hairline bg-surface-sunken p-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={showOnWebsite}
+                        onChange={(e) => {
+                          setShowOnWebsite(e.target.checked);
+                          if (validatedPayload) setValidatedPayload({ ...validatedPayload, showOnWebsite: e.target.checked });
+                        }}
+                        className="mt-0.5 h-4 w-4 accent-[rgb(var(--brand))]"
+                      />
+                      <span>
+                        <span className="block text-caption font-semibold text-ink">Show on the public website</span>
+                        <span className="block text-micro text-ink-muted">
+                          Turn off for internal events. They stay in the portal for members, but the website does not list them.
+                        </span>
+                      </span>
+                    </label>
                   </Card>
                 </div>
               </div>

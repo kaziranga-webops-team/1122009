@@ -21,7 +21,10 @@ export interface EventRow {
   Title: string;
   Category: string;
   status: string;
+  /** As typed in the sheet. The format varies between tabs, so never parse it: use Starts_at. */
   Date: string;
+  /** The event's real date (ISO), from the editor's "Date (for sorting)" field. */
+  Starts_at?: string;
   description: string;
   Speaker: string;
   Image_url: string;

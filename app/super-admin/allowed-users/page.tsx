@@ -30,6 +30,7 @@ import { useToast } from '@/components/portal/ui/Toast';
 import { DataTable } from '@/components/portal/ui/DataTable';
 import { EmptyState } from '@/components/portal/ui/EmptyState';
 import { RowSkeleton } from '@/components/portal/ui/Skeleton';
+import { AccessRequests } from '@/components/portal/super-admin/AccessRequests';
 
 export default function SuperAdminAllowedUsersPage() {
   const { user } = useAuth();
@@ -254,6 +255,8 @@ export default function SuperAdminAllowedUsersPage() {
     <div className="space-y-6">
       <SuperAdminNavTabs />
       <SectionHeading title="Access list" size="lg" as="h1" description="Who can sign in to the portal." />
+
+      <AccessRequests onApproved={() => fetchAllowedUsers()} />
 
       {successBanner && (
         <div className="p-4 rounded-2xl bg-signal-live/10 border border-signal-live/25 text-signal-live text-caption flex items-center justify-between animate-fade-in">

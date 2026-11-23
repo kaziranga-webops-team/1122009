@@ -1,0 +1,146 @@
+{
+  "links": [
+    {
+      "group": "Your account",
+      "title": "Student portal",
+      "description": "The IIT Madras BS home: courses, announcements and your dashboard",
+      "url": "https://study.iitm.ac.in/",
+      "key": true
+    },
+    {
+      "group": "Your account",
+      "title": "Sign in to the dashboard",
+      "description": "Your student dashboard",
+      "url": "https://ds.study.iitm.ac.in/auth/login"
+    },
+    {
+      "group": "Your account",
+      "title": "Your documents",
+      "description": "ID card, fee receipts and progress card",
+      "url": "https://ds.study.iitm.ac.in/student_dashboard/student_documents"
+    },
+    {
+      "group": "Your account",
+      "title": "Past courses and assignments",
+      "description": "Courses and assignments from earlier terms",
+      "url": "https://ds.study.iitm.ac.in/student_dashboard/student_courses"
+    },
+    {
+      "group": "Your account",
+      "title": "Course planner",
+      "description": "The official planner for choosing your courses",
+      "url": "https://course-planner-140256174016.asia-south1.run.app/login"
+    },
+    {
+      "group": "Exams",
+      "title": "OPPE and exams",
+      "description": "The official exam page for OPPE and other assessments",
+      "url": "https://study.iitm.ac.in/ds/exam.html",
+      "key": true
+    },
+    {
+      "group": "Exams",
+      "title": "Hall tickets and your exam data",
+      "description": "Your hall tickets and records, in the programme's Data Studio report",
+      "url": "https://datastudio.google.com/u/0/reporting/d02dac13-665b-49cc-8d51-0451268a6a3e/page/p_cj44rizltd?s=k3kRC9kDo54",
+      "key": true
+    },
+    {
+      "group": "Exams",
+      "title": "Exam cities",
+      "description": "Where in-person quizzes and end terms are held",
+      "url": "https://docs.google.com/spreadsheets/d/e/2PACX-1vRFM0LWNJWSELYXxXFdpHxu0ghiCDOE6uHneSWH-eIIg-4X91gSyMAy0m05RJDiklK-G0KJ0GasGywp/pubhtml?gid=0&single=true"
+    },
+    {
+      "group": "Exams",
+      "title": "Academic calendar",
+      "description": "Term dates, quizzes and end-term schedule",
+      "url": "https://study.iitm.ac.in/ds/academic_calendar.html"
+    },
+    {
+      "group": "Rules and guidelines",
+      "title": "Student constitution",
+      "description": "How student bodies and houses are run",
+      "url": "https://docs.google.com/document/d/e/2PACX-1vRg7fBOFdQ6H0V-iqXSGa7lSZAaZeRZujPBKZe0UY2QzKB9yWQ7zR1PElBlzTZCp-Dt3kr7JAvNFpHM/pub"
+    },
+    {
+      "group": "Rules and guidelines",
+      "title": "Student interaction guidelines",
+      "description": "How students are expected to interact, online and in person",
+      "url": "https://docs.google.com/document/u/1/d/1eSfJLWW-SChkbMkxMWnmWILx0bUY7PfRChwaAw0KJbE/pub"
+    },
+    {
+      "group": "Rules and guidelines",
+      "title": "Academic and non-academic guidelines",
+      "description": "The programme's code of conduct",
+      "url": "https://docs.google.com/document/d/e/2PACX-1vS2io0kg4RefmBjePUznBvOly1aZFnuiSMPlVevnl6ElWetIbGsR25Haz2-81Y1xnwsibjUxmOGkAbd/pub"
+    },
+    {
+      "group": "Rules and guidelines",
+      "title": "Important documents",
+      "description": "The programme's archive of official documents",
+      "url": "https://study.iitm.ac.in/ds/archive.html"
+    },
+    {
+      "group": "Help",
+      "title": "Student grievance form",
+      "description": "Raise a grievance with the programme",
+      "url": "https://forms.gle/jX8zK8XhDoZcA3YB9",
+      "key": true
+    },
+    {
+      "group": "Help",
+      "title": "Programme support",
+      "description": "support@study.iitm.ac.in · replies within 3 working days",
+      "url": "mailto:support@study.iitm.ac.in"
+    },
+    {
+      "group": "Help",
+      "title": "FAQ",
+      "description": "Answers from the programme office",
+      "url": "https://study.iitm.ac.in/ds/faq.html"
+    },
+    {
+      "group": "Student life",
+      "title": "Paradox",
+      "description": "The BS degree's annual fest",
+      "url": "https://iitmparadox.org/"
+    },
+    {
+      "group": "Student life",
+      "title": "Houses and societies",
+      "description": "Every student house and society",
+      "url": "https://study.iitm.ac.in/ds/student_life.html"
+    },
+    {
+      "group": "Student life",
+      "title": "Student Activity on YouTube",
+      "description": "Event recordings and showcases from across the programme",
+      "url": "https://www.youtube.com/@StudentActivityIITMBS"
+    },
+    {
+      "group": "Student life",
+      "title": "Student Activity on WhatsApp",
+      "description": "The programme's announcement channel for activities",
+      "url": "https://www.whatsapp.com/channel/0029Vb03Jfa7T8bZWNymj23c"
+    },
+    {
+      "group": "Student life",
+      "title": "BS Insider",
+      "description": "The students' blog",
+      "url": "https://bsinsider.in/"
+    },
+    {
+      "group": "Careers",
+      "title": "Placement portal",
+      "description": "Jobs and internships through the programme",
+      "url": "https://placements.study.iitm.ac.in/"
+    },
+    {
+      "group": "Careers",
+      "title": "Student projects",
+      "description": "The programme's best student projects",
+      "url": "https://study.iitm.ac.in/student-achievements/projects"
+    }
+  ]
+}

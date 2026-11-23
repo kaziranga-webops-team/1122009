@@ -7,6 +7,37 @@
 // ─────────────────────────────────────────────────────────────────────────────
 import type { ContentResource } from '@/lib/portal/permissions';
 import { EVENT_SOURCES, EVENT_STATUSES } from '@/lib/portal/contentSchema';
+import { COMMUNITIES } from '@/lib/communities';
+import { REGIONS } from '@/lib/portal/regions';
+import { LEVELS, SUBJECTS } from '@/lib/study/subjects';
+import { SITE_IMAGE_SLOTS } from '@/lib/siteImageSlots';
+import { SITE_SECTIONS } from '@/lib/siteSectionsList';
+
+/**
+ * What a website event is. The site reads these case-insensitively: the
+ * house series, Aarohan's three tracks, and otherwise the community that ran it.
+ */
+export const EVENT_CATEGORIES = [
+  'Guest session',
+  'Curiosity Hour',
+  'Cultural',
+  'Technical',
+  'E-sports',
+  ...COMMUNITIES.map((c) => c.name),
+] as const;
+
+/** Upper and Lower are the leadership and the RCs; the rest are teams. */
+export const COUNCIL_TYPES = [
+  'Upper',
+  'Lower',
+  'Community',
+  'Event Management',
+  'Design',
+  'Content',
+  'PR & outreach',
+  'Video Editing',
+  'Webops',
+] as const;
 
 export type FieldType =
   | 'text'
@@ -15,7 +46,11 @@ export type FieldType =
   | 'select'
   | 'datetime'
   | 'boolean'
-  | 'number';
+  | 'number'
+  /** A calendar date (no time), stored as YYYY-MM-DD: it cannot be misread. */
+  | 'date'
+  /** A link with an Upload button that stores the picture on Cloudinary. */
+  | 'image';
 
 export interface FieldConfig {
   name: string;
@@ -50,7 +85,7 @@ export const CONTENT_FIELDS: Record<ContentResource, ResourceConfig> = {
       { name: 'title', label: 'Event' },
       { name: 'source', label: 'Tab', type: 'badge' },
       { name: 'status', label: 'Status', type: 'badge' },
-      { name: 'date_text', label: 'Date' },
+      { name: 'starts_at', label: 'Date' },
       { name: 'category', label: 'Category' },
     ],
     fields: [
@@ -58,12 +93,11 @@ export const CONTENT_FIELDS: Record<ContentResource, ResourceConfig> = {
       { name: 'source', label: 'Source tab', type: 'select', options: EVENT_SOURCES,
         hint: 'Which part of the site this belongs to.' },
       { name: 'status', label: 'Status', type: 'select', options: EVENT_STATUSES },
-      { name: 'category', label: 'Category', type: 'text', placeholder: 'guest Session' },
+      { name: 'category', label: 'Category', type: 'select', options: EVENT_CATEGORIES,
+        hint: 'A house series, an Aarohan track, or the community that ran it.' },
       { name: 'speaker', label: 'Speaker', type: 'text' },
-      { name: 'date_text', label: 'Date (as shown)', type: 'text', placeholder: '8/22/2026',
-        hint: 'Displayed verbatim on the site.' },
-      { name: 'starts_at', label: 'Date (for sorting)', type: 'datetime',
-        hint: 'Optional. Used for ordering and filtering.' },
+      { name: 'starts_at', label: 'Date', type: 'datetime',
+        hint: 'The website shows exactly this date, and lists everything newest first by it. Leave empty only if there is no date.' },
       { name: 'description', label: 'Description', type: 'textarea', wide: true },
       { name: 'image_url', label: 'Cover image', type: 'url', wide: true },
       { name: 'youtube_url', label: 'YouTube link', type: 'url' },
@@ -86,8 +120,8 @@ export const CONTENT_FIELDS: Record<ContentResource, ResourceConfig> = {
     fields: [
       { name: 'name', label: 'Name', type: 'text' },
       { name: 'role', label: 'Role', type: 'text', placeholder: 'House Secretary' },
-      { name: 'council_type', label: 'Council type', type: 'text', placeholder: 'Upper',
-        hint: 'Upper (house leadership), Lower (RCs), Community (community heads), or a team: Events, Design, Content, PR, Video, Web.' },
+      { name: 'council_type', label: 'Council type', type: 'select', options: COUNCIL_TYPES,
+        hint: 'Upper is the house leadership, Lower the regional coordinators, Community the community heads; the rest are teams.' },
       { name: 'tenure', label: 'Tenure', type: 'text', placeholder: '2026-27',
         hint: 'The council year. The newest year shows first on the site; older years stay viewable.' },
       { name: 'color', label: 'Accent colour', type: 'text', placeholder: '#c6011f' },
@@ -122,16 +156,15 @@ export const CONTENT_FIELDS: Record<ContentResource, ResourceConfig> = {
       { name: 'region', label: 'Region' },
       { name: 'venue', label: 'Venue' },
       { name: 'city', label: 'City' },
-      { name: 'date_text', label: 'Date' },
+      { name: 'starts_at', label: 'Date' },
       { name: 'host_id', label: 'Host' },
     ],
     fields: [
-      { name: 'region', label: 'Region', type: 'text',
-        hint: 'The IITM BS zone that ran it (Lucknow, Patna...), not the state.' },
+      { name: 'region', label: 'Region', type: 'select', options: REGIONS,
+        hint: 'The IITM BS zone that ran it, not the state.' },
       { name: 'venue', label: 'Venue', type: 'text' },
-      { name: 'date_text', label: 'Date (as shown)', type: 'text', placeholder: '22/02/2025',
-        hint: 'Meetups are written day/month/year.' },
-      { name: 'starts_at', label: 'Date (for sorting)', type: 'datetime' },
+      { name: 'starts_at', label: 'Date', type: 'datetime',
+        hint: 'The website shows exactly this date, and lists meetups newest first by it.' },
       { name: 'host_id', label: "Host's ID", type: 'text' },
       { name: 'instagram_post', label: 'Instagram post', type: 'url', wide: true },
       { name: 'poster', label: 'Poster image', type: 'url', wide: true },
@@ -159,7 +192,7 @@ export const CONTENT_FIELDS: Record<ContentResource, ResourceConfig> = {
       { name: 'episode_no', label: 'Episode number', type: 'text', placeholder: 'Episode 1' },
       { name: 'title', label: 'Title', type: 'text' },
       { name: 'host', label: 'Host', type: 'text' },
-      { name: 'date_text', label: 'Date', type: 'text' },
+      { name: 'date_text', label: 'Date', type: 'date', hint: 'The day the episode went live.' },
       { name: 'image_url', label: 'Thumbnail', type: 'url', wide: true },
       { name: 'instagram_url', label: 'Instagram link', type: 'url', wide: true },
       ORDER_FIELD,
@@ -182,16 +215,102 @@ export const CONTENT_FIELDS: Record<ContentResource, ResourceConfig> = {
 
   revision_sessions: {
     columns: [
+      { name: 'subject', label: 'Subject' },
       { name: 'degree', label: 'Degree' },
       { name: 'level', label: 'Level', type: 'badge' },
       { name: 'exam_type', label: 'Exam' },
-      { name: 'url', label: 'Recording' },
+      { name: 'held_at', label: 'When' },
     ],
     fields: [
-      { name: 'degree', label: 'Degree', type: 'text', placeholder: 'DS' },
-      { name: 'level', label: 'Level', type: 'text', placeholder: 'Foundation' },
-      { name: 'exam_type', label: 'Exam type', type: 'text', placeholder: 'Quiz 2' },
-      { name: 'url', label: 'Recording URL', type: 'url', wide: true },
+      { name: 'subject', label: 'Subject', type: 'text', placeholder: 'Statistics 1', wide: true },
+      { name: 'degree', label: 'Degree', type: 'select', options: ['DS', 'ES', 'MG', 'AE'] },
+      { name: 'level', label: 'Level', type: 'select', options: ['Foundation', 'Diploma', 'Degree'] },
+      { name: 'exam_type', label: 'Exam', type: 'text', placeholder: 'Quiz 2' },
+      { name: 'held_at', label: 'Date and time', type: 'datetime',
+        hint: 'Upcoming sessions show first in the Study zone; past ones are listed as recordings.' },
+      { name: 'url', label: 'Meeting or recording link', type: 'url', wide: true,
+        hint: 'The Meet link before the session; swap in the YouTube recording after.' },
+      ORDER_FIELD,
+    ],
+  },
+
+  study_resources: {
+    columns: [
+      { name: 'title', label: 'Resource' },
+      { name: 'subject', label: 'Subject' },
+      { name: 'level', label: 'Level', type: 'badge' },
+      { name: 'kind', label: 'Type' },
+    ],
+    fields: [
+      { name: 'title', label: 'Title', type: 'text', wide: true, placeholder: 'Week 3 notes: probability' },
+      { name: 'url', label: 'Link', type: 'url', wide: true, hint: 'A Drive folder, PDF, Google Doc, YouTube video or any page.' },
+      { name: 'level', label: 'Level', type: 'select', options: LEVELS },
+      { name: 'subject', label: 'Subject', type: 'select', options: Array.from(new Set(LEVELS.flatMap((l) => SUBJECTS[l]))) },
+      { name: 'kind', label: 'Type', type: 'select', options: ['notes', 'pdf', 'video', 'drive', 'doc', 'link'],
+        hint: 'Leave empty to guess from the link.' },
+      { name: 'author', label: 'Shared by', type: 'text', placeholder: 'Kaziranga House' },
+      { name: 'tags', label: 'Tags', type: 'text', placeholder: 'week 3, summary', hint: 'Comma-separated.' },
+      ORDER_FIELD,
+    ],
+  },
+
+  iitm_links: {
+    columns: [
+      { name: 'title', label: 'Link' },
+      { name: 'group_name', label: 'Group', type: 'badge' },
+      { name: 'is_key', label: 'Key', type: 'boolean' },
+    ],
+    fields: [
+      { name: 'title', label: 'Title', type: 'text', wide: true },
+      { name: 'group_name', label: 'Group', type: 'select',
+        options: ['Your account', 'Exams', 'Rules and guidelines', 'Help', 'Student life', 'Careers'] },
+      { name: 'is_key', label: 'Key link', type: 'boolean', hint: 'Key links also show on the Study zone page.' },
+      { name: 'description', label: 'One line about it', type: 'text', wide: true },
+      { name: 'url', label: 'Link', type: 'text', wide: true, placeholder: 'https://…', hint: 'A web address, or mailto: for an email.' },
+      ORDER_FIELD,
+    ],
+  },
+
+  course_channels: {
+    columns: [
+      { name: 'subject', label: 'Subject' },
+      { name: 'level', label: 'Level', type: 'badge' },
+      { name: 'title', label: 'Channel' },
+    ],
+    fields: [
+      { name: 'level', label: 'Level', type: 'select', options: LEVELS },
+      { name: 'subject', label: 'Subject', type: 'select', options: Array.from(new Set(LEVELS.flatMap((l) => SUBJECTS[l]))) },
+      { name: 'title', label: 'Channel name', type: 'text', placeholder: 'IITM BS Maths 1' },
+      { name: 'url', label: 'YouTube channel link', type: 'url', wide: true, placeholder: 'https://www.youtube.com/@…' },
+      { name: 'note', label: 'Note', type: 'text', wide: true, placeholder: 'Optional, e.g. "Weekly live sessions"' },
+      ORDER_FIELD,
+    ],
+  },
+
+  site_images: {
+    columns: [
+      { name: 'image_url', label: 'Picture', type: 'image' },
+      { name: 'slot', label: 'Where it shows' },
+    ],
+    fields: [
+      { name: 'slot', label: 'Where it shows', type: 'select', options: SITE_IMAGE_SLOTS, wide: true,
+        hint: 'One picture per place. Delete the entry to bring back the original artwork.' },
+      { name: 'image_url', label: 'Picture', type: 'image', wide: true,
+        hint: 'Upload a JPG, PNG or WebP under 8 MB, or paste a link to one.' },
+      { name: 'alt', label: 'What the picture shows', type: 'text', wide: true,
+        placeholder: 'Members at the Delhi meetup', hint: 'Read aloud by screen readers. Leave empty for a purely decorative picture.' },
+    ],
+  },
+
+  site_sections: {
+    columns: [
+      { name: 'section', label: 'Section or page' },
+      { name: 'visible', label: 'Shown on the website', type: 'boolean' },
+    ],
+    fields: [
+      { name: 'section', label: 'Section or page', type: 'select', options: SITE_SECTIONS, wide: true },
+      { name: 'visible', label: 'Show it on the website', type: 'boolean',
+        hint: 'Turn off to hide a home-page section, or to take a page out of the menus. Turn back on any time.' },
       ORDER_FIELD,
     ],
   },

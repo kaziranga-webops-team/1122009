@@ -14,13 +14,15 @@ import { AuthProvider } from "@/context/AuthContext";
 import Navbar from "@/components/Navbar";
 import { PortalProviders } from "@/components/portal/layout/PortalProviders";
 import { portalFontVars } from "@/lib/portal/fonts";
+import PageOff from "@/components/kz/PageOff";
+import { isPageHidden, useHiddenSections } from "@/lib/siteSections";
 
 /** The portal's sections. They share one shell, mounted once while you move between them. */
 const PORTAL_SHELL = ["/dashboard", "/admin", "/super-admin"];
 
 // Routes that render their own header, so the global Navbar is hidden.
 // "/" is the illustrated homepage — it ships its own KzHeader.
-const NAVBAR_HIDDEN = ["/", "/gallery", "/events", "/council", "/meetups", "/communities", "/study", "/tak"];
+const NAVBAR_HIDDEN = ["/", "/gallery", "/events", "/council", "/meetups", "/communities", "/study", "/tak", "/iitm"];
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(() => new QueryClient());
@@ -36,6 +38,10 @@ export default function Providers({ children }: { children: React.ReactNode }) {
     pathname === "/my-registrations" ||
     pathname === "/notifications" ||
     pathname === "/profile";
+
+  // A page switched off in the portal (Website → Sections) shows a short note instead.
+  const hidden = useHiddenSections();
+  const pageOff = isPageHidden(hidden, pathname);
 
   const inPortalShell = PORTAL_SHELL.some((p) => pathname === p || pathname.startsWith(p + "/"));
 
@@ -80,7 +86,9 @@ export default function Providers({ children }: { children: React.ReactNode }) {
                 )}
               </AnimatePresence>
 
-              {inPortalShell ? (
+              {pageOff ? (
+                <PageOff />
+              ) : inPortalShell ? (
                 <div className={`${portalFontVars} contents`}>
                   <PortalProviders>{children}</PortalProviders>
                 </div>

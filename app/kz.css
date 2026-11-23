@@ -440,3 +440,14 @@
     }
   }
 }
+
+/* The events dial turns; its cards don't also lift or tilt on hover. One
+   movement is enough. */
+.kz-dial .group:hover,
+.kz-dial article:hover {
+  transform: none;
+  box-shadow: 0 2px 0 rgba(28, 19, 12, 0.15);
+}
+.kz-dial .group:hover img {
+  transform: none;
+}

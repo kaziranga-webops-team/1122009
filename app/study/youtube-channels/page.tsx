@@ -4,7 +4,7 @@ import { YouTubeChannelsBrowser } from "@/components/study/hub/SubjectBrowser";
 
 export const metadata: Metadata = {
   title: "YouTube channels",
-  description: "YouTube channels that explain each IIT Madras BS subject well.",
+  description: "The YouTube channel for each IIT Madras BS course, by level and subject.",
   alternates: { canonical: "/study/youtube-channels" },
 };
 
@@ -12,7 +12,7 @@ export default function Page() {
   return (
     <ToolPageShell
       slug="youtube-channels"
-      description="Channels students recommend when a week's lectures don't click. Pick your level, then find your subject."
+      description="The YouTube channel for each course. Pick your level, then find your subject."
     >
       <YouTubeChannelsBrowser />
     </ToolPageShell>

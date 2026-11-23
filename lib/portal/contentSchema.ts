@@ -119,10 +119,49 @@ const schemas = {
   }),
 
   revision_sessions: z.object({
+    subject: text,
     degree: text.pipe(z.string().min(1, 'Degree is required')),
     level: text,
     exam_type: text,
-    url: url.pipe(z.string().min(1, 'URL is required')),
+    held_at: instant.optional(),
+    url: url.pipe(z.string().min(1, 'Add the meeting or recording link')),
+    sort_order: order,
+  }),
+  study_resources: z.object({
+    title: text.pipe(z.string().min(1, 'Title is required').max(300)),
+    url: url.pipe(z.string().min(1, 'Add the link')),
+    level: text.pipe(z.string().min(1, 'Level is required')),
+    subject: text.pipe(z.string().min(1, 'Subject is required')),
+    kind: text,
+    author: text,
+    tags: text,
+    sort_order: order,
+  }),
+  iitm_links: z.object({
+    group_name: text.pipe(z.string().min(1, 'Group is required')),
+    title: text.pipe(z.string().min(1, 'Title is required').max(200)),
+    description: text,
+    url: text.refine((v) => /^(https?:\/\/|mailto:)/i.test(v), 'Must start with https:// or mailto:'),
+    is_key: z.boolean().default(false),
+    sort_order: order,
+  }),
+  course_channels: z.object({
+    level: text.pipe(z.string().min(1, 'Level is required')),
+    subject: text.pipe(z.string().min(1, 'Subject is required')),
+    title: text,
+    url: url.pipe(z.string().min(1, 'Add the YouTube link')),
+    note: text,
+    sort_order: order,
+  }),
+  site_images: z.object({
+    slot: text.pipe(z.string().min(1, 'Choose where the picture goes')),
+    image_url: url.pipe(z.string().min(1, 'Upload a picture or paste its link')),
+    alt: text,
+    sort_order: order,
+  }),
+  site_sections: z.object({
+    section: text.pipe(z.string().min(1, 'Choose a section')),
+    visible: z.boolean().default(true),
     sort_order: order,
   }),
 } satisfies Record<ContentResource, z.ZodObject<z.ZodRawShape>>;
@@ -166,11 +205,16 @@ export function restrictFields(
 
 /** Human-facing labels for the admin UI's resource switcher. */
 export const RESOURCE_LABELS: Record<ContentResource, { title: string; singular: string }> = {
-  events: { title: 'Events', singular: 'event' },
+  events: { title: 'Sessions & results', singular: 'session or result' },
   council_members: { title: 'Council', singular: 'council member' },
   gallery_items: { title: 'Gallery', singular: 'photo' },
   meetups: { title: 'Meetups', singular: 'meetup' },
   episodes: { title: 'Kaziranga Tak', singular: 'episode' },
   study_links: { title: 'Study links', singular: 'study link' },
   revision_sessions: { title: 'Revision sessions', singular: 'session' },
+  study_resources: { title: 'Study resources', singular: 'resource' },
+  iitm_links: { title: 'IITM corner', singular: 'link' },
+  course_channels: { title: 'YouTube channels', singular: 'channel' },
+  site_images: { title: 'Site images', singular: 'image' },
+  site_sections: { title: 'Sections', singular: 'section' },
 };

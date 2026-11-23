@@ -1,5 +1,5 @@
 import type { LucideIcon } from "lucide-react";
-import { BookMarked, Calculator, Library, Link2, NotebookText, ScrollText, TrendingUp, Youtube } from "lucide-react";
+import { BookMarked, Calculator, Library, Link2, MonitorPlay, NotebookText, ScrollText, TrendingUp, Youtube } from "lucide-react";
 
 /* ------------------------------------------------------------------ */
 /*  Hub items                                                          */
@@ -59,7 +59,6 @@ export const HUB_ITEMS: HubItem[] = [
     icon: BookMarked,
     group: "documents",
     opens: "panel",
-    comingSoon: true,
   },
   {
     slug: "grading-documents",
@@ -68,16 +67,14 @@ export const HUB_ITEMS: HubItem[] = [
     icon: ScrollText,
     group: "documents",
     opens: "panel",
-    comingSoon: true,
   },
   {
-    slug: "important-links",
-    title: "Important links",
-    summary: "Student portal, course forums and other official sites.",
-    icon: Link2,
-    group: "documents",
-    opens: "panel",
-    comingSoon: true,
+    slug: "revision-sessions",
+    title: "Revision sessions",
+    summary: "Live revision before quizzes and end terms, and every recording.",
+    icon: MonitorPlay,
+    group: "study",
+    opens: "page",
   },
   {
     slug: "notes",
@@ -90,11 +87,10 @@ export const HUB_ITEMS: HubItem[] = [
   {
     slug: "youtube-channels",
     title: "YouTube channels",
-    summary: "Channels that explain each subject well.",
+    summary: "The YouTube channel for each course, by subject.",
     icon: Youtube,
     group: "study",
     opens: "page",
-    comingSoon: true,
   },
   {
     slug: "recommended-books",
@@ -143,19 +139,44 @@ export type ToolDocument = {
   url: string;
 };
 
+/**
+ * The current handbooks and grading documents. These are the fallback: the
+ * Study zone reads the live ones from the database (Website → Study links in
+ * the portal), so update them there.
+ */
+const DOC_LINKS: Record<Programme["id"], { handbook: string; grading: string }> = {
+  ds: { handbook: "https://tinyurl.com/ycjb2xh5", grading: "https://tinyurl.com/bd8khp9u" },
+  es: { handbook: "https://tinyurl.com/a94xbwtn", grading: "https://tinyurl.com/3x8nhhp7" },
+  mg: { handbook: "https://tinyurl.com/yszrdpty", grading: "https://tinyurl.com/ybcysabk" },
+  ae: { handbook: "https://tinyurl.com/9sunhp3h", grading: "https://tinyurl.com/yvjt2vfk" },
+};
+
 export const STUDENT_HANDBOOKS: ToolDocument[] = PROGRAMMES.map((p) => ({
   programme: p.id,
   title: `${p.name} handbook`,
   edition: "",
-  url: "",
+  url: DOC_LINKS[p.id].handbook,
 }));
 
 export const GRADING_DOCUMENTS: ToolDocument[] = PROGRAMMES.map((p) => ({
   programme: p.id,
   title: `${p.name} grading document`,
-  edition: "",
-  url: "",
+  edition: "Sept 2026 term",
+  url: DOC_LINKS[p.id].grading,
 }));
+
+/** Rows from /api/study-links, laid over the fallback lists. */
+export function withLiveLinks(
+  docs: ToolDocument[],
+  rows: { Degree: string; "Student Handbook": string; "Grading Doc": string }[],
+  field: "Student Handbook" | "Grading Doc"
+): ToolDocument[] {
+  return docs.map((d) => {
+    const row = rows.find((r) => r.Degree.trim().toLowerCase() === d.programme);
+    const url = row?.[field]?.trim();
+    return url ? { ...d, url } : d;
+  });
+}
 
 /* ------------------------------------------------------------------ */
 /*  Links                                                              */
@@ -174,25 +195,25 @@ export type ToolLink = {
 export const IMPORTANT_LINK_GROUPS: { title: string; links: ToolLink[] }[] = [
   {
     title: "Your account",
-    links: [{ id: "student-portal", title: "Student portal", description: "Dashboard, marks and exam registration", url: "", quick: true }],
-  },
-  {
-    title: "Courses",
     links: [
-      { id: "course-portal", title: "Course portal", description: "Lectures, assignments and weekly content", url: "" },
-      { id: "discourse", title: "Discourse", description: "Course forums and announcements", url: "", quick: true },
+      { id: "student-portal", title: "Student portal", description: "Dashboard, courses, marks and exam registration", url: "https://study.iitm.ac.in/", quick: true },
+      { id: "course-planner", title: "Course planner", description: "The official planner for choosing your courses", url: "https://course-planner-140256174016.asia-south1.run.app/login", quick: true },
     ],
   },
   {
-    title: "Calendar and exams",
+    title: "Rules and guidelines",
     links: [
-      { id: "academic-calendar", title: "Academic calendar", description: "Term dates, quiz and end-term schedule", url: "" },
-      { id: "exam-information", title: "Exam information", description: "Hall tickets, centres and exam rules", url: "" },
+      { id: "interaction-guidelines", title: "Student interaction guidelines", description: "How students are expected to interact online", url: "https://docs.google.com/document/u/1/d/1eSfJLWW-SChkbMkxMWnmWILx0bUY7PfRChwaAw0KJbE/pub" },
+      { id: "academic-guidelines", title: "Academic and non-academic guidelines", description: "The programme's code of conduct", url: "https://docs.google.com/document/d/e/2PACX-1vS2io0kg4RefmBjePUznBvOly1aZFnuiSMPlVevnl6ElWetIbGsR25Haz2-81Y1xnwsibjUxmOGkAbd/pub" },
     ],
+  },
+  {
+    title: "Beyond the course",
+    links: [{ id: "paradox", title: "Paradox", description: "The BS degree's annual fest", url: "https://iitmparadox.org/", quick: true }],
   },
   {
     title: "Help",
-    links: [{ id: "support", title: "Student support", description: "Raise a query with the programme team", url: "" }],
+    links: [{ id: "grievance", title: "Student grievance form", description: "Raise a grievance with the programme", url: "https://forms.gle/jX8zK8XhDoZcA3YB9", quick: true }],
   },
 ];
 
@@ -241,5 +262,5 @@ export const RECOMMENDED_BOOKS: Record<string, Book[]> = {};
 export const STUDY_CIRCLE = {
   label: "Join the study circle",
   url: "https://forms.gle/kKBmVCAu8UwtpcpN8",
-  description: "Study with peers across houses: assignments, course material and exam prep, together.",
+  description: "Open to every IIT Madras BS student, whatever your house: study with peers for assignments, course material and exam prep.",
 };

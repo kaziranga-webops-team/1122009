@@ -6,7 +6,42 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { ArrowLeft, ArrowUpRight, Check, ChevronDown, FolderOpen, LayoutGrid, Library, List, Search, X } from "lucide-react";
 import { Segmented } from "@/components/kz/PageHero";
-import { RESOURCES, getResourceKind, type Resource } from "@/lib/study/resources";
+import { RESOURCES, getResourceKind, type Resource, type ResourceKindId } from "@/lib/study/resources";
+
+const KIND_IDS: ResourceKindId[] = ["pdf", "video", "drive", "doc", "link", "notes"];
+
+/** The resources kept in the database (Website → Study resources), plus any in code. */
+function useResources(): Resource[] {
+  const [rows, setRows] = useState<Resource[]>(RESOURCES);
+  useEffect(() => {
+    let alive = true;
+    fetch("/api/study-resources")
+      .then((r) => (r.ok ? r.json() : []))
+      .then((data: { title: string; url: string; level: string; subject: string; kind: string; author: string; tags: string }[]) => {
+        if (!alive || !Array.isArray(data)) return;
+        const live: Resource[] = data
+          .filter((r) => r.title && r.url && r.subject)
+          .map((r, i) => ({
+            id: `db-${i}`,
+            title: r.title,
+            url: r.url,
+            level: r.level as Resource["level"],
+            subject: r.subject,
+            kind: KIND_IDS.includes(r.kind as ResourceKindId) ? (r.kind as ResourceKindId) : undefined,
+            author: r.author || undefined,
+            tags: r.tags ? r.tags.split(",").map((t) => t.trim()).filter(Boolean) : undefined,
+          }));
+        // The database copy wins; a link in both is listed once.
+        const links = new Set(live.map((r) => r.url));
+        setRows([...live, ...RESOURCES.filter((r) => !links.has(r.url))]);
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, []);
+  return rows;
+}
 import { LEVELS, SUBJECTS, findSubjectLevel, formatSubjectTitle, getSubjectShortName, isLevel, type Level } from "@/lib/study/subjects";
 
 const SOFT = [0.22, 1, 0.36, 1] as const;
@@ -69,13 +104,13 @@ function SubjectDropdown({
     }`;
 
   return (
-    <div ref={ref} className="relative w-full shrink-0 sm:w-72">
+    <div ref={ref} className="relative w-full shrink-0 sm:w-60">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-haspopup="listbox"
         aria-expanded={open}
-        className={`kz-focus flex h-12 w-full items-center gap-2.5 rounded-full border bg-[#f5e9cf] px-4 text-left text-[0.88rem] transition-colors ${
+        className={`kz-focus flex h-10 w-full items-center gap-2.5 rounded-full border bg-[#fffaf0] px-4 text-left text-[0.88rem] transition-colors ${
           open ? "border-[#0f5e48]" : "border-[#1c130c]/15 hover:border-[#1c130c]/35"
         }`}
       >
@@ -166,8 +201,12 @@ function ResourceCard({ resource, view, showSubject }: { resource: Resource; vie
               </>
             )}
             <span>{kind.label}</span>
-            <span aria-hidden="true">·</span>
-            <span className="truncate">Shared by {author}</span>
+            {resource.author && (
+              <>
+                <span aria-hidden="true">·</span>
+                <span className="truncate">Shared by {author}</span>
+              </>
+            )}
           </p>
         </div>
         {tags.length > 0 && (
@@ -186,38 +225,27 @@ function ResourceCard({ resource, view, showSubject }: { resource: Resource; vie
     );
   }
 
+  // A quiet card: what it is and which subject, the title, and one tag that
+  // says what kind of help it is (notes, past papers, a cheat sheet).
   return (
     <a
       href={resource.url}
       target="_blank"
       rel="noopener noreferrer"
       aria-label={label}
-      className="kz-focus group flex h-full flex-col rounded-[1.5rem] border border-[#1c130c]/10 bg-[#ebd9b2] p-5 transition-[transform,box-shadow,border-color] duration-500 [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-1 hover:border-[#0f5e48]/30 hover:shadow-[0_26px_44px_-30px_rgba(28,19,12,0.6)]"
+      className="kz-focus group flex h-full flex-col rounded-[1.25rem] border border-[#1c130c]/10 bg-[#fffaf0] p-5 transition-[transform,box-shadow,border-color] duration-300 hover:-translate-y-0.5 hover:border-[#0f5e48]/40 hover:shadow-[0_22px_40px_-30px_rgba(28,19,12,0.6)]"
     >
-      <div className="flex items-start justify-between gap-3">
-        <span className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl ${kind.tone}`}>
-          <Icon size={21} />
+      <div className="flex items-center justify-between gap-3 text-[0.75rem] font-semibold">
+        <span className="inline-flex items-center gap-1.5 text-[#5e4a35]">
+          <Icon size={15} aria-hidden="true" />
+          {kind.label}
         </span>
-        {showSubject && (
-          <span className="rounded-full bg-[#f5e9cf] px-2.5 py-1 text-[0.72rem] font-bold text-[#5e4a35]">{subjectShort}</span>
-        )}
+        {showSubject && <span className="truncate rounded-full bg-[#1c130c] px-2.5 py-0.5 text-[#f5e9cf]">{subjectShort}</span>}
       </div>
-      <h3 className="mt-4 line-clamp-2 text-[1rem] font-semibold leading-snug text-[#1c130c]">{resource.title}</h3>
-      {tags.length > 0 && (
-        <div className="mt-2.5 flex flex-wrap gap-1">
-          {tags.slice(0, 3).map((t) => (
-            <span key={t} className="rounded-full bg-[#f5e9cf] px-2 py-0.5 text-[0.7rem] font-semibold text-[#5e4a35]">
-              #{t}
-            </span>
-          ))}
-          {tags.length > 3 && <span className="self-center text-[0.7rem] text-[#5e4a35]">+{tags.length - 3}</span>}
-        </div>
-      )}
+      <h3 className="mt-3 line-clamp-3 text-[1.05rem] font-semibold leading-snug text-[#1c130c]">{resource.title}</h3>
       <div className="min-h-4 flex-1" aria-hidden="true" />
-      <div className="flex items-center justify-between gap-2 border-t border-[#1c130c]/10 pt-3.5 text-[0.78rem]">
-        <p className="min-w-0 truncate text-[#5e4a35]">
-          {kind.label} · Shared by <span className="font-semibold text-[#1c130c]/80">{author}</span>
-        </p>
+      <div className="flex items-center justify-between gap-2 pt-4 text-[0.8rem]">
+        {tags[0] ? <span className="rounded-full bg-[#0f5e48]/10 px-2.5 py-0.5 font-semibold text-[#0f5e48]">{tags[0]}</span> : <span />}
         <span className="inline-flex shrink-0 items-center gap-1 font-bold text-[#0f5e48]">
           Open
           <ArrowUpRight size={14} className="transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
@@ -268,7 +296,8 @@ function ResourcesContent() {
     router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
   };
 
-  const levelResources = useMemo(() => RESOURCES.filter((r) => r.level === level), [level]);
+  const resources = useResources();
+  const levelResources = useMemo(() => resources.filter((r) => r.level === level), [resources, level]);
 
   const subjects = useMemo(() => {
     const names = new Set(SUBJECTS[level]);
@@ -324,23 +353,24 @@ function ResourcesContent() {
 
   return (
     <>
-      <section className="space-y-5 pb-24 pt-6 lg:pt-10 md:pb-32">
+      <section className="space-y-6 pb-24 pt-6 lg:pt-8 md:pb-32">
         <header>
           <h1 className="kz-serif text-[clamp(2rem,4vw,3rem)] leading-none">Notes</h1>
-          <p className="kz-body mt-2 text-[#5e4a35]">Notes, cheat sheets and links shared by students, sorted by level and subject.</p>
+          <p className="kz-body mt-2 max-w-2xl text-[#5e4a35]">Notes, past papers and cheat sheets for every subject. Pick your level, then your subject.</p>
         </header>
 
-        <Segmented
-          id="resources-level"
-          value={level}
-          onChange={pickLevel}
-          options={LEVELS.map((l) => ({ label: l, value: l, count: RESOURCES.filter((r) => r.level === l).length }))}
-        />
-
-        <div className="flex flex-col gap-3 rounded-[1.5rem] border border-[#1c130c]/10 bg-[#ebd9b2] p-3 sm:flex-row sm:items-center sm:p-4">
+        {/* One slim row: level, subject, search, then the count and the view. */}
+        <div className="flex flex-col gap-3 border-b border-[#1c130c]/10 pb-4 lg:flex-row lg:flex-wrap lg:items-center">
+          <Segmented
+            id="resources-level"
+            value={level}
+            onChange={pickLevel}
+            options={LEVELS.map((l) => ({ label: l, value: l, count: resources.filter((r) => r.level === l).length }))}
+          />
+          <div className="flex min-w-0 flex-1 flex-col gap-3 sm:flex-row sm:items-center">
           <SubjectDropdown subjects={subjects} counts={counts} total={levelResources.length} value={subject} onChange={pickSubject} />
 
-          <label className="flex h-12 min-w-0 flex-1 items-center gap-2.5 rounded-full border border-[#1c130c]/15 bg-[#f5e9cf] px-4 transition-colors focus-within:border-[#0f5e48]">
+          <label className="flex h-10 min-w-0 flex-1 items-center gap-2.5 rounded-full border border-[#1c130c]/15 bg-[#fffaf0] px-4 transition-colors focus-within:border-[#0f5e48] sm:max-w-[18rem]">
             <Search size={16} className="shrink-0 text-[#5e4a35]" />
             <span className="sr-only">Search resources</span>
             <input
@@ -365,14 +395,15 @@ function ResourcesContent() {
             )}
           </label>
 
-          <div className="flex shrink-0 items-center justify-between gap-3 sm:justify-end">
+          <div className="flex shrink-0 items-center justify-between gap-3 sm:ml-auto sm:justify-end">
             <span aria-live="polite" className="whitespace-nowrap text-[0.85rem] font-semibold tabular-nums text-[#5e4a35]">
               {filtered.length} {filtered.length === 1 ? "resource" : "resources"}
             </span>
-            <div className="flex items-center gap-0.5 rounded-full border border-[#1c130c]/10 bg-[#f5e9cf] p-1">
+            <div className="flex items-center gap-0.5 rounded-full border border-[#1c130c]/10 bg-[#fffaf0] p-1">
               {viewButton("grid", "Grid view", LayoutGrid)}
               {viewButton("list", "List view", List)}
             </div>
+          </div>
           </div>
         </div>
 

@@ -1,9 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import type { ComponentProps } from "react";
+import { useEffect, useState, type ComponentProps } from "react";
 import { ArrowUpRight, Clock, FileText, Info } from "lucide-react";
-import { GRADE_SCALE, PROGRAMMES, type ToolDocument, type ToolLink as ToolLinkItem } from "@/lib/study/hub";
+import {
+  GRADE_SCALE,
+  GRADING_DOCUMENTS,
+  PROGRAMMES,
+  STUDENT_HANDBOOKS,
+  withLiveLinks,
+  type ToolDocument,
+  type ToolLink as ToolLinkItem,
+} from "@/lib/study/hub";
 
 export const card = "rounded-[1.5rem] border border-[#1c130c]/10 bg-[#ebd9b2]";
 export const inputClass =
@@ -160,3 +168,34 @@ export function GradeScaleTable() {
     </section>
   );
 }
+
+type StudyLinkRow = { Degree: string; "Student Handbook": string; "Grading Doc": string };
+let studyLinks: Promise<StudyLinkRow[]> | null = null;
+
+/** The live handbook and grading links, fetched once per visit. */
+export function useStudyLinks(): StudyLinkRow[] {
+  const [rows, setRows] = useState<StudyLinkRow[]>([]);
+  useEffect(() => {
+    studyLinks ??= fetch("/api/study-links")
+      .then((r) => (r.ok ? r.json() : []))
+      .then((r) => (Array.isArray(r) ? r : []))
+      .catch(() => []);
+    let alive = true;
+    void studyLinks.then((r) => alive && setRows(r));
+    return () => {
+      alive = false;
+    };
+  }, []);
+  return rows;
+}
+
+/** Handbooks or grading documents, with the links kept in the database. */
+export function LiveDocumentList({ which }: { which: "handbook" | "grading" }) {
+  const rows = useStudyLinks();
+  const docs =
+    which === "handbook"
+      ? withLiveLinks(STUDENT_HANDBOOKS, rows, "Student Handbook")
+      : withLiveLinks(GRADING_DOCUMENTS, rows, "Grading Doc");
+  return <DocumentList documents={docs} kind={which === "handbook" ? "student handbook" : "grading document"} />;
+}
+

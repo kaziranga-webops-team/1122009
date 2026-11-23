@@ -6,6 +6,7 @@ import KzEvents from "@/components/home/KzEvents";
 import KzCouncil from "@/components/home/KzCouncil";
 import KzCommunities from "@/components/home/KzCommunities";
 import { ChapterRail, ComeHome, Gatherings, PosterHero, PosterWall, TheLand, ThreeSteps } from "@/components/home/Story";
+import { useHiddenSections } from "@/lib/siteSections";
 
 /**
  * The homepage, told as a story for someone arriving for the first time:
@@ -14,20 +15,23 @@ import { ChapterRail, ComeHome, Gatherings, PosterHero, PosterWall, TheLand, Thr
  * people who run it, and the way home.
  */
 export default function KzHome() {
+  // Sections switched off in the portal (Website → Sections) are left out.
+  const hidden = useHiddenSections();
+  const on = (name: string) => !hidden.has(`Home · ${name}`);
   return (
     <div className="kz-font kz-paper min-h-screen bg-[#f5e9cf] selection:bg-[#e2387a]/30 selection:text-[#1c130c]">
       <KzHeader ground="color" />
       <ChapterRail />
       <main>
         <PosterHero />
-        <TheLand />
-        <ThreeSteps />
-        <Gatherings />
-        <PosterWall />
-        <KzCommunities />
-        <KzEvents />
-        <KzCouncil />
-        <ComeHome />
+        {on("Named for a floodplain") && <TheLand />}
+        {on("Three steps into the house") && <ThreeSteps />}
+        {on("What the house does") && <Gatherings />}
+        {on("Poster wall") && <PosterWall />}
+        {on("Communities") && <KzCommunities />}
+        {on("Lately in the house") && <KzEvents />}
+        {on("Council") && <KzCouncil />}
+        {on("Join the house") && <ComeHome />}
       </main>
       <KzFooter ask under="#1c130c" />
     </div>

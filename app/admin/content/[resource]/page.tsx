@@ -6,6 +6,7 @@ import { useAuth } from '@/context/AuthContext';
 import { SectionHeading } from '@/components/portal/ui/Section';
 import { ContentManager } from '@/components/portal/admin/ContentManager';
 import { ContentTabs } from '@/components/portal/admin/ContentTabs';
+import Link from 'next/link';
 import { EmptyState } from '@/components/portal/ui/EmptyState';
 import { CONTENT_RESOURCES, writableResources, type ContentResource } from '@/lib/portal/permissions';
 import { RESOURCE_LABELS } from '@/lib/portal/contentSchema';
@@ -32,6 +33,16 @@ export default function ContentResourcePage() {
         />
         <ContentTabs />
         <h2 className="sr-only">{labels.title}</h2>
+        {resource === 'events' && (
+          <p className="rounded-xl border border-hairline bg-surface-sunken px-4 py-3 text-[0.875rem] text-ink-muted">
+            Guest sessions, Curiosity Hour and past results shown on the website. Events members sign up for (like
+            Ideathon or Bull Run) are in{' '}
+            <Link href="/admin/events" className="font-semibold text-ink underline underline-offset-4">
+              Organise → Events
+            </Link>
+            .
+          </p>
+        )}
       {canOpen ? (
         <ContentManager resource={resource} />
       ) : (

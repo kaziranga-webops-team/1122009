@@ -48,6 +48,27 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Missing required fields (eventId, teamRegistrationId).' }, { status: 400 });
     }
 
+    // Ids become parts of a database path: plain ids only.
+    const ID = /^[A-Za-z0-9_-]{1,120}$/;
+    const tenure = String(tenureId || '2026-2027');
+    const main = String(mainEventId || 'communityDayAug26');
+    if (![eventId, teamRegistrationId, tenure, main].every((v) => ID.test(String(v)))) {
+      return NextResponse.json({ error: 'That event or team could not be found.' }, { status: 400 });
+    }
+    if (teammateEmails.length > 10) {
+      return NextResponse.json({ error: 'Invite at most 10 teammates at a time.' }, { status: 400 });
+    }
+
+    // Only a member of the house may invite, and only to a team they lead.
+    const me = await adminDb.collection('users').doc(initiatorUid).get();
+    if (!me.exists || me.get('isAccessRevoked')) {
+      return NextResponse.json({ error: 'Only members of the house can invite teammates.' }, { status: 403 });
+    }
+    const team = await adminDb.doc(`tenures/${tenure}/mainEvents/${main}/events/${eventId}/registrations/${teamRegistrationId}`).get();
+    if (!team.exists || team.get('userId') !== initiatorUid) {
+      return NextResponse.json({ error: 'Only the team leader can invite teammates.' }, { status: 403 });
+    }
+
     const errors: string[] = [];
     const created: string[] = [];
 
@@ -60,7 +81,16 @@ export async function POST(req: NextRequest) {
         continue;
       }
 
-      // (Removed allowedUsers check to allow testing with arbitrary emails)
+      // Teammates must be on the house's access list, like everyone who signs in.
+      if (typeof email !== 'string' || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
+        errors.push(`${email}: Not a valid email address.`);
+        continue;
+      }
+      const allowed = await adminDb.collection('allowedUsers').doc(cleanEmail).get();
+      if (!allowed.exists) {
+        errors.push(`${cleanEmail}: Not on the house's access list yet.`);
+        continue;
+      }
 
       // Validation: Check for duplicate invitation
       const existingInvitesSnap = await adminDb.collection('teamInvitations')
@@ -104,8 +134,8 @@ export async function POST(req: NextRequest) {
         id: invitationRef.id,
         teamRegistrationId,
         eventId,
-        mainEventId: mainEventId || 'communityDayAug26',
-        tenureId: tenureId || '2026-2027',
+        mainEventId: main,
+        tenureId: tenure,
         inviterUserId: initiatorUid,
         inviterName: inviterName || 'Team Initiator',
         inviterEmail: initiatorEmail,

@@ -17,7 +17,7 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import type { UserRole } from '@/types/portal';
-import { canManageRoles, canOrganiseEvents, canUsePortalAdmin } from '@/lib/portal/permissions';
+import { canManageRoles, canOrganiseEvents, canUsePortalAdmin, writableResources } from '@/lib/portal/permissions';
 
 export interface NavItem {
   label: string;
@@ -93,6 +93,9 @@ function workSection(role?: UserRole): NavSection | null {
   if (canManageRoles(role)) {
     items.push({ label: 'House', href: '/super-admin/dashboard', icon: Crown, match: ['/super-admin'] });
     items.push({ label: 'Website', href: '/admin/content/council_members', icon: Globe, match: ['/admin/content'] });
+  } else if (writableResources(role).length) {
+    // Organisers edit the website's events and sessions.
+    items.push({ label: 'Website events', href: '/admin/content/events', icon: Globe, match: ['/admin/content'] });
   }
   if (!items.length) return null;
   return {

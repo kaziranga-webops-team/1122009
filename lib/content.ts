@@ -78,6 +78,13 @@ interface DbEvent {
 
 // ─── Public API — same signatures as lib/sheets.ts ───────────────────
 
+/** "09/08/2026" for an instant, in Indian time. */
+function dayMonthYear(iso: string): string {
+  const t = new Date(iso);
+  if (Number.isNaN(t.getTime())) return "";
+  return new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Kolkata", day: "2-digit", month: "2-digit", year: "numeric" }).format(t);
+}
+
 export async function getEpisodes(): Promise<EpisodeRow[]> {
   if (!usingSupabase) return sheets.getEpisodes();
   const rows = await pg<Record<string, unknown>>("episodes", "select=*&order=sort_order.asc");
@@ -108,7 +115,9 @@ export async function getMeetups(): Promise<MeetupRow[]> {
   if (!usingSupabase) return sheets.getMeetups();
   const rows = await pg<Record<string, unknown>>("meetups", "select=*&order=sort_order.asc");
   return rows.map((r) => ({
-    Date: str(r.date_text),
+    // The date picked in the portal, written the way every meetup page reads
+    // it (day/month/year, Indian time). The typed text is only a fallback.
+    Date: r.starts_at ? dayMonthYear(String(r.starts_at)) : str(r.date_text),
     Venue: str(r.venue),
     Region: str(r.region),
     "Instagram Post": str(r.instagram_post),
@@ -171,6 +180,7 @@ export async function getEvents(): Promise<EventRow[]> {
       Category: str(r.category),
       status: str(r.status),
       Date: str(r.date_text),
+      Starts_at: str(r.starts_at),
       description,
       Speaker: str(r.speaker),
       Image_url: str(r.image_url),
@@ -193,6 +203,8 @@ export interface StudyLinkRow {
 }
 
 export interface RevisionSessionRow {
+  Subject: string;
+  Held_at: string;
   Degree: string;
   Level: string;
   Exam_type: string;
@@ -209,10 +221,76 @@ export async function getStudyLinks(): Promise<StudyLinkRow[]> {
   }));
 }
 
+export interface StudyResourceRow {
+  title: string;
+  url: string;
+  level: string;
+  subject: string;
+  kind: string;
+  author: string;
+  tags: string;
+}
+
+export async function getStudyResources(): Promise<StudyResourceRow[]> {
+  if (!usingSupabase) return [];
+  const rows = await pg<Record<string, unknown>>("study_resources", "select=*&order=sort_order.asc");
+  return rows.map((r) => ({
+    title: str(r.title),
+    url: str(r.url),
+    level: str(r.level),
+    subject: str(r.subject),
+    kind: str(r.kind),
+    author: str(r.author),
+    tags: str(r.tags),
+  }));
+}
+
+export interface IitmLinkRow {
+  group: string;
+  title: string;
+  description: string;
+  url: string;
+  key: boolean;
+}
+
+export async function getIitmLinks(): Promise<IitmLinkRow[]> {
+  if (!usingSupabase) return [];
+  const rows = await pg<Record<string, unknown>>("iitm_links", "select=*&order=sort_order.asc");
+  return rows.map((r) => ({ group: str(r.group_name), title: str(r.title), description: str(r.description), url: str(r.url), key: Boolean(r.is_key) }));
+}
+
+export interface CourseChannelRow {
+  level: string;
+  subject: string;
+  title: string;
+  url: string;
+  note: string;
+}
+
+export async function getCourseChannels(): Promise<CourseChannelRow[]> {
+  if (!usingSupabase) return [];
+  const rows = await pg<Record<string, unknown>>("course_channels", "select=*&order=sort_order.asc");
+  return rows.map((r) => ({ level: str(r.level), subject: str(r.subject), title: str(r.title), url: str(r.url), note: str(r.note) }));
+}
+
+export async function getSiteSections(): Promise<{ section: string; visible: boolean }[]> {
+  if (!usingSupabase) return [];
+  const rows = await pg<Record<string, unknown>>("site_sections", "select=section,visible");
+  return rows.map((r) => ({ section: str(r.section), visible: r.visible !== false }));
+}
+
+export async function getSiteImages(): Promise<{ slot: string; url: string; alt: string }[]> {
+  if (!usingSupabase) return [];
+  const rows = await pg<Record<string, unknown>>("site_images", "select=slot,image_url,alt");
+  return rows.map((r) => ({ slot: str(r.slot), url: str(r.image_url), alt: str(r.alt) }));
+}
+
 export async function getRevisionSessions(): Promise<RevisionSessionRow[]> {
   if (!usingSupabase) return [];
   const rows = await pg<Record<string, unknown>>("revision_sessions", "select=*&order=sort_order.asc");
   return rows.map((r) => ({
+    Subject: str(r.subject),
+    Held_at: str(r.held_at),
     Degree: str(r.degree),
     Level: str(r.level),
     Exam_type: str(r.exam_type),

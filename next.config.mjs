@@ -27,7 +27,17 @@ const nextConfig = {
     return [
       {
         source: "/:path*",
-        headers: [{ key: "X-Robots-Tag", value: "all" }],
+        headers: [
+          { key: "X-Robots-Tag", value: "all" },
+          // Browser protections for every page. No Cross-Origin-Opener-Policy:
+          // Google sign-in opens a pop-up that has to talk back to the page.
+          { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains" },
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "X-Frame-Options", value: "SAMEORIGIN" },
+          { key: "Content-Security-Policy", value: "frame-ancestors 'self'; base-uri 'self'; object-src 'none'" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), payment=()" },
+        ],
       },
       {
         source: "/sitemap.xml",

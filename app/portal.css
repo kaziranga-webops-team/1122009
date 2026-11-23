@@ -492,3 +492,18 @@ html:has(.ed-app) {
 .ed-app .page-enter {
   animation: none;
 }
+
+/* The one page entrance in the portal: short, opacity only. */
+.ed-page-in {
+  animation: ed-page-in 0.16s ease-out;
+}
+@keyframes ed-page-in {
+  from {
+    opacity: 0.35;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ed-page-in {
+    animation: none;
+  }
+}

@@ -10,6 +10,7 @@ import { SearchInput } from '@/components/portal/ui/SearchInput';
 import { EmptyState } from '@/components/portal/ui/EmptyState';
 import { Field, Input, Textarea } from '@/components/portal/ui/Field';
 import { useToast } from '@/components/portal/ui/Toast';
+import { ImageField } from '@/components/portal/admin/ImageField';
 import { useAuth } from '@/context/AuthContext';
 import { isMockMode } from '@/lib/firebase';
 import { can, type ContentResource } from '@/lib/portal/permissions';
@@ -46,6 +47,28 @@ function nextTenure(t: string): string {
 }
 
 const tenureOfRow = (row: ContentRow) => String(row.tenure || '').trim() || FIRST_TENURE;
+
+/** A stored date as people read it, in Indian time: "12 Jul 2026". */
+function showDate(value: unknown): string {
+  const t = new Date(String(value));
+  if (Number.isNaN(t.getTime())) return String(value);
+  return t.toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata', day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+/** The field that holds each list's real date; the rest sort by when they were added. */
+const DATE_FIELD: Partial<Record<ContentResource, string>> = {
+  events: 'starts_at',
+  meetups: 'starts_at',
+  revision_sessions: 'held_at',
+};
+
+type SortKey = 'newest' | 'oldest' | 'site' | 'az';
+const SORTS: { value: SortKey; label: string }[] = [
+  { value: 'newest', label: 'Newest first' },
+  { value: 'oldest', label: 'Oldest first' },
+  { value: 'site', label: 'Order on the website' },
+  { value: 'az', label: 'A to Z' },
+];
 
 function fromLocalInput(value: string): string | null {
   if (!value) return null;
@@ -208,10 +231,52 @@ export function ContentManager({ resource }: { resource: ContentResource }) {
   }
 
   const headline = config.columns[0].name;
-  const visible = useMemo(
-    () => (isCouncil && !showAll ? rows.filter((r) => tenureOfRow(r) === year) : rows),
-    [isCouncil, showAll, rows, year]
+
+  // Sorting and filters. Newest first by default: the latest is what people look for.
+  const [sort, setSort] = useState<SortKey>('newest');
+  const [filters, setFilters] = useState<Record<string, string>>({});
+  useEffect(() => {
+    setFilters({});
+    setSort('newest');
+  }, [resource]);
+
+  const dateOf = useCallback(
+    (row: ContentRow) => {
+      const field = DATE_FIELD[resource];
+      const t = Date.parse(String((field && row[field]) || ''));
+      return Number.isFinite(t) ? t : Date.parse(String(row.created_at || '')) || 0;
+    },
+    [resource]
   );
+
+  // One dropdown per list field that actually has more than one value here.
+  const filterFields = useMemo(
+    () =>
+      config.fields
+        .filter((f) => f.type === 'select' && !(isCouncil && f.name === 'tenure'))
+        .map((f) => ({
+          f,
+          values: Array.from(new Set(rows.map((r) => String(r[f.name] ?? '').trim()).filter(Boolean))).sort((a, b) => a.localeCompare(b)),
+        }))
+        .filter((x) => x.values.length > 1),
+    [config.fields, rows, isCouncil]
+  );
+
+  const visible = useMemo(() => {
+    let list = isCouncil && !showAll ? rows.filter((r) => tenureOfRow(r) === year) : rows;
+    for (const [name, value] of Object.entries(filters)) {
+      if (value) list = list.filter((r) => String(r[name] ?? '').trim() === value);
+    }
+    const title = (r: ContentRow) => String(r[headline] ?? '').toLowerCase();
+    const order = (r: ContentRow) => Number(r.sort_order ?? 0);
+    const sorted = [...list];
+    if (sort === 'newest') sorted.sort((a, b) => dateOf(b) - dateOf(a));
+    else if (sort === 'oldest') sorted.sort((a, b) => dateOf(a) - dateOf(b));
+    else if (sort === 'az') sorted.sort((a, b) => title(a).localeCompare(title(b)));
+    else sorted.sort((a, b) => order(a) - order(b));
+    return sorted;
+  }, [isCouncil, showAll, rows, year, filters, sort, dateOf, headline]);
+  const filtering = Object.values(filters).some(Boolean);
 
   // The years a council member can be put in: every year already on record,
   // plus the next one, so a new council can be started from the form too.
@@ -232,6 +297,47 @@ export function ContentManager({ resource }: { resource: ContentResource }) {
 
   return (
     <div className="space-y-5">
+      {/* ─── Sort and filters ─── */}
+      {!loading && !loadError && rows.length > 1 && (
+        <div className="flex flex-wrap items-end gap-3">
+          <label className="space-y-1">
+            <span className="block text-micro font-semibold text-ink-muted">Sort</span>
+            <select value={sort} onChange={(e) => setSort(e.target.value as SortKey)} className="ed-select h-10 rounded-xl border border-hairline bg-surface-sunken px-3 text-[0.875rem] text-ink">
+              {SORTS.map((o) => (
+                <option key={o.value} value={o.value}>
+                  {o.label}
+                </option>
+              ))}
+            </select>
+          </label>
+          {filterFields.map(({ f, values }) => (
+            <label key={f.name} className="space-y-1">
+              <span className="block text-micro font-semibold text-ink-muted">{f.label}</span>
+              <select
+                value={filters[f.name] ?? ''}
+                onChange={(e) => setFilters((x) => ({ ...x, [f.name]: e.target.value }))}
+                className="ed-select h-10 max-w-[14rem] rounded-xl border border-hairline bg-surface-sunken px-3 text-[0.875rem] text-ink"
+              >
+                <option value="">All</option>
+                {values.map((v) => (
+                  <option key={v} value={v}>
+                    {v} ({rows.filter((r) => String(r[f.name] ?? '').trim() === v).length})
+                  </option>
+                ))}
+              </select>
+            </label>
+          ))}
+          {filtering && (
+            <Button variant="ghost" size="sm" onClick={() => setFilters({})}>
+              Clear filters
+            </Button>
+          )}
+          <span className="ml-auto self-center text-caption text-ink-faint">
+            Showing {visible.length} of {rows.length}
+          </span>
+        </div>
+      )}
+
       {/* ─── Toolbar ─── */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3 min-w-0">
@@ -336,7 +442,7 @@ export function ContentManager({ resource }: { resource: ContentResource }) {
             const removable = mayDelete(row);
             const details = config.columns
               .slice(1)
-              .map((c) => row[c.name])
+              .map((c) => (c.name === 'starts_at' || c.name === 'held_at') && row[c.name] ? showDate(row[c.name]) : row[c.name])
               .filter((v) => typeof v === 'string' && v && !/^https?:\/\//.test(v))
               .join(' · ');
             return (
@@ -394,6 +500,11 @@ export function ContentManager({ resource }: { resource: ContentResource }) {
                               <Badge tone={value ? 'live' : 'neutral'} size="sm">
                                 {value ? 'Yes' : 'No'}
                               </Badge>
+                            ) : (c.name === 'starts_at' || c.name === 'held_at') && value ? (
+                              <span className="text-caption tabular-nums text-ink">{showDate(value)}</span>
+                            ) : c.type === 'image' && value ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img src={String(value)} alt="" className="h-12 w-12 rounded-lg object-cover" />
                             ) : c.type === 'badge' && value ? (
                               <Badge tone="brand" size="sm">{String(value)}</Badge>
                             ) : c.name === headline ? (
@@ -485,6 +596,22 @@ export function ContentManager({ resource }: { resource: ContentResource }) {
               placeholder: f.placeholder,
             };
 
+            if (f.type === 'image') {
+              return (
+                <ImageField
+                  key={f.name}
+                  id={`f-${f.name}`}
+                  label={f.label}
+                  hint={f.hint}
+                  error={error}
+                  value={String(value ?? '')}
+                  disabled={locked}
+                  onChange={(url) => setForm((s) => ({ ...s, [f.name]: url }))}
+                  className={f.wide ? 'sm:col-span-2' : ''}
+                />
+              );
+            }
+
             if (f.type === 'textarea') {
               return (
                 <Textarea
@@ -545,7 +672,9 @@ export function ContentManager({ resource }: { resource: ContentResource }) {
                     onChange={(e) => setForm((s) => ({ ...s, [f.name]: e.target.value }))}
                     className="ed-select w-full h-11 px-4 rounded-xl border border-hairline bg-surface-sunken text-body text-ink"
                   >
-                    {!f.options?.includes(String(value ?? '')) && <option value="">Select…</option>}
+                    {!value ? <option value="">Select…</option> : null}
+                    {/* An older entry typed before this was a list keeps its value. */}
+                    {value && !f.options?.includes(String(value)) ? <option value={String(value)}>{String(value)}</option> : null}
                     {f.options?.map((o) => (
                       <option key={o} value={o}>{o}</option>
                     ))}
@@ -558,7 +687,7 @@ export function ContentManager({ resource }: { resource: ContentResource }) {
               <Input
                 key={f.name}
                 {...common}
-                type={f.type === 'datetime' ? 'datetime-local' : f.type === 'number' ? 'number' : 'text'}
+                type={f.type === 'datetime' ? 'datetime-local' : f.type === 'date' ? 'date' : f.type === 'number' ? 'number' : 'text'}
                 // Without this a number input steps by 1, and a browser
                 // rejects a decimal outright — latitude 27.175255 would not
                 // be typeable at all.

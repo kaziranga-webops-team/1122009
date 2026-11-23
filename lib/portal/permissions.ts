@@ -17,6 +17,11 @@ export const CONTENT_RESOURCES = [
   'episodes',
   'study_links',
   'revision_sessions',
+  'study_resources',
+  'iitm_links',
+  'course_channels',
+  'site_images',
+  'site_sections',
 ] as const;
 
 export type ContentResource = (typeof CONTENT_RESOURCES)[number];
@@ -49,7 +54,13 @@ export function can(
 ): boolean {
   if (!role) return false;
   if (action === 'read') return true;
-  return role === 'SUPER_ADMIN';
+  if (role === 'SUPER_ADMIN') return true;
+  // Everyone who organises may add and edit the website's events and
+  // sessions; removing one stays with the house admins.
+  if (resource === 'events' && (role === 'ADMIN' || role === 'RC' || role === 'COMMUNITY_HEAD')) {
+    return action !== 'delete' || role === 'ADMIN';
+  }
+  return false;
 }
 
 /** Resources this role may write at all — drives what the sidebar offers. */
@@ -80,7 +91,7 @@ export function canOrganiseEvents(role: UserRole | undefined): boolean {
 }
 
 /** The organiser screens a community head shares with the admins. */
-const ORGANISER_PATHS = ['/admin/events', '/admin/registrations', '/admin/announcements', '/admin/community'];
+const ORGANISER_PATHS = ['/admin/events', '/admin/registrations', '/admin/announcements', '/admin/community', '/admin/content'];
 
 /** May this role open the given /admin path at all? */
 export function canOpenAdminPath(role: UserRole | undefined, pathname: string): boolean {

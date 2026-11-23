@@ -7,7 +7,7 @@ import { useAuth } from '@/context/AuthContext';
 import { EventItem, Registration } from '@/types/portal';
 import { isMockMode, db } from '@/lib/firebase';
 import { getDoc, getDocs, query, where, updateDoc, increment } from 'firebase/firestore';
-import { getEventRef, getEventsCollectionRef, getRegistrationsCollectionRef, getRegistrationRef, DEFAULT_TENURE_ID, DEFAULT_MAIN_EVENT_ID } from '@/lib/portal/firebase/paths';
+import { getAllEventsGroupRef, getEventRef, getEventsCollectionRef, getRegistrationsCollectionRef, getRegistrationRef, DEFAULT_TENURE_ID, DEFAULT_MAIN_EVENT_ID } from '@/lib/portal/firebase/paths';
 import { mockStore } from '@/lib/portal/firebase/mockStore';
 import { EventStatusBadge } from '@/components/portal/events/EventStatusBadge';
 import { RegistrationModal } from '@/components/portal/events/RegistrationModal';
@@ -39,6 +39,13 @@ import { getOptimizedImageUrl } from '@/lib/portal/utils/imageFormatter';
 import { formatDate } from '@/lib/portal/utils/formatDate';
 import { CountdownTimer } from '@/components/portal/events/CountdownTimer';
 import { ResultsPanel } from '@/components/portal/events/ResultsPanel';
+import { useSafeHtml } from '@/lib/safeHtml';
+
+/** An event's description, cleaned of anything but formatting before it is shown. */
+function SafeDescription({ html, className }: { html: string; className?: string }) {
+  const safe = useSafeHtml(html);
+  return <div className={className} dangerouslySetInnerHTML={safe} />;
+}
 
 function formatGoogleCalendarDate(d: string | Date): string {
   const date = new Date(d);
@@ -152,12 +159,28 @@ export default function SubEventDetailPage() {
           }
         }
 
+        // 3. Not under this festival (an old link, or the event was moved):
+        //    look through every event for the id or slug, and use where it lives.
+        let tenureId = DEFAULT_TENURE_ID;
+        let mainId = groupId;
+        if (!evData) {
+          const all = await getDocs(getAllEventsGroupRef());
+          const hit = all.docs.find(
+            (d) => d.ref.path.startsWith('tenures/') && (d.id === subEventId || d.get('slug') === subEventId)
+          );
+          if (hit) {
+            mainId = hit.ref.parent.parent?.id ?? groupId;
+            tenureId = hit.ref.parent.parent?.parent.parent?.id ?? DEFAULT_TENURE_ID;
+            evData = { id: hit.id, ...(hit.data() as any), mainEventId: mainId, tenureId } as EventItem;
+          }
+        }
+
         setEvent(evData);
 
         if (user && evData) {
           // Using getRegistrationsCollectionRef to query the specific registrations subcollection
           const regsQ = query(
-            getRegistrationsCollectionRef(DEFAULT_TENURE_ID, groupId, evData.id),
+            getRegistrationsCollectionRef(tenureId, mainId, evData.id),
             where('userId', '==', user.uid),
             where('status', '==', 'CONFIRMED')
           );
@@ -384,12 +407,12 @@ export default function SubEventDetailPage() {
           <ResultsPanel event={event} />
           <Card elevation={1} className="p-6 sm:p-8 space-y-5">
             <h2 className="ed-subhead">About this activity</h2>
-            <div
+            <SafeDescription
+              html={event.description}
               className="prose prose-sm dark:prose-invert max-w-none
                 text-body text-ink-muted leading-relaxed break-words
                 prose-headings:font-display prose-headings:text-ink
                 prose-a:text-brand prose-strong:text-ink"
-              dangerouslySetInnerHTML={{ __html: event.description }}
             />
 
             {event.rulebookUrl && (

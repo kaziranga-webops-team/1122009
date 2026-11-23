@@ -2544,13 +2544,14 @@ section {
    runs the animation still shows the page.
    ═══════════════════════════════════════════════════════════════ */
 .page-enter {
-  animation: page-enter 0.45s cubic-bezier(0, 0, 0.2, 1);
+  animation: page-enter 0.3s ease-out;
 }
 
+/* Opacity only: a transform here would make the page a containing block for
+   `position: fixed`, so the header slid down with the page while it played. */
 @keyframes page-enter {
   from {
     opacity: 0;
-    transform: translateY(20px);
   }
 }
 

@@ -49,7 +49,9 @@ export function mapRowToEvent(row: EventRow, index: number): EventItem | null {
   return {
     id: `evt-${index}`,
     title,
-    date: row.Date?.trim() || "",
+    // The typed date mixes month/day and day/month between tabs, so the real
+    // date (starts_at) is what every page reads and sorts by.
+    date: row.Starts_at?.trim() || row.Date?.trim() || "",
     category: known ?? "community",
     organiser: known ? undefined : rawCat,
     community: known ? undefined : findCommunity(rawCat),
@@ -68,7 +70,7 @@ export function mapRowToEvent(row: EventRow, index: number): EventItem | null {
 
 export const toEvents = (rows: EventRow[]) => rows.map(mapRowToEvent).filter((e): e is EventItem => e !== null);
 
-/** The sheet writes dates as month/day/year; anything unparseable is treated as undated. */
+/** An event's date: ISO from starts_at; anything unparseable is treated as undated. */
 export function parseDate(value: string): Date | null {
   const raw = (value || "").trim();
   if (!raw) return null;
@@ -79,7 +81,7 @@ export function parseDate(value: string): Date | null {
 export function formatDate(value: string): string {
   const d = parseDate(value);
   if (!d) return (value || "").trim();
-  return d.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+  return d.toLocaleDateString("en-IN", { timeZone: "Asia/Kolkata", day: "numeric", month: "short", year: "numeric" });
 }
 
 export const toTime = (d: string) => parseDate(d)?.getTime() ?? 0;

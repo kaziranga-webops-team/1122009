@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { KazirangaLogo } from '@/components/portal/branding/KazirangaLogo';
 import { Button } from '@/components/portal/ui/Button';
 import { Modal } from '@/components/portal/ui/Modal';
@@ -22,6 +22,29 @@ export default function AccessDeniedPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [requestSubmitted, setRequestSubmitted] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+
+  // Where this person's request stands: the house hears of every sign-in
+  // attempt, so most people arrive here already waiting for an answer.
+  const [status, setStatus] = useState<'PENDING' | 'REJECTED' | 'APPROVED' | null>(null);
+  useEffect(() => {
+    if (isMockMode) return;
+    let alive = true;
+    const ask = async () => {
+      const token = await auth?.currentUser?.getIdToken().catch(() => undefined);
+      if (!token) return;
+      const res = await fetch('/api/auth/request-access', { headers: { Authorization: `Bearer ${token}` } }).catch(() => null);
+      const data = res?.ok ? await res.json() : null;
+      if (alive && data) setStatus(data.status ?? null);
+    };
+    // The request is filed as the person is turned away; give it a moment.
+    const t = setTimeout(ask, 1200);
+    return () => {
+      alive = false;
+      clearTimeout(t);
+    };
+  }, [activeEmail]);
+  const rejected = status === 'REJECTED';
+  const waiting = status === 'PENDING' || requestSubmitted;
 
   const handleRequestSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -102,7 +125,9 @@ export default function AccessDeniedPage() {
               <ShieldAlert className="w-7 h-7" />
             </span>
 
-            <h1 className="font-display font-black text-display-sm text-white">Access denied</h1>
+            <h1 className="font-display font-black text-display-sm text-white">
+              {rejected ? 'Access not approved' : waiting ? 'Waiting for approval' : 'Access denied'}
+            </h1>
 
             {isIITM ? (
               <p className="text-caption text-white/60 leading-relaxed max-w-md mx-auto">
@@ -125,17 +150,27 @@ export default function AccessDeniedPage() {
             )}
           </div>
 
-          {isIITM ? (
-            requestSubmitted ? (
+          {rejected ? (
+            <div className="p-5 rounded-2xl bg-signal-danger/10 border border-signal-danger/25 space-y-2 text-left">
+              <h2 className="flex items-center gap-2 font-display font-bold text-caption text-signal-danger">
+                <AlertTriangle className="w-4 h-4 shrink-0" aria-hidden />
+                The house admins did not approve this account
+              </h2>
+              <p className="text-micro text-white/60 leading-relaxed">
+                <span className="font-mono text-white break-all">{activeEmail}</span> cannot sign in to the portal. If you think
+                this is a mistake, message the house on Instagram or ask your regional coordinator.
+              </p>
+            </div>
+          ) : isIITM ? (
+            waiting ? (
               <div className="p-5 rounded-2xl bg-signal-live/10 border border-signal-live/25 space-y-3 text-left">
                 <h2 className="flex items-center gap-2 font-display font-bold text-caption text-signal-live">
                   <CheckCircle2 className="w-4 h-4 shrink-0" aria-hidden />
-                  Request sent to house management
+                  The house admins have been told
                 </h2>
                 <p className="text-micro text-white/60 leading-relaxed">
-                  Your request for{' '}
-                  <span className="font-mono text-white break-all">{activeEmail}</span> has been
-                  delivered. You will be able to sign in once it is approved.
+                  Your sign-in with <span className="font-mono text-white break-all">{activeEmail}</span> is waiting for an
+                  admin to approve it. You do not need to do anything else: sign in again once you hear back.
                 </p>
                 <p className="text-micro text-white/45 leading-relaxed pt-3 border-t border-white/10">
                   Approval requires an active student ID, enrolment in the BS Degree Programme,
@@ -189,7 +224,7 @@ export default function AccessDeniedPage() {
               Back to sign in
             </Button>
 
-            {isIITM && !requestSubmitted && (
+            {isIITM && !rejected && !requestSubmitted && (
               <Button
                 variant="accent"
                 size="lg"
@@ -197,7 +232,7 @@ export default function AccessDeniedPage() {
                 onClick={() => setIsModalOpen(true)}
                 leftIcon={<KeyRound className="w-4 h-4" />}
               >
-                Request access
+                {status === 'PENDING' ? 'Add a note for the admins' : 'Request access'}
               </Button>
             )}
           </div>

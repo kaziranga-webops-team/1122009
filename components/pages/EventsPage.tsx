@@ -49,9 +49,9 @@ function Ticket({ event, onOpen, index }: { event: EventItem; onOpen: (e: EventI
           </>
         ) : d ? (
           <>
-            <span className="text-[0.85rem] font-semibold text-[#f6b51e]">{d.toLocaleDateString("en-IN", { month: "short" })}</span>
-            <span className="kz-display text-[2.8rem] leading-none">{d.getDate()}</span>
-            <span className="text-[0.72rem] font-semibold opacity-80">{d.toLocaleDateString("en-IN", { weekday: "short" })}</span>
+            <span className="text-[0.85rem] font-semibold text-[#f6b51e]">{d.toLocaleDateString("en-IN", { timeZone: "Asia/Kolkata", month: "short" })}</span>
+            <span className="kz-display text-[2.8rem] leading-none">{d.toLocaleDateString("en-IN", { timeZone: "Asia/Kolkata", day: "numeric" })}</span>
+            <span className="text-[0.72rem] font-semibold opacity-80">{d.toLocaleDateString("en-IN", { timeZone: "Asia/Kolkata", weekday: "short" })}</span>
           </>
         ) : (
           <span className="kz-serif text-[1.3rem]">Soon</span>

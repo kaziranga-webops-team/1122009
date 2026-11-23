@@ -116,7 +116,9 @@ function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const reduce = useReducedMotion();
-  const redirectTarget = searchParams.get('redirect') || '/dashboard';
+  // Only a path on this site: never another website (an open redirect).
+  const asked = searchParams.get('redirect') || '';
+  const redirectTarget = asked.startsWith('/') && !asked.startsWith('//') && !asked.startsWith('/\\') ? asked : '/dashboard';
 
   useEffect(() => {
     if (user) router.replace(redirectTarget);

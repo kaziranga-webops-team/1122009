@@ -16,12 +16,15 @@ export type TicketStock = keyof typeof TICKET_STOCK;
 /** "22 AUG 2026", inked on with a rubber stamp. */
 export function DateStamp({ date, className = "" }: { date: Date | null; className?: string }) {
   if (!date) return null;
-  const text = `${date.getDate()} ${date.toLocaleDateString("en-IN", { month: "short" }).toUpperCase()} ${date.getFullYear()}`;
+  // Always the house's own calendar day, wherever the visitor is.
+  const part = (o: Intl.DateTimeFormatOptions) => new Intl.DateTimeFormat("en-IN", { timeZone: "Asia/Kolkata", ...o }).format(date);
+  const text = `${part({ day: "numeric" })} ${part({ month: "short" }).toUpperCase()} ${part({ year: "numeric" })}`;
+  const iso = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Kolkata", year: "numeric", month: "2-digit", day: "2-digit" }).format(date);
   return (
     <span
       className={`inline-block -rotate-6 rounded-md border-2 border-[#c8102e]/85 px-2 py-0.5 font-[family-name:var(--kz-f-sign)] text-[0.95rem] leading-tight text-[#c8102e]/90 mix-blend-multiply ${className}`}
     >
-      <time dateTime={date.toISOString().slice(0, 10)}>{text}</time>
+      <time dateTime={iso}>{text}</time>
     </span>
   );
 }

@@ -11,6 +11,8 @@ import { ResultCard } from '@/components/portal/events/ResultCard';
 import { RegistrationModal } from '@/components/portal/events/RegistrationModal';
 import { EventCardSkeleton } from '@/components/portal/ui/Skeleton';
 import { MemberCard } from '@/components/portal/home/MemberCard';
+import { YourRC } from '@/components/portal/home/YourRC';
+import { favouriteCategories, isForYou, rankForYou } from '@/lib/portal/forYou';
 import { useAnnouncements } from '@/components/portal/home/useAnnouncements';
 import { canAnnounce, isForMember } from '@/lib/portal/announcements';
 import {
@@ -174,6 +176,10 @@ export default function HomePage() {
     [events]
   );
 
+  // What this member has signed up for before decides what comes first.
+  const favourites = useMemo(() => favouriteCategories(myRegistrations, events), [myRegistrations, events]);
+  const forYou = useMemo(() => rankForYou(openEvents, favourites), [openEvents, favourites]);
+
   const registeredIds = useMemo(
     () => new Set(myRegistrations.filter((r) => r.status === 'CONFIRMED' || r.status === 'WAITLISTED').map((r) => r.eventId)),
     [myRegistrations]
@@ -242,22 +248,22 @@ export default function HomePage() {
       </div>
 
       <Shortcuts items={shortcutsFor(user.role)} />
-
-      <WhereThingsAre role={user.role} />
-
-      {organiser && <OrganiserPanel stats={organiserStats(managed)} scopeLabel={scopeLabel} loading={loading} />}
-
-      {announcements.length > 0 && (
-        <Announcements items={announcements} manageHref={canAnnounce(user) ? '/admin/announcements' : undefined} />
-      )}
+      <YourRC region={user.region} />
 
       {/* ─── Open for registration ─── */}
       <section aria-label="Open for registration">
         <BlockHeader
-          title="Open for registration"
+          title={favourites.length ? 'Picked for you' : 'Open for registration'}
           href="/dashboard/events"
           linkLabel={openEvents.length > 3 ? `All ${openEvents.length}` : 'All events'}
         />
+        {favourites.length > 0 && openEvents.length > 0 && (
+          <p className="-mt-2 mb-4 text-[0.875rem] text-ink-muted">
+            {forYou.some((e) => isForYou(e, favourites))
+              ? `${favourites.slice(0, 2).join(' and ')} events first, since that is what you sign up for.`
+              : `Nothing in ${favourites.slice(0, 2).join(' or ')} is open right now. Here is everything else.`}
+          </p>
+        )}
         {loading ? (
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {Array.from({ length: 3 }).map((_, i) => (
@@ -271,7 +277,7 @@ export default function HomePage() {
           </div>
         ) : (
           <ul className="flex lg:grid lg:grid-cols-3 gap-5 overflow-x-auto no-scrollbar snap-x snap-mandatory -mx-1 px-1 pb-1">
-            {openEvents.slice(0, 6).map((evt) => (
+            {forYou.slice(0, 6).map((evt) => (
               <li key={evt.id} className="snap-start shrink-0 w-[85%] sm:w-[48%] lg:w-auto">
                 <EventCard event={evt} isRegistered={registeredIds.has(evt.id)} onRegisterClick={setEventToRegister} />
               </li>
@@ -279,6 +285,12 @@ export default function HomePage() {
           </ul>
         )}
       </section>
+
+      {organiser && <OrganiserPanel stats={organiserStats(managed)} scopeLabel={scopeLabel} loading={loading} />}
+
+      {announcements.length > 0 && (
+        <Announcements items={announcements} manageHref={canAnnounce(user) ? '/admin/announcements' : undefined} />
+      )}
 
       {meetups.items.length > 0 && <Meetups title={meetups.title} items={meetups.items} />}
 
@@ -294,6 +306,8 @@ export default function HomePage() {
           </ul>
         </section>
       )}
+
+      <WhereThingsAre role={user.role} />
 
       <RegistrationModal
         event={eventToRegister}

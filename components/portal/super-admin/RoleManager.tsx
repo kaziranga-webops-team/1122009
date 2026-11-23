@@ -6,6 +6,7 @@ import { doc, updateDoc, setDoc } from 'firebase/firestore';
 import { mockStore } from '@/lib/portal/firebase/mockStore';
 import { formatRoleName } from '@/lib/portal/utils/roleFormatter';
 import { COMMUNITIES } from '@/lib/communities';
+import { REGIONS, toRegion } from '@/lib/portal/regions';
 import {
   Shield,
   Crown,
@@ -64,6 +65,7 @@ export const RoleManager: React.FC<RoleManagerProps> = ({ users, onRoleUpdated }
   const [targetUser, setTargetUser] = useState<UserProfile | null>(null);
   const [selectedRole, setSelectedRole] = useState<UserRole>('USER');
   const [selectedCommunities, setSelectedCommunities] = useState<string[]>([]);
+  const [selectedRegion, setSelectedRegion] = useState('');
   const [isUpdating, setIsUpdating] = useState(false);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
@@ -155,6 +157,9 @@ export const RoleManager: React.FC<RoleManagerProps> = ({ users, onRoleUpdated }
     setTargetUser(user);
     setSelectedRole(user.role);
     setSelectedCommunities(user.communitySlugs ?? []);
+    // An RC's region: the one already set, else the region on their profile.
+    const own = toRegion(user.region);
+    setSelectedRegion(user.rcRegion || (own && own !== 'Other' ? own : ''));
     setSuccessMsg(null);
   };
 
@@ -168,7 +173,18 @@ export const RoleManager: React.FC<RoleManagerProps> = ({ users, onRoleUpdated }
       return;
     }
 
-    if (selectedRole === targetUser.role && sameSet(communitySlugs, targetUser.communitySlugs ?? [])) {
+    // A regional coordinator coordinates one region.
+    const rcRegion = selectedRole === 'RC' ? selectedRegion : '';
+    if (selectedRole === 'RC' && !rcRegion) {
+      toast.error('Choose a region', 'Pick the region this person will coordinate.');
+      return;
+    }
+
+    if (
+      selectedRole === targetUser.role &&
+      sameSet(communitySlugs, targetUser.communitySlugs ?? []) &&
+      (targetUser.rcRegion || '') === rcRegion
+    ) {
       setTargetUser(null);
       return;
     }
@@ -196,6 +212,7 @@ export const RoleManager: React.FC<RoleManagerProps> = ({ users, onRoleUpdated }
                 targetUserId: targetUser.uid,
                 newRole: selectedRole,
                 communitySlugs,
+                rcRegion,
                 actorUserId: currentUser.uid,
                 actorEmail: currentUser.email,
               }),
@@ -220,6 +237,7 @@ export const RoleManager: React.FC<RoleManagerProps> = ({ users, onRoleUpdated }
           await updateDoc(userDocRef, {
             role: selectedRole,
             communitySlugs,
+            rcRegion: rcRegion || null,
             updatedAt: timestamp,
           });
 
@@ -634,6 +652,23 @@ export const RoleManager: React.FC<RoleManagerProps> = ({ users, onRoleUpdated }
                   </div>
                 </div>
               </label>
+              {selectedRole === 'RC' && (
+                <label className="-mt-1 block rounded-b-xl border border-t-0 border-brand/30 bg-brand-soft px-3.5 pb-3.5 pl-10">
+                  <span className="block text-caption font-semibold text-ink">Region they coordinate</span>
+                  <select
+                    value={selectedRegion}
+                    onChange={(e) => setSelectedRegion(e.target.value)}
+                    className="ed-select mt-1.5 h-10 w-full rounded-xl border border-hairline bg-surface-raised px-3 text-[0.875rem] text-ink sm:w-64"
+                  >
+                    <option value="">Choose a region…</option>
+                    {REGIONS.filter((r) => r !== 'Other').map((r) => (
+                      <option key={r} value={r}>
+                        {r}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              )}
 
               {/* ADMIN Role Option */}
               <label

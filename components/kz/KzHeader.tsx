@@ -10,6 +10,7 @@ import { useLenis } from "lenis/react";
 import { ChevronDown, LogIn, LayoutDashboard } from "lucide-react";
 import { FaInstagram, FaLinkedinIn, FaWhatsapp, FaYoutube } from "react-icons/fa";
 import { useAuth } from "@/context/AuthContext";
+import { isPageHidden, useHiddenSections } from "@/lib/siteSections";
 
 /** The house's WhatsApp sign-up form — the one CTA that repeats across the site. */
 export const JOIN_URL = "https://forms.gle/Ac5Zxwn21cRMeEcy8";
@@ -31,7 +32,14 @@ const NAV: NavItem[] = [
       { label: "Kaziranga Tak", href: "/tak", line: "The house podcast" },
     ],
   },
-  { label: "Study", href: "/study" },
+  {
+    label: "Study",
+    id: "study",
+    links: [
+      { label: "Study zone", href: "/study", line: "Notes, revision sessions, channels and grades" },
+      { label: "IITM corner", href: "/iitm", line: "Official portals, exams, rules and help" },
+    ],
+  },
 ];
 
 const SOCIALS = [
@@ -61,7 +69,6 @@ export default function KzHeader({ ground = "paper" }: { ground?: "paper" | "col
   const { user } = useAuth();
   const [sheet, setSheet] = useState(false);
   const [openId, setOpenId] = useState<string | null>(null);
-  const [hidden, setHidden] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [mounted, setMounted] = useState(false);
   const burger = useRef<HTMLButtonElement>(null);
@@ -78,14 +85,9 @@ export default function KzHeader({ ground = "paper" }: { ground?: "paper" | "col
     return () => window.removeEventListener("scroll", sync);
   }, [pathname]);
 
+  // The bar stays at the top all the way down; it only gains its solid ground once you scroll.
   const { scrollY } = useScroll();
-  useMotionValueEvent(scrollY, "change", (y) => {
-    const prev = scrollY.getPrevious() ?? 0;
-    setScrolled(y > 12);
-    if (sheet || openId) return;
-    if (y > 420 && y > prev + 4) setHidden(true);
-    else if (y < prev - 4 || y < 420) setHidden(false);
-  });
+  useMotionValueEvent(scrollY, "change", (y) => setScrolled(y > 12));
 
   // The full-screen menu belongs to small screens; widening the window closes it.
   useEffect(() => {
@@ -136,7 +138,12 @@ export default function KzHeader({ ground = "paper" }: { ground?: "paper" | "col
 
   const portal = user ? { href: "/dashboard", label: "My portal", Icon: LayoutDashboard } : { href: "/login", label: "Log in", Icon: LogIn };
   const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
-  const allLinks: NavLink[] = NAV.flatMap((item) => ("links" in item ? item.links : [item]));
+  // Pages switched off in the portal leave the menu; a family left empty goes too.
+  const hidden = useHiddenSections();
+  const nav: NavItem[] = NAV.map((item) => ("links" in item ? { ...item, links: item.links.filter((l) => !isPageHidden(hidden, l.href)) } : item)).filter(
+    (item) => ("links" in item ? item.links.length > 0 : !isPageHidden(hidden, item.href))
+  );
+  const allLinks: NavLink[] = nav.flatMap((item) => ("links" in item ? item.links : [item]));
 
   // Light text while the bar sits over the dark page or a coloured hero.
   const lightText = !sheet && (ground === "ink" || (ground === "color" && !scrolled));
@@ -161,7 +168,6 @@ export default function KzHeader({ ground = "paper" }: { ground?: "paper" | "col
     <>
       <motion.header
         initial={false}
-        animate={{ y: hidden && !sheet && !openId ? "-140%" : "0%" }}
         transition={{ duration: reduce ? 0 : 0.5, ease: SOFT }}
         className="kz-font fixed inset-x-0 top-0 z-50"
       >
@@ -175,7 +181,7 @@ export default function KzHeader({ ground = "paper" }: { ground?: "paper" | "col
             {/* ── five things, laptop and up ── */}
             <nav ref={navRef} aria-label="Main" className="hidden lg:block">
               <ul className="flex items-center gap-1">
-                {NAV.map((item) => {
+                {nav.map((item) => {
                   if (!("links" in item)) {
                     const active = isActive(item.href);
                     return (
@@ -204,7 +210,8 @@ export default function KzHeader({ ground = "paper" }: { ground?: "paper" | "col
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: -6, transition: { duration: 0.15 } }}
                             transition={{ duration: 0.26, ease: SOFT }}
-                            className="absolute right-0 top-[calc(100%+1.4rem)] w-[18rem]"
+                            // Hangs from the left edge of its button, just under the bar.
+                            className="absolute left-0 top-[calc(100%+0.5rem)] w-max min-w-[15rem] max-w-[19rem]"
                           >
                             <ul className="kz-folio bg-[#f5e9cf] p-2 text-[#1c130c]">
                               {item.links.map((l) => {

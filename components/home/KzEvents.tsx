@@ -1,111 +1,261 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
-import useEmblaCarousel from "embla-carousel-react";
-import { ArrowLeft, ArrowRight, CalendarDays, Mic, Youtube } from "lucide-react";
-import { fetchEvents, getCachedEvents, toDirectImageUrl, type EventRow } from "@/lib/api";
+import { ArrowRight, MapPin, Mic, Trophy, X } from "lucide-react";
+import {
+  fetchEvents,
+  getCachedEvents,
+  toDirectImageUrl,
+  type EventRow,
+} from "@/lib/api";
 import { SectionHead } from "@/components/home/sections";
+import { mapRowToEvent, seriesLabel } from "@/lib/events";
+import { DateStamp, TicketCard, type TicketStock } from "@/components/kz/TicketCard";
+import EventDial from "@/components/home/EventDial";
 
-type Status = "upcoming" | "live-now" | "past-recorded" | "past-unrecorded";
-
-type Card = {
+/** A portal event, as /api/house-events serves it. */
+interface PortalEvent {
   id: string;
-  title: string;
-  status: Status;
-  date: string;
-  speaker: string;
+  name: string;
+  status: string;
+  startDateTime: string | null;
+  registrationDeadline: string | null;
+  coverImageUrl: string | null;
   description: string;
+  winner: string | null;
+  runnerUp1: string | null;
+  runnerUp2: string | null;
+  href: string;
+}
+
+type Kind = "open" | "event" | "session" | "meetup" | "tak" | "results";
+
+/** One thing that happened (or is about to) in the house. */
+interface Item {
+  key: string;
+  kind: Kind;
+  title: string;
+  /** When it happens or happened; NaN when the sheet has no usable date. */
+  time: number;
+  place?: string;
   image: string;
-  youtube: string;
-  meet: string;
+  description?: string;
+  href?: string;
+  cta?: string;
+  internal?: boolean;
+  podium?: { place: string; who: string }[];
+  mentions?: string;
+  /** What series it belongs to: Guest session, Curiosity Hour, Aarohan, or a community. */
+  series?: string;
+}
+
+const KIND: Record<Exclude<Kind, "results">, { label: string; stock: TicketStock }> = {
+  open: { label: "Sign-ups open", stock: "pink" },
+  event: { label: "House event", stock: "cream" },
+  session: { label: "Session", stock: "sky" },
+  meetup: { label: "Meetup", stock: "mint" },
+  tak: { label: "Kaziranga Tak", stock: "marigold" },
 };
 
-const BADGE: Record<Status, { label: string; className: string }> = {
-  "live-now": { label: "Live now", className: "bg-[#c8102e] text-white" },
-  upcoming: { label: "Upcoming", className: "bg-[#1c130c] text-[#f5e9cf]" },
-  "past-recorded": { label: "Recorded", className: "bg-[#dcebd8] text-[#1d3d35]" },
-  "past-unrecorded": { label: "Not recorded", className: "bg-[#e7e7d8] text-[#5e4a35]" },
-};
-
-function toStatus(raw: string): Status {
-  const s = (raw || "").trim().toLowerCase().replace(/\s+/g, "-");
-  if (s === "live-now" || s === "past-recorded" || s === "past-unrecorded") return s;
-  return "upcoming";
+/**
+ * The sheets write dates as day/month/year, and sometimes month/day/year:
+ * take whichever reading is possible, preferring the Indian order.
+ */
+function parseDate(raw: string | null | undefined): number {
+  const s = (raw || "").trim();
+  if (!s) return NaN;
+  const m = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(s);
+  if (m) {
+    const [a, b, y] = [Number(m[1]), Number(m[2]), Number(m[3])];
+    const [d, mo] = b > 12 ? [b, a] : [a, b];
+    return Date.UTC(y, mo - 1, d);
+  }
+  return new Date(s).getTime();
 }
 
-/** The sheet gives dates in mixed formats; show what parses, else the raw string. */
-function formatDate(value: string): string {
-  const raw = (value || "").trim();
-  if (!raw) return "";
-  const parsed = new Date(raw);
-  if (Number.isNaN(parsed.getTime())) return raw;
-  return parsed.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+const asDate = (t: number) => (Number.isFinite(t) ? new Date(t) : null);
+
+const podiumOf = (w?: string | null, r1?: string | null, r2?: string | null) =>
+  [
+    { place: "Winner", who: (w || "").trim() },
+    { place: "Runner-up", who: (r1 || "").trim() },
+    { place: "Second runner-up", who: (r2 || "").trim() },
+  ].filter((p) => p.who);
+
+function fromPortal(rows: PortalEvent[], now: number): Item[] {
+  return rows.map((e) => {
+    const podium = podiumOf(e.winner, e.runnerUp1, e.runnerUp2);
+    const open = e.status === "PUBLISHED" && parseDate(e.registrationDeadline) > now;
+    return {
+      key: `p-${e.id}`,
+      kind: podium.length ? "results" : open ? "open" : "event",
+      title: e.name,
+      time: parseDate(e.startDateTime),
+      image: e.coverImageUrl ? toDirectImageUrl(e.coverImageUrl, 800) : "",
+      description: e.description || undefined,
+      href: e.href,
+      cta: open ? "Sign up" : "Open in the portal",
+      internal: true,
+      podium,
+    };
+  });
 }
 
-function toCard(row: EventRow, i: number): Card {
-  return {
-    id: `${row.Title}-${i}`,
-    title: (row.Title || "").trim(),
-    status: toStatus(row.status),
-    date: formatDate(row.Date),
-    speaker: (row.Speaker || "").trim(),
-    description: (row.description || "").trim(),
-    image: toDirectImageUrl(row.Image_url || ""),
-    youtube: (row.youtube_url || "").trim(),
-    meet: (row.meet_link || "").trim(),
-  };
+function fromSessions(rows: EventRow[]): Item[] {
+  return rows
+    .filter((r) => r.Title?.trim())
+    .map((r, i) => {
+      const podium = podiumOf(r.winner, r.runnerUp1, r.runnerUp2);
+      const live = /live|upcoming/i.test(r.status || "");
+      const href = (live ? r.meet_link : r.youtube_url)?.trim() || undefined;
+      const mapped = mapRowToEvent(r, i);
+      return {
+        series: mapped ? seriesLabel(mapped) : undefined,
+        key: `s-${i}`,
+        kind: podium.length ? ("results" as const) : ("session" as const),
+        title: r.Title.trim(),
+        // The real date: the typed Date mixes day/month and month/day.
+        time: parseDate(r.Starts_at || r.Date),
+        place: r.Speaker?.trim() || undefined,
+        image: toDirectImageUrl(r.Image_url || "", 800),
+        // A results row's description only repeats the placings.
+        description: podium.length ? undefined : r.description?.trim() || undefined,
+        href,
+        cta: href ? (live ? "Join the session" : "Watch on YouTube") : undefined,
+        podium,
+        mentions: r.honourableMentions?.trim() || undefined,
+      };
+    });
 }
 
-/** Live and upcoming first, then the recordings. */
-const ORDER: Record<Status, number> = { "live-now": 0, upcoming: 1, "past-recorded": 2, "past-unrecorded": 3 };
+/**
+ * Everything by date, newest first: an event coming up is the newest thing
+ * of all, and anything without a date goes last. One card per title, keeping
+ * the copy that has a date when an event appears in both the portal and the
+ * website sheet.
+ */
+function feed(all: Item[]): Item[] {
+  const dated = (i: Item) => Number.isFinite(i.time);
+  const byTitle = new Map<string, Item>();
+  for (const item of all) {
+    const key = item.title.trim().toLowerCase();
+    const seen = byTitle.get(key);
+    if (!seen || (!dated(seen) && dated(item))) byTitle.set(key, item);
+  }
+  return Array.from(byTitle.values())
+    .sort((a, b) => (dated(b) ? b.time : -Infinity) - (dated(a) ? a.time : -Infinity))
+    .slice(0, 14);
+}
 
-function EventCard({ event }: { event: Card }) {
-  const badge = BADGE[event.status];
-  const isLive = event.status === "live-now" || event.status === "upcoming";
-  const href = isLive ? event.meet : event.youtube;
+/* ─── Cards ─────────────────────────────────────────────────────────── */
 
+function Poster({ item }: { item: Item }) {
+  return item.image ? (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img src={item.image} alt="" loading="lazy" decoding="async" className="aspect-[16/10] w-full object-cover" />
+  ) : (
+    <span
+      className="kz-halftone grid aspect-[16/10] w-full place-items-center bg-[#2343b8] px-6 text-center font-[family-name:var(--kz-f-display)] text-[1.5rem] leading-tight text-[#f6b51e]"
+      style={{ ["--dot" as string]: "rgba(10,20,80,0.55)" }}
+    >
+      {item.title}
+    </span>
+  );
+}
+
+function Action({ item, className = "" }: { item: Item; className?: string }) {
+  if (!item.href || !item.cta) return null;
+  const cls = `kz-btn kz-btn--sm ${item.kind === "open" ? "kz-btn--red" : "kz-btn--ink"} ${className}`;
+  return item.internal ? (
+    <Link href={item.href} className={cls} onClick={(e) => e.stopPropagation()}>
+      {item.cta} <ArrowRight size={14} />
+    </Link>
+  ) : (
+    <a href={item.href} target="_blank" rel="noopener noreferrer" className={cls} onClick={(e) => e.stopPropagation()}>
+      {item.cta} <ArrowRight size={14} />
+    </a>
+  );
+}
+
+/** An event, session, meetup or episode, as a cinema ticket. */
+function FeedTicket({ item, onOpen }: { item: Item; onOpen: (i: Item) => void }) {
+  const kind = KIND[item.kind as Exclude<Kind, "results">];
+  const more = Boolean(item.description);
   return (
-    <article className="flex h-full flex-col overflow-hidden rounded-[1.25rem] border border-[#1c130c]/10 bg-[#ebd9b2]">
-      <div className="relative aspect-[16/9] shrink-0 bg-[#dcebd8]">
-        {event.image && <Image src={event.image} alt="" fill sizes="420px" className="object-cover" unoptimized />}
+    <TicketCard stock={kind.stock} poster={<Poster item={item} />}>
+      <div className="flex items-start justify-between gap-3">
+        <span className="kz-label text-[#1c130c]/75">{item.series ?? kind.label}</span>
+        <DateStamp date={asDate(item.time)} className="shrink-0 text-[0.78rem]" />
       </div>
-
-      <div className="flex flex-1 flex-col p-5">
-        <div className="flex items-center justify-between gap-3">
-          <span className={`kz-label rounded-full px-3 py-1.5 text-[0.65rem] ${badge.className}`}>{badge.label}</span>
-          {event.date && (
-            <span className="inline-flex items-center gap-1.5 text-[0.78rem] font-semibold text-[#5e4a35]">
-              <CalendarDays size={14} />
-              {event.date}
-            </span>
-          )}
-        </div>
-
-        <h3 className="kz-h3 mt-4 text-[1.05rem] normal-case tracking-normal">{event.title}</h3>
-
-        {event.speaker && (
-          <p className="mt-3 inline-flex max-w-full items-center gap-2 self-start rounded-full bg-[#f5e9cf] px-3 py-1.5 text-[0.78rem] font-semibold text-[#1d3d35]">
-            <Mic size={13} className="shrink-0 text-[#0f5e48]" />
-            <span className="truncate">{event.speaker}</span>
-          </p>
+      <h3 className="kz-serif mt-2 text-[1.3rem] leading-tight text-[#1c130c]">
+        {more ? (
+          <button type="button" onClick={() => onOpen(item)} className="kz-focus text-left after:absolute after:inset-0 after:content-['']">
+            {item.title}
+          </button>
+        ) : (
+          item.title
         )}
+      </h3>
+      {item.place && (
+        <p className="mt-1.5 inline-flex min-w-0 items-center gap-1.5 text-[0.82rem] font-semibold text-[#5e4a35]">
+          {item.kind === "meetup" ? <MapPin size={13} /> : <Mic size={13} />}
+          <span className="truncate">{item.place}</span>
+        </p>
+      )}
+      {item.description && <p className="mt-2 line-clamp-3 text-[0.9rem] leading-snug text-[#1c130c]/80">{item.description}</p>}
+      <div className="relative z-[1] mt-auto flex flex-wrap items-center gap-x-4 gap-y-2 pt-4">
+        <Action item={item} />
+        {more && (
+          <button type="button" onClick={() => onOpen(item)} className="kz-focus text-[0.85rem] font-semibold underline underline-offset-4">
+            Read more
+          </button>
+        )}
+      </div>
+    </TicketCard>
+  );
+}
 
-        {event.description && <p className="kz-body mt-3 line-clamp-3 text-[#5e4a35]">{event.description}</p>}
+const MEDALS = ["#f6b51e", "#cfd4dc", "#d08a4a"];
 
-        {href && (
-          // mt-auto on the wrapper, not the button: it pins the CTA to the
-          // card's floor so a short description and a long one still line up.
-          <div className="mt-auto pt-5">
-            <a
-              href={href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`kz-btn kz-btn--sm ${isLive ? "kz-btn--forest" : "kz-btn--red"}`}
-            >
-              {isLive ? "Join session" : <><Youtube size={15} /> Watch on YouTube</>}
-            </a>
+/** A finished event with its winners: a results board, not a ticket. */
+function ResultsBoard({ item }: { item: Item }) {
+  const podium = item.podium ?? [];
+  return (
+    <article className="flex h-full flex-col overflow-hidden rounded-[6px] bg-[#1c130c] p-2 text-[#f5e9cf] shadow-[0_2px_0_rgba(28,19,12,0.15)] transition-[transform,box-shadow] duration-300 hover:-translate-y-1 hover:shadow-[6px_6px_0_#c8102e]">
+      <div className="relative overflow-hidden rounded-[3px]">
+        <Poster item={item} />
+        <span className="kz-label absolute left-2 top-2 inline-flex items-center gap-1.5 rounded-full bg-[#f6b51e] px-2.5 py-1 text-[0.62rem] text-[#1c130c]">
+          <Trophy size={12} aria-hidden="true" /> Results
+        </span>
+      </div>
+      <div className="flex flex-1 flex-col px-3 pb-3 pt-4">
+        <div className="flex items-start justify-between gap-3">
+          <h3 className="kz-serif text-[1.3rem] leading-tight text-[#f6b51e]">{item.title}</h3>
+          <DateStamp date={asDate(item.time)} className="shrink-0 border-[#f6b51e]/80 text-[0.78rem] text-[#f6b51e] mix-blend-normal" />
+        </div>
+        {item.series && <p className="kz-label mt-1 text-[#f5e9cf]/60">{item.series}</p>}
+        <ol className="mt-3 space-y-2">
+          {podium.map((p, i) => (
+            <li key={p.place} className="flex items-center gap-3">
+              <span
+                className="kz-sign grid h-7 w-7 shrink-0 place-items-center rounded-full text-[0.8rem] text-[#1c130c]"
+                style={{ background: MEDALS[i] }}
+                aria-hidden="true"
+              >
+                {i + 1}
+              </span>
+              <span className="min-w-0">
+                <span className="sr-only">{p.place}: </span>
+                <span className="block truncate font-semibold">{p.who}</span>
+              </span>
+            </li>
+          ))}
+        </ol>
+        {item.mentions && <p className="mt-3 line-clamp-2 text-[0.8rem] text-[#f5e9cf]/65">Honourable mentions: {item.mentions}</p>}
+        {item.href && item.cta && (
+          <div className="mt-auto pt-4">
+            <Action item={{ ...item, kind: "event" }} className="!bg-[#f5e9cf] !text-[#1c130c]" />
           </div>
         )}
       </div>
@@ -113,118 +263,106 @@ function EventCard({ event }: { event: Card }) {
   );
 }
 
+/** The whole description of a session or event, with its link. */
+function Details({ item, onClose }: { item: Item; onClose: () => void }) {
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    const { overflow } = document.body.style;
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = overflow;
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [onClose]);
+
+  const kind = KIND[item.kind as Exclude<Kind, "results">];
+  return (
+    <div className="fixed inset-0 z-[90] flex items-end justify-center p-0 sm:items-center sm:p-6" role="dialog" aria-modal="true" aria-label={item.title}>
+      <button type="button" aria-label="Close" onClick={onClose} className="absolute inset-0 bg-[#1c130c]/70" />
+      <div className="kz-font relative flex max-h-[90vh] w-full max-w-xl flex-col overflow-hidden rounded-t-[1.5rem] bg-[#f5e9cf] text-[#1c130c] shadow-2xl sm:rounded-[1.5rem]">
+        <div className="relative shrink-0">
+          <Poster item={item} />
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close"
+            autoFocus
+            className="kz-focus absolute right-3 top-3 grid h-10 w-10 place-items-center rounded-full bg-[#1c130c] text-[#f5e9cf]"
+          >
+            <X size={18} />
+          </button>
+        </div>
+        <div className="overflow-y-auto p-6">
+          <div className="flex items-center justify-between gap-3">
+            {kind && <span className="kz-label text-[#c8102e]">{kind.label}</span>}
+            <DateStamp date={asDate(item.time)} className="text-[0.85rem]" />
+          </div>
+          <h3 className="kz-serif mt-2 text-[1.7rem] leading-tight">{item.title}</h3>
+          {item.place && <p className="mt-1 text-[0.95rem] font-semibold text-[#5e4a35]">{item.place}</p>}
+          <p className="mt-4 whitespace-pre-line text-[1rem] leading-relaxed text-[#1c130c]/85">{item.description}</p>
+          {item.href && item.cta && (
+            <div className="mt-6">
+              <Action item={item} />
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function KzEvents() {
-  const [events, setEvents] = useState<Card[]>(() => (getCachedEvents() || []).map(toCard));
-  const [emblaRef, embla] = useEmblaCarousel({ align: "start", containScroll: "trimSnaps" });
-  const [snaps, setSnaps] = useState<number[]>([]);
-  const [selected, setSelected] = useState(0);
-  const [canPrev, setCanPrev] = useState(false);
-  const [canNext, setCanNext] = useState(false);
+  const [portal, setPortal] = useState<PortalEvent[]>([]);
+  const [sessions, setSessions] = useState<EventRow[]>(() => getCachedEvents() || []);
+  const [open, setOpen] = useState<Item | null>(null);
 
   useEffect(() => {
     let alive = true;
-    fetchEvents()
-      .then((rows) => {
-        if (alive) setEvents(rows.map(toCard));
-      })
+    fetch("/api/house-events")
+      .then((r) => (r.ok ? r.json() : []))
+      .then((rows) => alive && Array.isArray(rows) && setPortal(rows))
       .catch(() => {});
+    fetchEvents().then((r) => alive && setSessions(r)).catch(() => {});
     return () => {
       alive = false;
     };
   }, []);
 
-  const sync = useCallback(() => {
-    if (!embla) return;
-    setSelected(embla.selectedScrollSnap());
-    setCanPrev(embla.canScrollPrev());
-    setCanNext(embla.canScrollNext());
-  }, [embla]);
+  const now = Date.now();
+  const shown = feed([...fromPortal(portal, now), ...fromSessions(sessions)]);
 
-  useEffect(() => {
-    if (!embla) return;
-    setSnaps(embla.scrollSnapList());
-    sync();
-    embla.on("select", sync).on("reInit", () => {
-      setSnaps(embla.scrollSnapList());
-      sync();
-    });
-  }, [embla, sync]);
-
-  // Cards arrive after the first paint, so the carousel has to re-measure.
-  useEffect(() => {
-    embla?.reInit();
-  }, [embla, events.length]);
-
-  const shown = [...events]
-    .filter((e) => e.title)
-    .sort((a, b) => ORDER[a.status] - ORDER[b.status])
-    .slice(0, 9);
+  const close = useCallback(() => setOpen(null), []);
 
   return (
     <section id="events" className="kz-font bg-[#f5e9cf] text-[#1c130c]">
       <SectionHead
-        title={["Events &", "sessions"]}
-        intro="Catch up on the latest guest sessions, Community Day, Aarohan and Curiosity Hour."
+        title={["Lately in", "the house"]}
+        intro="Events, sessions and results from across the house, newest first."
       />
 
       {shown.length > 0 && (
-        <>
-          <div className="overflow-hidden px-5 sm:px-8 md:px-12" ref={emblaRef}>
-            <div className="flex gap-5">
-              {shown.map((e) => (
-                <div
-                  key={e.id}
-                  className="min-w-0 shrink-0 grow-0 basis-[86%] sm:basis-[48%] lg:basis-[32%] xl:basis-[24%]"
-                >
-                  <EventCard event={e} />
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="mt-9 flex items-center justify-center gap-4">
-            <button
-              type="button"
-              aria-label="Previous events"
-              disabled={!canPrev}
-              onClick={() => embla?.scrollPrev()}
-              className="grid h-12 w-12 place-items-center rounded-full border border-[#1c130c]/25 transition-colors enabled:hover:bg-[#1c130c] enabled:hover:text-[#f5e9cf] disabled:opacity-30"
-            >
-              <ArrowLeft size={18} />
-            </button>
-
-            <div className="flex items-center gap-2">
-              {snaps.map((_, i) => (
-                <button
-                  key={i}
-                  type="button"
-                  aria-label={`Go to slide ${i + 1}`}
-                  onClick={() => embla?.scrollTo(i)}
-                  className={`h-2 rounded-full transition-all duration-300 ${
-                    i === selected ? "w-7 bg-[#0f5e48]" : "w-2 bg-[#1c130c]/25 hover:bg-[#1c130c]/45"
-                  }`}
-                />
-              ))}
-            </div>
-
-            <button
-              type="button"
-              aria-label="More events"
-              disabled={!canNext}
-              onClick={() => embla?.scrollNext()}
-              className="grid h-12 w-12 place-items-center rounded-full border border-[#1c130c]/25 transition-colors enabled:hover:bg-[#1c130c] enabled:hover:text-[#f5e9cf] disabled:opacity-30"
-            >
-              <ArrowRight size={18} />
-            </button>
-          </div>
-        </>
+        <div className="px-5 sm:px-8 md:px-12">
+          <EventDial
+            label="Lately in the house"
+            items={shown.map((item) => ({
+              key: item.key,
+              node: item.kind === "results" ? <ResultsBoard item={item} /> : <FeedTicket item={item} onOpen={setOpen} />,
+            }))}
+          />
+        </div>
       )}
 
-      <div className="flex justify-center px-5 pb-20 pt-10 md:pb-28">
-        <Link href="/events" className="kz-btn kz-btn--forest">
-          See every event <ArrowRight size={18} />
+      <div className="flex flex-wrap justify-center gap-3 px-5 pb-20 pt-10 md:pb-28">
+        <Link href="/dashboard/events" className="kz-btn kz-btn--red">
+          Sign up for events <ArrowRight size={18} />
+        </Link>
+        <Link href="/events" className="kz-btn kz-btn--outline">
+          Past events
         </Link>
       </div>
+
+      {open && <Details item={open} onClose={close} />}
     </section>
   );
 }

@@ -11,6 +11,8 @@ import { Burst, ChapterTitle, Gamosa, MuseumLabel, Postmark, Signboards, Stamp }
 import { HERITAGE, type Heritage } from "@/lib/heritage";
 import { POSTERS } from "@/lib/posters";
 import { useContent } from "@/hooks/useData";
+import { useSiteImages } from "@/lib/siteImages";
+import { cdnImage } from "@/lib/api";
 
 const SOFT = [0.22, 1, 0.36, 1] as const;
 const INSTAGRAM = "https://www.instagram.com/kaziranga_iitm/";
@@ -139,14 +141,15 @@ function FillWord({ word, progress, range }: { word: string; progress: MotionVal
   return <motion.span style={{ opacity }}>{word} </motion.span>;
 }
 
-const VALUES: { art: Heritage; title: string; text: string; tilt: number; offset: string; ground: string }[] = [
-  { art: HERITAGE.kantha, title: "A vibrant community", text: "Thousands of threads, one cloth. A house that shows up for each other, online and off.", tilt: -2, offset: "lg:mt-0", ground: "#c8102e" },
-  { art: HERITAGE.kamarupa, title: "Social gatherings", text: "Kamarupa, the old name for Assam, was a court of gatherings. Ours are meetups in cities across India.", tilt: 1.5, offset: "lg:mt-24", ground: "#2343b8" },
-  { art: HERITAGE.elephant, title: "Competitions", text: "Aarohan culturals, technicals and e-sports — the house turns up as a herd.", tilt: -1, offset: "lg:mt-8", ground: "#f6b51e" },
-  { art: HERITAGE.hoopoe, title: "Personal growth", text: "Study plans, guest sessions and room to lead, for whoever wants to grow into it.", tilt: 2, offset: "lg:mt-32", ground: "#0f5e48" },
+const VALUES: { slot: string; art: Heritage; title: string; text: string; tilt: number; offset: string; ground: string }[] = [
+  { slot: "Home · About · A vibrant community", art: HERITAGE.kantha, title: "A vibrant community", text: "Students from every corner of India, in one house, looking out for each other online and off.", tilt: -2, offset: "lg:mt-0", ground: "#c8102e" },
+  { slot: "Home · About · Social gatherings", art: HERITAGE.kamarupa, title: "Social gatherings", text: "Meetups in cities across India, so the people from your group chats become people you have met.", tilt: 1.5, offset: "lg:mt-24", ground: "#2343b8" },
+  { slot: "Home · About · Competitions", art: HERITAGE.elephant, title: "Competitions", text: "Aarohan's cultural, technical and e-sports events, where the house competes as one team.", tilt: -1, offset: "lg:mt-8", ground: "#f6b51e" },
+  { slot: "Home · About · Personal growth", art: HERITAGE.hoopoe, title: "Personal growth", text: "Guest sessions, revision sessions and the chance to lead a team or run an event.", tilt: 2, offset: "lg:mt-32", ground: "#0f5e48" },
 ];
 
 export function TheLand() {
+  const images = useSiteImages();
   const textRef = useRef<HTMLParagraphElement>(null);
   const reduce = useReducedMotion();
   const { scrollYProgress: fill } = useScroll({ target: textRef, offset: ["start 0.85", "end 0.5"] });
@@ -169,29 +172,39 @@ export function TheLand() {
           </p>
         </div>
 
-        <ul className="mt-20 grid grid-cols-1 gap-x-8 gap-y-14 sm:grid-cols-2 lg:grid-cols-4">
+        <ul className="mt-14 grid grid-cols-1 gap-x-8 gap-y-8 sm:mt-20 sm:grid-cols-2 sm:gap-y-14 lg:grid-cols-4">
           {VALUES.map((v, i) => (
             <motion.li
               key={v.title}
-              className={v.offset}
+              // Phones: a small picture beside the words, so all four fit in a few swipes.
+              // Every other row puts the picture on the right, so the column zigzags.
+              className={`flex items-start gap-4 sm:block ${i % 2 ? "flex-row-reverse" : ""} ${v.offset}`}
               initial={reduce ? false : { opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-60px" }}
               transition={{ duration: 0.7, delay: i * 0.08, ease: SOFT }}
             >
-              <figure style={{ rotate: `${v.tilt}deg` }}>
+              <figure className="w-24 shrink-0 sm:w-auto" style={{ rotate: `${v.tilt}deg` }}>
                 <div className="kz-folio overflow-hidden bg-[#f5e9cf]">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={v.art.src} alt={v.art.alt} loading="lazy" className="aspect-[4/5] w-full object-cover object-top" />
+                  <img
+                    src={images[v.slot] ? cdnImage(images[v.slot].url, 700) : v.art.src}
+                    alt={images[v.slot] ? images[v.slot].alt : v.art.alt}
+                    loading="lazy"
+                    className="aspect-[4/5] w-full object-cover object-top"
+                  />
                 </div>
               </figure>
-              <h3 className="kz-serif mt-8 text-[1.9rem]">
-                <span className="kz-offset" style={{ ["--offset" as string]: `${v.ground}55` }}>
-                  {v.title}
-                </span>
-              </h3>
-              <p className="kz-body mt-2 text-[#4a3a29]">{v.text}</p>
-              <MuseumLabel art={v.art} className="mt-3" />
+              <div className="min-w-0">
+                <h3 className="kz-serif text-[1.45rem] leading-tight sm:mt-8 sm:text-[1.9rem]">
+                  <span className="kz-offset" style={{ ["--offset" as string]: `${v.ground}55` }}>
+                    {v.title}
+                  </span>
+                </h3>
+                <p className="kz-body mt-1.5 text-[#4a3a29] sm:mt-2">{v.text}</p>
+                {/* The credit belongs to the original artwork, not to an uploaded picture. */}
+                {!images[v.slot] && <MuseumLabel art={v.art} className="mt-3 hidden sm:block" />}
+              </div>
             </motion.li>
           ))}
         </ul>
@@ -216,9 +229,9 @@ export function ThreeSteps() {
         <ChapterTitle className="text-[#f6b51e]" offset="#e2387a">
           Three steps into the house
         </ChapterTitle>
-        <p className="kz-lead mt-6 max-w-xl text-[#f5e9cf]/85">No applications and no fees. Most members are in a group chat within the hour.</p>
+        <p className="kz-lead mt-6 max-w-xl text-[#f5e9cf]/85">No application and no fee. One short form and you are in the house's WhatsApp groups.</p>
 
-        <ol className="mt-14 grid grid-cols-1 gap-12 md:grid-cols-3 md:gap-8">
+        <ol className="mt-10 grid grid-cols-1 gap-7 md:mt-14 md:grid-cols-3 md:gap-8">
           {STEPS.map((s, i) => {
             const Wrapper = s.external ? "a" : Link;
             return (
@@ -232,22 +245,26 @@ export function ThreeSteps() {
                 <Wrapper
                   href={s.href}
                   {...(s.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-                  className="kz-focus group block transition-transform duration-500 [transition-timing-function:cubic-bezier(0.34,1.4,0.64,1)] hover:-translate-y-2"
+                  className="kz-focus group flex items-center gap-5 transition-transform duration-500 [transition-timing-function:cubic-bezier(0.34,1.4,0.64,1)] hover:-translate-y-2 md:block"
                 >
-                  <Stamp bg="#f5e9cf">
-                    <div className="relative flex aspect-[4/3] flex-col justify-between overflow-hidden p-6" style={{ background: s.bg, color: s.ink }}>
-                      <span aria-hidden="true" className="kz-display absolute -right-2 -top-8 text-[10rem] leading-none opacity-25">
+                  {/* Phones: a small stamp with the step number, its words beside it. */}
+                  <Stamp bg="#f5e9cf" className="w-[6.5rem] shrink-0 md:w-auto">
+                    <div className="relative flex aspect-square flex-col justify-between overflow-hidden p-3 md:aspect-[4/3] md:p-6" style={{ background: s.bg, color: s.ink }}>
+                      <span aria-hidden="true" className="kz-display absolute -bottom-3 right-1 text-[5.5rem] leading-none opacity-40 md:-right-2 md:-top-8 md:bottom-auto md:text-[10rem] md:opacity-25">
                         {s.n}
                       </span>
-                      <span className="kz-sign relative mt-4 text-[0.8rem] uppercase tracking-[0.16em]">Step {s.n}</span>
-                      <h3 className="kz-serif relative text-[2.3rem]">{s.title}</h3>
+                      <span className="kz-sign relative mt-4 hidden text-[0.8rem] uppercase tracking-[0.16em] md:block">Step {s.n}</span>
+                      <h3 className="kz-serif relative hidden text-[2.3rem] md:block">{s.title}</h3>
                     </div>
                   </Stamp>
-                  <p className="kz-body mt-5 text-[#f5e9cf]/90">{s.text}</p>
-                  <span className="kz-sign mt-3 inline-flex items-center gap-2 text-[0.82rem] uppercase tracking-[0.12em] text-[#f6b51e]">
-                    {s.cta}
-                    <ArrowRight size={15} className="transition-transform duration-300 group-hover:translate-x-1" />
-                  </span>
+                  <div className="min-w-0">
+                    <p className="kz-serif text-[1.6rem] leading-tight md:hidden">{s.title}</p>
+                    <p className="kz-body mt-1 text-[#f5e9cf]/90 md:mt-5">{s.text}</p>
+                    <span className="kz-sign mt-2 inline-flex items-center gap-2 text-[0.78rem] uppercase tracking-[0.12em] text-[#f6b51e] md:mt-3 md:text-[0.82rem]">
+                      {s.cta}
+                      <ArrowRight size={15} className="transition-transform duration-300 group-hover:translate-x-1" />
+                    </span>
+                  </div>
                 </Wrapper>
               </motion.li>
             );
@@ -260,21 +277,23 @@ export function ThreeSteps() {
 
 /* ═══ IV. What the house does — film hoardings ══════════════════════ */
 
-const DOORS: { title: string; line: string; href: string; art?: Heritage; ground: string; ink: string; offset: string; texture: string }[] = [
-  { title: "Meetups", line: "In-person meetups in cities across India, and the photos to remember them by.", href: "/meetups", art: HERITAGE.rubberTree, ground: "#c8102e", ink: "#f5e9cf", offset: "#1c130c", texture: "kz-cloth" },
-  { title: "Events", line: "Guest sessions, Community Day, Aarohan and Curiosity Hour — live and recorded.", href: "/events", art: HERITAGE.waqwaq, ground: "#2343b8", ink: "#f6b51e", offset: "#e2387a", texture: "kz-halftone" },
-  { title: "Study Zone", line: "Planners, notes, grade tools and revision sessions for the IIT Madras BS degree.", href: "/study", art: HERITAGE.parrot, ground: "#f6b51e", ink: "#1c130c", offset: "#e2387a", texture: "kz-halftone" },
-  { title: "Kaziranga Tak", line: "Short videos and stories about what's happening in the house.", href: "/tak", art: HERITAGE.shawl, ground: "#0f5e48", ink: "#f5e9cf", offset: "#c8102e", texture: "kz-cloth" },
+const DOORS: { slot: string; title: string; line: string; href: string; art?: Heritage; ground: string; ink: string; offset: string; texture: string }[] = [
+  { slot: "Home · What the house does · Meetups", title: "Meetups", line: "In-person meetups in cities across India, and the photos to remember them by.", href: "/meetups", art: HERITAGE.rubberTree, ground: "#c8102e", ink: "#f5e9cf", offset: "#1c130c", texture: "kz-cloth" },
+  { slot: "Home · What the house does · Events", title: "Events", line: "Guest sessions, Community Day, Aarohan and Curiosity Hour — live and recorded.", href: "/events", art: HERITAGE.waqwaq, ground: "#2343b8", ink: "#f6b51e", offset: "#e2387a", texture: "kz-halftone" },
+  { slot: "Home · What the house does · Study Zone", title: "Study Zone", line: "Notes, revision sessions, course channels and a GPA calculator for the IIT Madras BS degree.", href: "/study", art: HERITAGE.parrot, ground: "#f6b51e", ink: "#1c130c", offset: "#e2387a", texture: "kz-halftone" },
+  { slot: "Home · What the house does · Kaziranga Tak", title: "Kaziranga Tak", line: "Short videos and stories about what's happening in the house.", href: "/tak", art: HERITAGE.shawl, ground: "#0f5e48", ink: "#f5e9cf", offset: "#c8102e", texture: "kz-cloth" },
 ];
 
 export function Gatherings() {
   const reduce = useReducedMotion();
+  const images = useSiteImages();
+  const art = (d: (typeof DOORS)[number]) => (images[d.slot] ? cdnImage(images[d.slot].url, 600) : d.art?.src);
   return (
     <section id="doors" className="kz-font relative scroll-mt-[var(--kz-header-h)] bg-[#ebd9b2] pb-24 pt-20 text-[#1c130c] md:pb-32 md:pt-28">
       <div className="mx-auto max-w-[90rem] px-5 sm:px-8 md:px-12">
         <ChapterTitle>What the house does</ChapterTitle>
 
-        <ul className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <ul className="mt-10 grid grid-cols-1 gap-3 sm:mt-12 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4">
           {DOORS.map((d, i) => (
             <motion.li
               key={d.title}
@@ -283,15 +302,35 @@ export function Gatherings() {
               viewport={{ once: true, margin: "-60px" }}
               transition={{ duration: 0.7, delay: i * 0.08, ease: SOFT }}
             >
+              {/* Phones: a row with a small picture. Wider screens: the full hoarding. */}
               <Link
                 href={d.href}
-                className={`kz-focus group relative flex aspect-[3/4.2] flex-col justify-between overflow-hidden p-6 shadow-[0_26px_40px_-28px_rgba(28,19,12,0.8)] transition-transform duration-500 [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-2 hover:rotate-[-1deg] ${d.texture}`}
+                className={`kz-focus relative flex items-center gap-4 overflow-hidden p-3 pr-4 shadow-[0_18px_30px_-24px_rgba(28,19,12,0.8)] sm:hidden ${d.texture}`}
+                style={{ background: d.ground, color: d.ink, ["--dot" as string]: "rgba(0,0,0,0.18)" }}
+              >
+                {d.art && (
+                  <span className="kz-cutout w-[4.5rem] shrink-0 rotate-[3deg] p-1">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={art(d)} alt="" loading="lazy" className="aspect-square w-full object-cover" />
+                  </span>
+                )}
+                <span className="min-w-0 flex-1">
+                  <span className="kz-display kz-offset block text-[1.7rem] leading-none" style={{ ["--offset" as string]: d.offset }}>
+                    {d.title}
+                  </span>
+                  <span className="mt-1.5 line-clamp-2 block text-[0.85rem] leading-snug opacity-90">{d.line}</span>
+                </span>
+                <ArrowUpRight size={20} className="shrink-0" aria-hidden="true" />
+              </Link>
+              <Link
+                href={d.href}
+                className={`kz-focus group relative hidden aspect-[3/4.2] flex-col justify-between overflow-hidden p-6 shadow-[0_26px_40px_-28px_rgba(28,19,12,0.8)] transition-transform duration-500 [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-2 hover:rotate-[-1deg] sm:flex ${d.texture}`}
                 style={{ background: d.ground, color: d.ink, ["--dot" as string]: "rgba(0,0,0,0.18)" }}
               >
                 {d.art && (
                   <figure className="kz-cutout absolute left-1/2 top-[30%] w-[66%] -translate-x-1/2 -translate-y-1/2 rotate-[4deg] transition-transform duration-500 group-hover:rotate-[-2deg] group-hover:scale-105">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={d.art.src} alt="" loading="lazy" className="aspect-square w-full object-cover" />
+                    <img src={art(d)} alt="" loading="lazy" className="aspect-square w-full object-cover" />
                   </figure>
                 )}
                 <span className="relative self-end">
@@ -321,6 +360,7 @@ const WAYS = [
 ];
 
 export function ComeHome() {
+  const pic = useSiteImages()["Home · Join the house"];
   return (
     <section id="join" className="kz-font relative scroll-mt-[var(--kz-header-h)] overflow-hidden bg-[#1c130c] text-[#f5e9cf]">
       <Gamosa dark />
@@ -328,9 +368,14 @@ export function ComeHome() {
         <figure>
           <div className="kz-folio--dark kz-folio overflow-hidden">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={HERITAGE.kantha.src} alt={HERITAGE.kantha.alt} loading="lazy" className="aspect-[1.55] w-full object-cover" />
+            <img
+              src={pic ? cdnImage(pic.url, 1200) : HERITAGE.kantha.src}
+              alt={pic ? pic.alt : HERITAGE.kantha.alt}
+              loading="lazy"
+              className="aspect-[1.55] w-full object-cover"
+            />
           </div>
-          <MuseumLabel art={HERITAGE.kantha} dark className="mt-5" />
+          {!pic && <MuseumLabel art={HERITAGE.kantha} dark className="mt-5" />}
         </figure>
 
         <div>
@@ -338,8 +383,7 @@ export function ComeHome() {
             Come home
           </ChapterTitle>
           <p className="kz-lead mt-6 max-w-lg text-[#f5e9cf]/85">
-            Every IIT Madras BS student in the house is welcome. Say hello, come to a meetup, or help run the next event — like the threads of a kantha, every
-            one of us holds the cloth together.
+            Every IIT Madras BS student in Kaziranga is welcome. Say hello in the groups, come to a meetup near you, or help run the next event.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <a href={JOIN_URL} target="_blank" rel="noopener noreferrer" className="kz-btn kz-btn--red kz-focus group">
@@ -484,21 +528,27 @@ function Greeting() {
 /* ═══ The poster wall — frames kept for the house's own artists ═════ */
 
 export function PosterWall() {
+  const images = useSiteImages();
   return (
     <section id="posters" className="kz-font relative scroll-mt-[var(--kz-header-h)] bg-[#f5e9cf] pb-24 pt-20 text-[#1c130c] md:pb-32 md:pt-28">
       <div className="mx-auto max-w-[90rem] px-5 sm:px-8 md:px-12">
         <ChapterTitle>The poster wall</ChapterTitle>
         <p className="kz-lead mt-6 max-w-xl text-[#4a3a29]">
-          Frames kept for posters made by members of the house. Made one? Send it to us on{" "}
+          Posters made by members of the house. Made one? Send it to us on{" "}
           <a href={INSTAGRAM} target="_blank" rel="noopener noreferrer" className="kz-focus font-semibold text-[#c8102e] underline underline-offset-4">
             Instagram
           </a>
           .
         </p>
 
-        <ul className="mt-14 grid grid-cols-1 gap-12 sm:grid-cols-3 sm:gap-8">
-          {POSTERS.map((p, i) => (
-            <li key={p.title} className={i === 1 ? "sm:mt-16" : ""}>
+        {/* Phones: a strip to swipe through. Wider screens: three frames. */}
+        <ul className="-mx-5 mt-10 flex snap-x snap-mandatory scroll-px-5 gap-5 overflow-x-auto px-5 pb-2 [scrollbar-width:none] sm:mx-0 sm:mt-14 sm:grid sm:grid-cols-3 sm:gap-8 sm:overflow-visible sm:px-0 sm:pb-0">
+          {POSTERS.map((poster, i) => {
+            // A poster uploaded in the portal fills its frame.
+            const up = images[`Home · Poster wall · ${poster.title}`];
+            const p = up ? { ...poster, src: cdnImage(up.url, 900), alt: up.alt || poster.title } : poster;
+            return (
+            <li key={p.title} className={`w-[68%] shrink-0 snap-start sm:w-auto ${i === 1 ? "sm:mt-16" : ""}`}>
               <figure>
                 <div className="kz-folio relative aspect-[3/4] overflow-hidden bg-[#ebd9b2]">
                   {p.src ? (
@@ -510,13 +560,16 @@ export function PosterWall() {
                     </div>
                   )}
                 </div>
-                <figcaption className="mt-6">
-                  <span className="kz-serif block text-[1.5rem]">{p.title}</span>
-                  <span className="kz-sign mt-1 block text-[0.72rem] uppercase tracking-[0.12em] text-[#5e4a35]">{p.artist ? `By ${p.artist}` : "Poster coming soon"}</span>
+                <figcaption className="mt-4 sm:mt-6">
+                  <span className="kz-serif block text-[1.25rem] sm:text-[1.5rem]">{p.title}</span>
+                  <span className="kz-sign mt-1 block text-[0.72rem] uppercase tracking-[0.12em] text-[#5e4a35]">
+                    {p.artist ? `By ${p.artist}` : p.src ? "Made by the house" : "Coming soon"}
+                  </span>
                 </figcaption>
               </figure>
             </li>
-          ))}
+            );
+          })}
         </ul>
       </div>
     </section>

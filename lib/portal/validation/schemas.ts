@@ -54,6 +54,8 @@ export const eventSchema = z.object({
     .optional(),
   status: z.enum(['DRAFT', 'PUBLISHED', 'CLOSED', 'COMPLETED']),
   requireSubmission: z.boolean().optional().default(false),
+  // Off for internal events: they stay in the portal and never reach the public site.
+  showOnWebsite: z.boolean().optional().default(true),
   submissionTiming: z.union([z.enum(['DURING_REGISTRATION', 'AFTER_REGISTRATION']), z.array(z.enum(['DURING_REGISTRATION', 'AFTER_REGISTRATION']))]).optional().default([]),
   submissionType: z.enum(['LINK', 'TEXT']).optional().default('LINK'),
   submissionInstructions: z.string().nullable().or(z.literal('')).optional(),

@@ -22,6 +22,8 @@ export interface UserProfile {
   councilMemberId?: string | null;
   /** Communities (slugs from lib/communities.ts) a COMMUNITY_HEAD runs. */
   communitySlugs?: string[];
+  /** For an RC: the region they coordinate. Set by a super admin with the role. */
+  rcRegion?: string;
   isAccessRevoked?: boolean;
   revokedAt?: string;
   revokedBy?: string;
@@ -124,6 +126,8 @@ export interface EventItem {
   currentRegistrationCount?: number;
   customQuestions?: EventCustomQuestion[];
   requireSubmission?: boolean;
+  /** False for internal events: listed in the portal only, never on the public site. */
+  showOnWebsite?: boolean;
   submissionTiming?: SubmissionTiming | SubmissionTiming[];
   submissionType?: SubmissionType; // Keep for backward compatibility, use submissionRequirements instead
   submissionInstructions?: string;
