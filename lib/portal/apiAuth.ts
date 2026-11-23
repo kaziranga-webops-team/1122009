@@ -7,7 +7,7 @@
 // and Firestore says what you may do.
 // ─────────────────────────────────────────────────────────────────────────────
 import { NextResponse } from 'next/server';
-import { adminAuth, adminDb } from '@/lib/portal/firebase/admin';
+import { adminAuth, adminDb, adminLoadError } from '@/lib/portal/firebase/admin';
 import { effectiveScope, VIEW_AS_COMMUNITY_HEADER, VIEW_AS_HEADER } from '@/lib/portal/roles';
 import type { UserRole } from '@/types/portal';
 
@@ -49,7 +49,7 @@ export async function requireUser(req: Request): Promise<AuthedUser> {
   if (!adminAuth || !adminDb) {
     throw new ApiError(
       503,
-      'Server is not configured for admin actions. Set FIREBASE_SERVICE_ACCOUNT_KEY.'
+      adminLoadError || 'Server is not configured for admin actions. Set FIREBASE_SERVICE_ACCOUNT_KEY.'
     );
   }
 

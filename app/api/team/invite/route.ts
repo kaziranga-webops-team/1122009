@@ -1,7 +1,6 @@
 'use server';
 
 import { NextRequest, NextResponse } from 'next/server';
-import { FieldValue } from 'firebase-admin/firestore';
 import { adminAuth, adminDb } from '@/lib/portal/firebase/admin';
 
 export async function POST(req: NextRequest) {

@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { adminAuth, adminDb } from '@/lib/portal/firebase/admin';
+import { AdminFieldValue, adminAuth, adminDb } from '@/lib/portal/firebase/admin';
 import { isIITMEmail } from '@/lib/portal/utils/emailValidation';
-import { FieldValue } from 'firebase-admin/firestore';
 
 const getProjectId = () => process.env.FIREBASE_PROJECT_ID || process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'kazi-event-portal';
 
@@ -110,7 +109,7 @@ export async function POST(req: NextRequest) {
         // again shows the person that answer instead of asking afresh.
         const before = await accessReqRef.get();
         if (before.exists && before.get('status') === 'REJECTED') {
-          await accessReqRef.set({ attempts: FieldValue.increment(1), lastAttemptAt: new Date().toISOString() }, { merge: true });
+          await accessReqRef.set({ attempts: AdminFieldValue!.increment(1), lastAttemptAt: new Date().toISOString() }, { merge: true });
           return NextResponse.json({ success: true, email: cleanEmail, status: 'REJECTED' });
         }
         await accessReqRef.set(
@@ -122,7 +121,7 @@ export async function POST(req: NextRequest) {
             studyEmail,
             createdAt: new Date().toISOString(),
             lastAttemptAt: new Date().toISOString(),
-            attempts: FieldValue.increment(1),
+            attempts: AdminFieldValue!.increment(1),
           },
           { merge: true }
         );
