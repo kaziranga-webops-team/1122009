@@ -3,7 +3,7 @@ export const dynamic = 'force-dynamic';
 
 import React, { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { query, where, getDocs } from 'firebase/firestore';
+import { query, where, getDoc, getDocs } from 'firebase/firestore';
 import { ArrowRight, Check, LogOut, Mail } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/components/portal/ui/Toast';
@@ -11,7 +11,7 @@ import { userProfileSchema } from '@/lib/portal/validation/schemas';
 import type { EventItem, Registration } from '@/types/portal';
 import { isMockMode } from '@/lib/firebase';
 import { mockStore } from '@/lib/portal/firebase/mockStore';
-import { getAllEventsGroupRef, getAllRegistrationsGroupRef, DEFAULT_MAIN_EVENT_ID } from '@/lib/portal/firebase/paths';
+import { getAllRegistrationsGroupRef, getEventRef, DEFAULT_MAIN_EVENT_ID, DEFAULT_TENURE_ID } from '@/lib/portal/firebase/paths';
 import { Button } from '@/components/portal/ui/Button';
 import { ConfirmModal } from '@/components/portal/ui/ConfirmModal';
 import { RegionArt, REGION_THEMES } from '@/components/portal/home/RegionArt';
@@ -91,18 +91,24 @@ export default function ProfilePage() {
           }
           return;
         }
-        // Members may read published events only, so ask for just those.
-        const [regSnap, evSnap] = await Promise.all([
-          getDocs(query(getAllRegistrationsGroupRef(), where('userId', '==', user.uid))),
-          getDocs(query(getAllEventsGroupRef(), where('status', 'in', ['PUBLISHED', 'CLOSED', 'COMPLETED']))),
-        ]);
+        const regSnap = await getDocs(query(getAllRegistrationsGroupRef(), where('userId', '==', user.uid)));
         const regs: Registration[] = [];
         regSnap.forEach((d) => {
           if (d.ref.path.includes('tenures/')) regs.push({ id: d.id, ...d.data() } as Registration);
         });
         regs.sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
+        // Read just the events shown, each by its own path: no index needed,
+        // and an event the rules hide (a draft) simply drops out.
+        const shown = Array.from(new Map(regs.slice(0, 5).map((r) => [r.eventId, r])).values());
+        const snaps = await Promise.all(
+          shown.map((r) =>
+            getDoc(getEventRef(r.tenureId || DEFAULT_TENURE_ID, r.mainEventId || DEFAULT_MAIN_EVENT_ID, r.eventId)).catch(() => null)
+          )
+        );
         const map: Record<string, EventItem> = {};
-        evSnap.forEach((d) => (map[d.id] = { id: d.id, ...d.data() } as EventItem));
+        snaps.forEach((d) => {
+          if (d?.exists()) map[d.id] = { id: d.id, ...d.data() } as EventItem;
+        });
         if (alive) {
           setRegistrations(regs);
           setEvents(map);

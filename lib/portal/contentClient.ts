@@ -33,12 +33,21 @@ async function authHeaders(): Promise<HeadersInit> {
   return { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json', ...viewAsHeaders() };
 }
 
+/** What to say when the server gave no reason of its own. */
+function fallbackMessage(status: number): string {
+  if (status === 401) return 'You are signed out. Sign in again to continue.';
+  if (status === 403) return 'Your role cannot change this.';
+  if (status === 404) return 'This could not be found.';
+  if (status >= 500) return 'The server ran into a problem. Wait a moment, then try again.';
+  return `Request failed (${status}).`;
+}
+
 async function unwrap<T>(res: Response): Promise<T> {
   const body = await res.json().catch(() => ({}));
   if (!res.ok) {
     throw new ContentApiError(
       res.status,
-      (body as { error?: string }).error || `Request failed (${res.status})`,
+      (body as { error?: string }).error || fallbackMessage(res.status),
       (body as { detail?: Record<string, string[]> }).detail
     );
   }

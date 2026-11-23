@@ -71,7 +71,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${yatra.variable} ${mukta.variable} ${kalam.variable}`}>
+    <html lang="en" data-scroll-behavior="smooth" className={`${yatra.variable} ${mukta.variable} ${kalam.variable}`}>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
