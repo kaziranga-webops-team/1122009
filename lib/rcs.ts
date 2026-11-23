@@ -6,6 +6,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 import type { CouncilRow } from "@/lib/api";
 import { REGIONS, type Region } from "@/lib/portal/regions";
+import { currentCouncil } from "@/lib/council";
 
 const ALIASES: Record<string, Region> = {
   bangalore: "Bengaluru",
@@ -20,7 +21,8 @@ const ALIASES: Record<string, Region> = {
 /** Region → the names of its RCs (a region can have more than one). */
 export function rcsByRegion(rows: CouncilRow[]): Partial<Record<Region, string[]>> {
   const out: Partial<Record<Region, string[]>> = {};
-  for (const row of rows) {
+  // Only the current council's RCs; past years stay on the council page.
+  for (const row of currentCouncil(rows)) {
     const m = /^RC\s+(.+)$/i.exec((row.Role || "").trim());
     const name = (row.Name || "").trim();
     if (!m || !name) continue;

@@ -69,6 +69,7 @@ const schemas = {
     email: text.refine((v) => v === '' || /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v), 'Not a valid email'),
     image_url: url,
     color: text,
+    tenure: text,
     sort_order: order,
   }),
 

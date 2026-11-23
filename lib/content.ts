@@ -136,6 +136,8 @@ export async function getCouncil(): Promise<CouncilRow[]> {
     Email: str(r.email),
     "Image URL": str(r.image_url),
     Color: str(r.color),
+    // Rows from before tenures existed have none; lib/council.ts reads that as 2025-26.
+    Tenure: str(r.tenure),
   }));
 }
 

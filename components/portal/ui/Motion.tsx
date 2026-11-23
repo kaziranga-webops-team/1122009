@@ -100,9 +100,11 @@ export const PageTransition: React.FC<{
   return (
     <motion.div
       className={cn(className)}
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, ease: EASE_EDITORIAL }}
+      // Short and opacity-only: a page that takes its time to arrive reads as
+      // a slow portal, however fast the data came back.
+      initial={{ opacity: 0.35 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.16, ease: 'easeOut' }}
     >
       {children}
     </motion.div>

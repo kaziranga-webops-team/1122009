@@ -367,7 +367,7 @@ function GalleryCard({ row, index, isTopPick }: { row: GalleryRow; index: number
           </div>
         ) : (
           <img
-            src={row.Image_url.trim()}
+            src={toDirectImageUrl(row.Image_url, 900)}
             alt={`${row.Student} — ${row.Category}`}
             className="w-full h-auto block transition-all duration-500 group-hover:scale-105"
             loading="lazy"

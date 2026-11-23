@@ -10,12 +10,16 @@ const display = Bricolage_Grotesque({
   subsets: ['latin'],
   variable: '--font-portal-display',
   display: 'swap',
+  // Declared site-wide (the shell lives in the root providers); not
+  // preloaded, so public pages do not fetch the portal's fonts.
+  preload: false,
 });
 
 const body = Manrope({
   subsets: ['latin'],
   variable: '--font-portal-body',
   display: 'swap',
+  preload: false,
 });
 
 export const portalFontVars = `${display.variable} ${body.variable}`;

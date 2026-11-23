@@ -86,21 +86,22 @@ export async function POST(req: Request) {
         const { data } = await loadEvent(db, n.event);
         assertOrganiser(user, data);
         const name = String(data.name || 'An event');
+        // Taking an event down is a staff action: the organiser sees it on
+        // screen, and members are not told about events they will no longer see.
+        if (n.change === 'REMOVED') break;
         const copy = {
-          PUBLISHED: { title: 'New event published', message: `${name} is now open for registration.`, type: 'EVENT' as const },
-          REPUBLISHED: { title: 'Event re-published', message: `${name} is open for registration again.`, type: 'EVENT' as const },
-          REMOVED: { title: 'Event removed', message: `${name} has been taken down.`, type: 'WARNING' as const },
+          PUBLISHED: { title: 'New event', message: `${name} is open for sign-ups.`, type: 'EVENT' as const },
+          REPUBLISHED: { title: 'Event reopened', message: `${name} is open for sign-ups again.`, type: 'EVENT' as const },
         }[n.change];
         if (!copy) throw new ApiError(400, 'Unknown status change.');
-        await write(db, [{ userId: 'GLOBAL', ...copy, linkUrl: n.change === 'REMOVED' ? undefined : eventLink(n.event) }]);
+        await write(db, [{ userId: 'GLOBAL', ...copy, linkUrl: eventLink(n.event) }]);
         await writeAudit({ actor: user, action: `NOTICE_EVENT_${n.change}`, target: name });
         break;
       }
 
       case 'EVENT_DELETED': {
-        if (!canUsePortalAdmin(user.role)) throw new ApiError(403, 'Only admins can announce a deleted event.');
-        const name = String(n.name || '').slice(0, 120) || 'An event';
-        await write(db, [{ userId: 'GLOBAL', title: 'Event removed', message: `${name} has been taken down.`, type: 'WARNING' }]);
+        // As with taking an event down: no notice for members.
+        if (!canUsePortalAdmin(user.role)) throw new ApiError(403, 'Only admins can delete events.');
         break;
       }
 
@@ -113,8 +114,8 @@ export async function POST(req: Request) {
           db,
           uids.map((uid) => ({
             userId: uid,
-            title: 'Event details updated',
-            message: `The schedule or venue for "${String(data.name || 'your event')}" has changed. Check the event page.`,
+            title: 'Event changed',
+            message: `${String(data.name || 'Your event')}: new time or venue.`,
             type: 'INFO' as const,
             linkUrl: eventLink(n.event),
           }))
@@ -133,7 +134,7 @@ export async function POST(req: Request) {
             id: `results_${n.event.eventId}`,
             userId: 'GLOBAL',
             title: 'Results are out',
-            message: `${name}: congratulations to ${String(data.winner)}!`,
+            message: `${name}: see who won.`,
             type: 'SUCCESS',
             linkUrl: eventLink(n.event),
           },
@@ -157,8 +158,8 @@ export async function POST(req: Request) {
             id: `invite_${n.invitationId}_${inv.status}`,
             userId: inv.inviterUserId,
             ...(inv.status === 'ACCEPTED'
-              ? { title: 'Team invitation accepted', message: `${who} joined your team for "${inv.eventName}".`, type: 'SUCCESS' as const }
-              : { title: 'Team invitation declined', message: `${who} declined your team invitation for "${inv.eventName}".`, type: 'WARNING' as const }),
+              ? { title: 'Invite accepted', message: `${who} joined your team for ${inv.eventName}.`, type: 'SUCCESS' as const }
+              : { title: 'Invite declined', message: `${who} won't join your team for ${inv.eventName}.`, type: 'WARNING' as const }),
             linkUrl: `/dashboard/events/${inv.mainEventId}/subevents/${inv.eventId}`,
           },
         ]);
@@ -185,8 +186,8 @@ export async function POST(req: Request) {
             ? active.map((d) => ({
                 id: `teamcancel_${regSnap.id}_${d.get('userId')}`,
                 userId: String(d.get('userId')),
-                title: 'Team disbanded',
-                message: `The team leader cancelled the team registration for "${eventName}".`,
+                title: 'Team cancelled',
+                message: `Your team for ${eventName} was cancelled.`,
                 type: 'WARNING' as const,
                 linkUrl: link,
               }))
@@ -195,8 +196,8 @@ export async function POST(req: Request) {
                 .map((d) => ({
                   id: `teamcancel_${regSnap.id}_${d.get('userId')}`,
                   userId: String(d.get('userId')),
-                  title: 'Teammate withdrew',
-                  message: `${reg.nameSnapshot || user.name || 'A teammate'} left your team for "${eventName}". You can invite someone else.`,
+                  title: 'Teammate left',
+                  message: `${reg.nameSnapshot || user.name || 'A teammate'} left your team for ${eventName}.`,
                   type: 'WARNING' as const,
                   linkUrl: link,
                 }));
@@ -218,8 +219,8 @@ export async function POST(req: Request) {
           {
             id: `teamready_${n.teamId}`,
             userId: String(leader.get('userId')),
-            title: 'Your team is complete',
-            message: `"${String(leader.get('teamName') || 'Your team')}" now has ${confirmed.length} members for "${String(event.name || 'the event')}".`,
+            title: 'Team complete',
+            message: `${String(leader.get('teamName') || 'Your team')} is ready for ${String(event.name || 'the event')}.`,
             type: 'SUCCESS',
             linkUrl: eventLink(n.event),
           },
@@ -228,27 +229,60 @@ export async function POST(req: Request) {
       }
 
       case 'DEADLINES': {
-        // Any member may ask; the result is the same however often it runs.
-        const now = Date.now();
-        const soon = await db.collectionGroup('events').where('status', '==', 'PUBLISHED').get();
-        const due = soon.docs.filter((d) => {
-          const t = new Date(String(d.get('registrationDeadline') || '')).getTime();
-          return Number.isFinite(t) && t > now && t - now <= 24 * 3600 * 1000;
+        // Any member's visit may ask, but the house checks at most every 30
+        // minutes: one scan serves everyone, instead of one per visit.
+        const meta = db.collection('meta').doc('notices');
+        const due = await db.runTransaction(async (tx) => {
+          const last = (await tx.get(meta)).get('lastScan') as string | undefined;
+          if (last && Date.now() - new Date(last).getTime() < 30 * 60 * 1000) return false;
+          tx.set(meta, { lastScan: new Date().toISOString() }, { merge: true });
+          return true;
         });
-        await write(
-          db,
-          due.map((d) => {
-            const hours = Math.max(1, Math.round((new Date(String(d.get('registrationDeadline'))).getTime() - now) / 3600000));
-            return {
+        if (!due) break;
+
+        const now = Date.now();
+        const day = 24 * 3600 * 1000;
+        const published = await db.collectionGroup('events').where('status', '==', 'PUBLISHED').get();
+        const inNextDay = (iso: unknown) => {
+          const t = new Date(String(iso || '')).getTime();
+          return Number.isFinite(t) && t > now && t - now <= day;
+        };
+        const hoursUntil = (iso: unknown) => Math.max(1, Math.round((new Date(String(iso)).getTime() - now) / 3600000));
+        const out: (NoticeDoc & { id: string })[] = [];
+
+        for (const d of published.docs) {
+          const name = String(d.get('name') || 'An event');
+          const link = `/dashboard/events/${String(d.get('mainEventId') || '')}/subevents/${d.id}`;
+
+          // Registration closing: everyone.
+          if (inNextDay(d.get('registrationDeadline'))) {
+            out.push({
               id: `deadline_${d.id}`,
               userId: 'GLOBAL',
-              title: 'Registration closing soon',
-              message: `Registration for "${String(d.get('name') || 'an event')}" closes in ${hours} ${hours === 1 ? 'hour' : 'hours'}.`,
-              type: 'EVENT' as const,
-              linkUrl: `/dashboard/events/${String(d.get('mainEventId') || '')}/subevents/${d.id}`,
-            };
-          })
-        );
+              title: 'Closing soon',
+              message: `${name} closes in ${hoursUntil(d.get('registrationDeadline'))}h.`,
+              type: 'EVENT',
+              linkUrl: link,
+            });
+          }
+
+          // Starting soon: the people registered for it.
+          if (inNextDay(d.get('startDateTime'))) {
+            const regs = await d.ref.collection('registrations').where('status', '==', 'CONFIRMED').get();
+            const hours = hoursUntil(d.get('startDateTime'));
+            for (const uid of new Set(regs.docs.map((r) => String(r.get('userId') || '')).filter(Boolean))) {
+              out.push({
+                id: `starts_${d.id}_${uid}`,
+                userId: uid,
+                title: 'Starting soon',
+                message: `${name} starts in ${hours}h.`,
+                type: 'EVENT',
+                linkUrl: link,
+              });
+            }
+          }
+        }
+        await write(db, out);
         break;
       }
 

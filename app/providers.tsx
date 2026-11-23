@@ -12,6 +12,11 @@ import { Toaster } from "@/components/ui/toaster";
 import { ToastProvider } from "@/components/portal/ui/Toast";
 import { AuthProvider } from "@/context/AuthContext";
 import Navbar from "@/components/Navbar";
+import { PortalProviders } from "@/components/portal/layout/PortalProviders";
+import { portalFontVars } from "@/lib/portal/fonts";
+
+/** The portal's sections. They share one shell, mounted once while you move between them. */
+const PORTAL_SHELL = ["/dashboard", "/admin", "/super-admin"];
 
 // Routes that render their own header, so the global Navbar is hidden.
 // "/" is the illustrated homepage — it ships its own KzHeader.
@@ -31,6 +36,8 @@ export default function Providers({ children }: { children: React.ReactNode }) {
     pathname === "/my-registrations" ||
     pathname === "/notifications" ||
     pathname === "/profile";
+
+  const inPortalShell = PORTAL_SHELL.some((p) => pathname === p || pathname.startsWith(p + "/"));
 
   const showNavbar = !NAVBAR_HIDDEN.includes(pathname) && !pathname.startsWith("/study/") && !isPortalRoute;
 
@@ -73,7 +80,13 @@ export default function Providers({ children }: { children: React.ReactNode }) {
                 )}
               </AnimatePresence>
 
-              {children}
+              {inPortalShell ? (
+                <div className={`${portalFontVars} contents`}>
+                  <PortalProviders>{children}</PortalProviders>
+                </div>
+              ) : (
+                children
+              )}
               <Toaster />
             </ReactLenis>
           </AuthProvider>

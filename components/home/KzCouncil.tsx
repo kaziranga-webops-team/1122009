@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Mail, Phone, User } from "lucide-react";
 import { fetchCouncil, getCachedCouncil, toDirectImageUrl, type CouncilRow } from "@/lib/api";
+import { currentCouncil } from "@/lib/council";
 import { SectionHead } from "@/components/home/sections";
 
 type Member = {
@@ -33,7 +34,7 @@ function toMember(row: CouncilRow, i: number): Member {
     tagline: (row.Tagline || "").trim(),
     phone: (row.Phone || row["Phone "] || row[" Phone"] || "").trim(),
     email: (row.Email || row["Email "] || row[" Email"] || "").trim(),
-    image: toDirectImageUrl(row["Image URL"] || ""),
+    image: toDirectImageUrl(row["Image URL"] || "", 800),
   };
 }
 
@@ -150,13 +151,13 @@ export { FlipCard, toMember };
 export type { Member };
 
 export default function KzCouncil() {
-  const [members, setMembers] = useState<Member[]>(() => (getCachedCouncil() || []).map(toMember));
+  const [members, setMembers] = useState<Member[]>(() => currentCouncil(getCachedCouncil() || []).map(toMember));
 
   useEffect(() => {
     let alive = true;
     fetchCouncil()
       .then((rows) => {
-        if (alive) setMembers(rows.map(toMember));
+        if (alive) setMembers(currentCouncil(rows).map(toMember));
       })
       .catch(() => {});
     return () => {

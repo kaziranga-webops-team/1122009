@@ -37,12 +37,21 @@ export const Modal: React.FC<ModalProps> = ({
   const panelRef = useRef<HTMLDivElement>(null);
   const reduce = useReducedMotion();
 
+  // Callers pass a fresh `onClose` on every render (an inline arrow). Reading
+  // it through a ref keeps the effect below tied to opening and closing only:
+  // when it re-ran on each keystroke, its cleanup handed focus back to the
+  // button that opened the dialog, so every field lost focus after one letter.
+  const onCloseRef = useRef(onClose);
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
+
   useEffect(() => {
     if (!isOpen) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        onClose();
+        onCloseRef.current();
         return;
       }
       // Keep focus inside the dialog while it is open.
@@ -73,7 +82,7 @@ export const Modal: React.FC<ModalProps> = ({
       window.removeEventListener('keydown', handleKeyDown);
       previouslyFocused?.focus?.();
     };
-  }, [isOpen, onClose]);
+  }, [isOpen]);
 
   return (
     <AnimatePresence>

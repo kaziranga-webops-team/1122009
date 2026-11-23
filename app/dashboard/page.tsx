@@ -20,6 +20,7 @@ import {
   NextUp,
   OrganiserPanel,
   Shortcuts,
+  WhereThingsAre,
   organiserStats,
   parseSheetDate,
   shortcutsFor,
@@ -241,6 +242,8 @@ export default function HomePage() {
       </div>
 
       <Shortcuts items={shortcutsFor(user.role)} />
+
+      <WhereThingsAre role={user.role} />
 
       {organiser && <OrganiserPanel stats={organiserStats(managed)} scopeLabel={scopeLabel} loading={loading} />}
 

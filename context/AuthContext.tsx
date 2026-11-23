@@ -37,6 +37,41 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+/**
+ * Staying signed in. Firebase keeps the session in this browser, so moving
+ * between the website and the portal never asks you to sign in again, and
+ * closing the tab does not sign you out. A session left unused for a week
+ * is closed the next time the site opens, so a shared or lost device does
+ * not stay in someone's account for ever.
+ */
+const LAST_ACTIVE_KEY = 'kz-last-active';
+const IDLE_LIMIT_MS = 7 * 24 * 60 * 60 * 1000;
+
+function readLastActive(): number | null {
+  try {
+    const v = Number(localStorage.getItem(LAST_ACTIVE_KEY));
+    return Number.isFinite(v) && v > 0 ? v : null;
+  } catch {
+    return null;
+  }
+}
+
+function markActive() {
+  try {
+    localStorage.setItem(LAST_ACTIVE_KEY, String(Date.now()));
+  } catch {
+    // private windows may refuse storage; the session simply never times out
+  }
+}
+
+function clearLastActive() {
+  try {
+    localStorage.removeItem(LAST_ACTIVE_KEY);
+  } catch {
+    // ignore
+  }
+}
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   // Safe: <ToastProvider> wraps <AuthProvider> in the root layout.
   const toast = useToast();
@@ -156,6 +191,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
 
         if (fbUser && fbUser.email) {
+          // Unused for longer than the limit: close the old session quietly.
+          const last = readLastActive();
+          if (last && Date.now() - last > IDLE_LIMIT_MS) {
+            clearLastActive();
+            await firebaseSignOut(auth);
+            return; // the listener runs again with no user
+          }
+          markActive();
           try {
             const isAllowed = await handleFirebaseUserLogin(fbUser);
             if (!isAllowed) {
@@ -243,10 +286,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return;
     }
 
+    clearLastActive();
     await firebaseSignOut(auth);
     setAccount(null);
     router.push('/login');
   };
+
+  // While signed in, any use of the site (on any page) counts as activity.
+  // Written at most every five minutes.
+  useEffect(() => {
+    if (!account) return;
+    let last = 0;
+    const touch = () => {
+      if (Date.now() - last < 5 * 60 * 1000) return;
+      last = Date.now();
+      markActive();
+    };
+    touch();
+    const events = ['pointerdown', 'keydown', 'visibilitychange'] as const;
+    events.forEach((e) => window.addEventListener(e, touch, { passive: true }));
+    return () => events.forEach((e) => window.removeEventListener(e, touch));
+  }, [account]);
 
   const updateProfile = async (data: Partial<UserProfile>) => {
     if (!account) return;

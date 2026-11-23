@@ -4,7 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { Instagram, Linkedin, Youtube } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { SOCIAL_LINKS, type NavSection } from './navConfig';
+import { SOCIAL_LINKS, isNavItemActive, type NavSection } from './navConfig';
 import { useNotifications } from '@/context/NotificationContext';
 
 const SOCIAL_ICONS = { Instagram, LinkedIn: Linkedin, YouTube: Youtube } as const;
@@ -99,7 +99,7 @@ export const NavSectionBlock: React.FC<{
           href={item.href}
           label={item.label}
           icon={item.icon}
-          isActive={pathname === item.href}
+          isActive={isNavItemActive(item, pathname)}
           accent={section.accent}
           badge={item.href.endsWith('/notifications') && unreadCount > 0 ? unreadCount : undefined}
           onNavigate={onNavigate}

@@ -23,6 +23,17 @@ export interface NavItem {
   label: string;
   href: string;
   icon: LucideIcon;
+  /** Light this item for every page under these paths (a hub and its tabs). */
+  match?: string[];
+  /** Paths under `match` that belong to another item. */
+  except?: string[];
+}
+
+/** Is this item the current page, or the hub the current page belongs to? */
+export function isNavItemActive(item: NavItem, pathname: string): boolean {
+  if (pathname === item.href) return true;
+  const under = (p: string) => pathname === p || pathname.startsWith(p + '/');
+  return (item.match ?? []).some(under) && !(item.except ?? []).some(under);
 }
 
 export interface NavSection {
@@ -68,36 +79,42 @@ export function organiseItems(role?: UserRole): NavItem[] {
   return items;
 }
 
-function organiseSection(role?: UserRole): NavSection | null {
-  const items = organiseItems(role);
+/**
+ * The work, as hubs rather than a dozen links: Organise (events and
+ * everything around them), House (people and access) and, for the super
+ * admin, Website (what the public site shows). Each hub's screens are the
+ * tab row at the top of its pages.
+ */
+function workSection(role?: UserRole): NavSection | null {
+  const items: NavItem[] = [];
+  if (organiseItems(role).length) {
+    items.push({ label: 'Organise', href: '/admin/events', icon: CalendarCog, match: ['/admin'], except: ['/admin/content'] });
+  }
+  if (canManageRoles(role)) {
+    items.push({ label: 'House', href: '/super-admin/dashboard', icon: Crown, match: ['/super-admin'] });
+    items.push({ label: 'Website', href: '/admin/content/council_members', icon: Globe, match: ['/admin/content'] });
+  }
   if (!items.length) return null;
   return {
-    id: 'organise',
-    label: 'Organise',
-    action: { label: 'New event', href: '/admin/events/new', icon: PlusCircle },
+    id: 'work',
+    label: 'Your work',
+    action: organiseItems(role).length ? { label: 'New event', href: '/admin/events/new', icon: PlusCircle } : undefined,
     items,
   };
 }
 
 /**
- * Running the house: who can sign in, who holds which role, the public
- * website and the record of changes. The super admin's alone.
+ * Running the house: who can sign in, who holds which role and the record of
+ * changes. The super admin's alone. The public website has its own link.
  */
 export const HOUSE_ITEMS: NavItem[] = [
   { label: 'Overview', href: '/super-admin/dashboard', icon: Crown },
   { label: 'Members & roles', href: '/super-admin/roles', icon: Users },
   { label: 'Access list', href: '/super-admin/allowed-users', icon: FileSpreadsheet },
   { label: 'Past members', href: '/super-admin/historical-users', icon: FolderArchive },
-  { label: 'Website', href: '/admin/content/events', icon: Globe },
   { label: 'Activity log', href: '/super-admin/audit-logs', icon: History },
 ];
 
-const houseSection: NavSection = {
-  id: 'house',
-  label: 'House',
-  accent: true,
-  items: HOUSE_ITEMS,
-};
 
 /**
  * The sections a role sees, grouped by what the person is there to do rather
@@ -106,9 +123,8 @@ const houseSection: NavSection = {
  */
 export function getNavSections(role?: UserRole): NavSection[] {
   const sections: NavSection[] = [youSection];
-  const organise = organiseSection(role);
-  if (organise) sections.push(organise);
-  if (canManageRoles(role)) sections.push(houseSection);
+  const work = workSection(role);
+  if (work) sections.push(work);
   return sections;
 }
 

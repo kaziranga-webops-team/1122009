@@ -1,7 +1,7 @@
 "use client";
 
 import { initializeApp, getApp, getApps, type FirebaseApp } from "firebase/app";
-import { getDatabase, ref, get } from "firebase/database";
+import type { Database } from "firebase/database";
 import { getFirestore, type Firestore } from "firebase/firestore";
 import { getAuth, signInWithEmailAndPassword, signOut as firebaseSignOut, onAuthStateChanged, GoogleAuthProvider, type User } from "firebase/auth";
 
@@ -85,16 +85,22 @@ export const googleProvider = new GoogleAuthProvider();
 
 // Gallery likes RTDB. Prefer the primary project when it declares a databaseURL,
 // otherwise fall back to the legacy kaziranga-now project that holds the data.
-export const database = (() => {
-  try {
-    if (app && firebaseConfig.databaseURL) return getDatabase(app);
-    if (!legacyRtdbConfig.databaseURL) return null;
-    return getDatabase(getOrInitApp(LEGACY_RTDB_APP_NAME, legacyRtdbConfig));
-  } catch (error) {
-    console.error("Failed to initialize Realtime Database:", error);
-    return null;
-  }
-})();
+// Loaded on first use: this module is imported by every page (auth), and the
+// Realtime Database SDK is heavy, so it stays out of the bundle until asked for.
+let databasePromise: Promise<Database | null> | null = null;
+export function getLikesDatabase(): Promise<Database | null> {
+  databasePromise ??= import("firebase/database")
+    .then(({ getDatabase }) => {
+      if (app && firebaseConfig.databaseURL) return getDatabase(app);
+      if (!legacyRtdbConfig.databaseURL) return null;
+      return getDatabase(getOrInitApp(LEGACY_RTDB_APP_NAME, legacyRtdbConfig));
+    })
+    .catch((error) => {
+      console.error("Failed to initialize Realtime Database:", error);
+      return null;
+    });
+  return databasePromise;
+}
 
 export { signInWithEmailAndPassword, firebaseSignOut, onAuthStateChanged, GoogleAuthProvider, type User };
 
@@ -126,7 +132,9 @@ export function getCurrentMonth(): string {
  * Fetch the top X most liked images for the current month.
  */
 export async function getTopPicksForMonth(month: string, limit = 15): Promise<{ id: string; count: number }[]> {
+  const database = await getLikesDatabase();
   if (!database) return [];
+  const { ref, get } = await import("firebase/database");
 
   try {
     // Note: To make orderByChild('count') highly performant, you should add

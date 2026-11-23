@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { PanelLeftClose, PanelLeftOpen } from 'lucide-react';
+import { Globe, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
@@ -111,6 +111,19 @@ export const Sidebar: React.FC = () => {
             />
           ))}
         </nav>
+
+        {/* Back to the public site, still signed in: "My portal" there brings you back. */}
+        <Link
+          href="/"
+          aria-label="Go to the Kaziranga House website"
+          title={collapsed ? 'Go to the website' : undefined}
+          className={`shrink-0 -mb-5 flex items-center gap-3 min-h-10 rounded-xl text-[0.875rem] font-medium
+            text-ink-muted hover:text-ink hover:bg-surface-sunken/60 transition-colors
+            ${collapsed ? 'justify-center' : 'px-3'}`}
+        >
+          <Globe className="w-5 h-5" aria-hidden />
+          {!collapsed && <span>Go to the website</span>}
+        </Link>
 
         <button
           type="button"

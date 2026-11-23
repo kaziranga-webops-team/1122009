@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LogOut, Crown, Shield, Menu, X, User as UserIcon, Search } from 'lucide-react';
+import { LogOut, Crown, Shield, Menu, X, User as UserIcon, Search, Globe } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { ROLE_LABELS } from '@/lib/portal/permissions';
 import { BrandLockup } from './Sidebar';
@@ -248,6 +248,15 @@ export const Navbar: React.FC = () => {
                   </Link>
                   <ThemeToggle />
                 </div>
+                <Link
+                  href="/"
+                  onClick={() => setDrawerOpen(false)}
+                  className="w-full flex items-center justify-center gap-2 h-11 rounded-xl
+                    text-caption font-semibold font-display text-ink bg-surface-sunken hover:bg-surface-sunken/70 transition-colors"
+                >
+                  <Globe className="w-4 h-4" />
+                  Go to the website
+                </Link>
                 <SocialRow className="justify-center" />
                 <button
                   onClick={logout}

@@ -361,3 +361,67 @@ export const Meetups: React.FC<{ title: string; items: MeetupCardData[] }> = ({ 
     </ul>
   </section>
 );
+
+// ─── Where things are ───────────────────────────────────────────────────────
+
+const GUIDE_KEY = 'kz-guide-dismissed';
+
+/**
+ * A short map of the portal for people who run things, shown on Home until
+ * they close it. Only the hubs this role can open are listed.
+ */
+export const WhereThingsAre: React.FC<{ role: UserRole | undefined }> = ({ role }) => {
+  const [hidden, setHidden] = React.useState(true);
+  React.useEffect(() => {
+    try {
+      setHidden(localStorage.getItem(GUIDE_KEY) === '1');
+    } catch {
+      setHidden(false);
+    }
+  }, []);
+  if (hidden || !canOrganiseEvents(role)) return null;
+
+  const close = () => {
+    setHidden(true);
+    try {
+      localStorage.setItem(GUIDE_KEY, '1');
+    } catch {}
+  };
+
+  const rows = [
+    {
+      title: 'Organise',
+      href: '/admin/events',
+      line: canUsePortalAdmin(role)
+        ? 'Create events, see sign-ups, post announcements, edit community pages, and see insights.'
+        : 'Create your community’s events, see who signed up, post announcements and edit your community page.',
+    },
+    ...(canManageRoles(role)
+      ? [{ title: 'House', href: '/super-admin/dashboard', line: 'Approve access, change roles, edit the website and check the activity log.' }]
+      : []),
+  ];
+
+  return (
+    <section aria-label="Where things are" className="relative rounded-[18px] border border-brand/25 bg-brand/[0.06] p-5">
+      <button
+        type="button"
+        onClick={close}
+        className="absolute right-3 top-3 rounded-lg px-2 py-1 text-[0.8125rem] font-semibold text-ink-muted hover:bg-surface-sunken hover:text-ink"
+      >
+        Got it
+      </button>
+      <h2 className="pr-16 text-[1rem] font-semibold text-ink">Where things are</h2>
+      <ul className="mt-3 space-y-2.5">
+        {rows.map((r) => (
+          <li key={r.title} className="text-[0.9375rem] text-ink-muted">
+            <Link href={r.href} className="font-semibold text-ink underline-offset-4 hover:underline">
+              {r.title}
+            </Link>{' '}
+            — {r.line}
+          </li>
+        ))}
+      </ul>
+      <p className="mt-3 text-[0.8125rem] text-ink-faint">Each one opens with its own tabs along the top.</p>
+    </section>
+  );
+};

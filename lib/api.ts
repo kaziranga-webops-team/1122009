@@ -78,8 +78,31 @@ export interface HeroPhoto {
   fallback: string;
 }
 
+// ─── Image delivery ───────────────────────────────────────────────────
+
+const CLOUDINARY = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+
+/**
+ * Serves a remote image through Cloudinary: resized to `width` (never
+ * upscaled), converted to WebP/AVIF where the browser takes it, compressed,
+ * and cached on Cloudinary's CDN. A 1.2 MB PNG poster from GitHub comes back
+ * as about 80 KB. Local files and anything that is not https are left alone,
+ * and without a cloud name configured every URL passes through unchanged.
+ */
+export function cdnImage(url: string, width = 1200): string {
+  if (!CLOUDINARY || !/^https:\/\//i.test(url)) return url;
+  const t = `f_auto,q_auto,c_limit,w_${width}`;
+  // Already on Cloudinary: add the transformation unless one is there.
+  if (/res\.cloudinary\.com\/[^/]+\/image\/upload\//.test(url)) {
+    return /\/image\/upload\/(?:[a-z]{1,3}_[^/]*\/)/.test(url) ? url : url.replace("/image/upload/", `/image/upload/${t}/`);
+  }
+  if (url.includes("res.cloudinary.com")) return url;
+  return `https://res.cloudinary.com/${CLOUDINARY}/image/fetch/${t}/${encodeURIComponent(url)}`;
+}
+
 // ─── Convert Google Drive share links to direct image URLs ───────────
-export function toDirectImageUrl(url: string): string {
+/** A direct, CDN-served URL for an image link from the content sheets. */
+export function toDirectImageUrl(url: string, width = 1200): string {
   if (!url) return "";
   const trimmed = url.trim();
 
@@ -87,17 +110,17 @@ export function toDirectImageUrl(url: string): string {
     /drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/
   );
   if (driveMatch) {
-    return `https://lh3.googleusercontent.com/d/${driveMatch[1]}`;
+    return cdnImage(`https://lh3.googleusercontent.com/d/${driveMatch[1]}`, width);
   }
 
   const driveOpenMatch = trimmed.match(
     /drive\.google\.com\/open\?id=([a-zA-Z0-9_-]+)/
   );
   if (driveOpenMatch) {
-    return `https://lh3.googleusercontent.com/d/${driveOpenMatch[1]}`;
+    return cdnImage(`https://lh3.googleusercontent.com/d/${driveOpenMatch[1]}`, width);
   }
 
-  return trimmed;
+  return cdnImage(trimmed, width);
 }
 
 // ─── Helper: fetch JSON from one of our own API routes ───────────────

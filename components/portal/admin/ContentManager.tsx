@@ -23,6 +23,7 @@ import {
   updateContent,
   type ContentRow,
 } from '@/lib/portal/contentClient';
+import { FIRST_TENURE, tenureLabel } from '@/lib/council';
 
 /** '' for text, false for booleans — never undefined, so inputs stay controlled. */
 function blankRow(fields: FieldConfig[]): Record<string, unknown> {
@@ -37,6 +38,14 @@ function toLocalInput(iso: unknown): string {
   const pad = (n: number) => String(n).padStart(2, '0');
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
+
+/** The council year after this one: '2026-27' → '2027-28'. */
+function nextTenure(t: string): string {
+  const start = Number(t.slice(0, 4)) + 1;
+  return `${start}-${String((start + 1) % 100).padStart(2, '0')}`;
+}
+
+const tenureOfRow = (row: ContentRow) => String(row.tenure || '').trim() || FIRST_TENURE;
 
 function fromLocalInput(value: string): string | null {
   if (!value) return null;
@@ -62,6 +71,20 @@ export function ContentManager({ resource }: { resource: ContentResource }) {
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState<ContentRow | null>(null);
   const [busyDelete, setBusyDelete] = useState(false);
+
+  // The council is kept year by year: the editor shows one year's council at
+  // a time (the newest first), and new members join the year in view.
+  const isCouncil = resource === 'council_members';
+  const [picked, setPicked] = useState<string | null>(null);
+  const [extraYear, setExtraYear] = useState<string | null>(null);
+  const years = useMemo(() => {
+    if (!isCouncil) return [];
+    const set = new Set(rows.map(tenureOfRow));
+    if (extraYear) set.add(extraYear);
+    return Array.from(set).sort().reverse();
+  }, [isCouncil, rows, extraYear]);
+  const year = picked ?? years[0] ?? FIRST_TENURE;
+  const showAll = picked === 'all';
 
   // An RC may only touch the council row linked to their profile, so the
   // ownership context is the same one the server will re-check.
@@ -106,7 +129,9 @@ export function ContentManager({ resource }: { resource: ContentResource }) {
 
   function openCreate() {
     setFieldErrors({});
-    setForm(blankRow(config.fields));
+    const blank = blankRow(config.fields);
+    if (isCouncil) blank.tenure = showAll ? years[0] ?? FIRST_TENURE : year;
+    setForm(blank);
     setEditing('new');
   }
 
@@ -120,7 +145,9 @@ export function ContentManager({ resource }: { resource: ContentResource }) {
             ? toLocalInput(row[f.name])
             : f.type === 'boolean'
               ? Boolean(row[f.name])
-              : (row[f.name] ?? ''),
+              : isCouncil && f.name === 'tenure'
+                ? tenureOfRow(row)
+                : (row[f.name] ?? ''),
         ])
       )
     );
@@ -181,7 +208,27 @@ export function ContentManager({ resource }: { resource: ContentResource }) {
   }
 
   const headline = config.columns[0].name;
-  const visible = useMemo(() => rows, [rows]);
+  const visible = useMemo(
+    () => (isCouncil && !showAll ? rows.filter((r) => tenureOfRow(r) === year) : rows),
+    [isCouncil, showAll, rows, year]
+  );
+
+  // The years a council member can be put in: every year already on record,
+  // plus the next one, so a new council can be started from the form too.
+  const tenureOptions = useMemo(() => {
+    if (!isCouncil) return [];
+    const set = new Set(years.length ? years : [FIRST_TENURE]);
+    set.add(nextTenure(Array.from(set).sort().reverse()[0]));
+    const current = String(form.tenure ?? '').trim();
+    if (current) set.add(current);
+    return Array.from(set).sort().reverse();
+  }, [isCouncil, years, form.tenure]);
+
+  function startNextYear() {
+    const next = nextTenure(years[0] ?? FIRST_TENURE);
+    setExtraYear(next);
+    setPicked(next);
+  }
 
   return (
     <div className="space-y-5">
@@ -211,6 +258,44 @@ export function ContentManager({ resource }: { resource: ContentResource }) {
         </div>
       </div>
 
+      {/* ─── Council years ─── */}
+      {isCouncil && !loading && !loadError && (
+        <div className="flex flex-wrap items-center gap-1.5" role="group" aria-label="Council year">
+          {years.map((y) => {
+            const n = rows.filter((r) => tenureOfRow(r) === y).length;
+            const active = !showAll && y === year;
+            return (
+              <button
+                key={y}
+                type="button"
+                onClick={() => setPicked(y)}
+                aria-pressed={active}
+                className={`h-8 rounded-full px-3 text-[0.8125rem] font-medium transition-colors ${
+                  active ? 'bg-ink text-surface' : 'bg-surface-sunken text-ink-muted hover:text-ink'
+                }`}
+              >
+                {tenureLabel(y)} <span className="opacity-70">· {n}</span>
+              </button>
+            );
+          })}
+          <button
+            type="button"
+            onClick={() => setPicked('all')}
+            aria-pressed={showAll}
+            className={`h-8 rounded-full px-3 text-[0.8125rem] font-medium transition-colors ${
+              showAll ? 'bg-ink text-surface' : 'bg-surface-sunken text-ink-muted hover:text-ink'
+            }`}
+          >
+            All years
+          </button>
+          {mayCreate && !extraYear && (
+            <Button variant="ghost" size="sm" onClick={startNextYear} leftIcon={<Plus className="w-4 h-4" />}>
+              Start {tenureLabel(nextTenure(years[0] ?? FIRST_TENURE))}
+            </Button>
+          )}
+        </div>
+      )}
+
       {/* ─── List ─── */}
       {loadError ? (
         <EmptyState
@@ -226,8 +311,20 @@ export function ContentManager({ resource }: { resource: ContentResource }) {
         </div>
       ) : visible.length === 0 ? (
         <EmptyState
-          title={query ? 'Nothing matches that search' : `No ${labels.title.toLowerCase()} yet`}
-          description={query ? 'Try a different word.' : undefined}
+          title={
+            query
+              ? 'Nothing matches that search'
+              : isCouncil && !showAll
+                ? `No one in the ${tenureLabel(year)} council yet`
+                : `No ${labels.title.toLowerCase()} yet`
+          }
+          description={
+            query
+              ? 'Try a different word.'
+              : isCouncil && !showAll
+                ? 'Add each member here. They appear on the website once saved, and the newest year shows first there.'
+                : undefined
+          }
           action={mayCreate && !query ? <Button size="sm" onClick={openCreate}>Add the first one</Button> : undefined}
         />
       ) : (
@@ -414,6 +511,27 @@ export function ContentManager({ resource }: { resource: ContentResource }) {
                     />
                     <span className="text-caption text-ink-muted">{value ? 'Yes' : 'No'}</span>
                   </label>
+                </Field>
+              );
+            }
+
+            if (isCouncil && f.name === 'tenure') {
+              return (
+                <Field key={f.name} label="Council year" hint="Pick the year this person served. The newest year shows first on the website." error={error}>
+                  <select
+                    id={`f-${f.name}`}
+                    value={String(value || FIRST_TENURE)}
+                    disabled={locked}
+                    onChange={(e) => setForm((s) => ({ ...s, [f.name]: e.target.value }))}
+                    className="ed-select w-full h-11 px-4 rounded-xl border border-hairline bg-surface-sunken text-body text-ink"
+                  >
+                    {tenureOptions.map((t) => (
+                      <option key={t} value={t}>
+                        {tenureLabel(t)}
+                        {years.includes(t) ? '' : ' (new year)'}
+                      </option>
+                    ))}
+                  </select>
                 </Field>
               );
             }

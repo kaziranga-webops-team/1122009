@@ -5,7 +5,6 @@ import { notFound, useParams } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { SectionHeading } from '@/components/portal/ui/Section';
 import { ContentManager } from '@/components/portal/admin/ContentManager';
-import { SuperAdminNavTabs } from '@/components/portal/super-admin/SuperAdminNavTabs';
 import { ContentTabs } from '@/components/portal/admin/ContentTabs';
 import { EmptyState } from '@/components/portal/ui/EmptyState';
 import { CONTENT_RESOURCES, writableResources, type ContentResource } from '@/lib/portal/permissions';
@@ -24,11 +23,15 @@ export default function ContentResourcePage() {
 
   return (
     <div>
-      <SuperAdminNavTabs />
-
       <div className="space-y-5">
-        <SectionHeading title={labels.title} size="lg" as="h1" />
+        <SectionHeading
+          title="Website"
+          description="What the public site shows. Pick a section, then add, edit or reorder its entries."
+          size="lg"
+          as="h1"
+        />
         <ContentTabs />
+        <h2 className="sr-only">{labels.title}</h2>
       {canOpen ? (
         <ContentManager resource={resource} />
       ) : (

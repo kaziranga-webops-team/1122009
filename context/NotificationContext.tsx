@@ -136,8 +136,14 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
         query(collection(db, 'notifications'), where('userId', '==', 'GLOBAL')),
         (snapshot) => {
           globalNotifs = [];
+          const monthAgo = Date.now() - 30 * 24 * 3600 * 1000;
           snapshot.forEach((docSnap) => {
-            globalNotifs.push({ id: docSnap.id, ...docSnap.data() } as NotificationItem);
+            const n = { id: docSnap.id, ...docSnap.data() } as NotificationItem;
+            // House-wide notices are for what is happening now: skip old ones,
+            // and the "event removed" notices that used to go to everyone.
+            if (/event removed/i.test(n.title || '')) return;
+            if (new Date(n.createdAt).getTime() < monthAgo) return;
+            globalNotifs.push(n);
           });
           publishNotifications();
         },

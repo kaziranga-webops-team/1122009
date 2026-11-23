@@ -1,10 +1,24 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ref, onValue, runTransaction } from "firebase/database";
-import { database, getCurrentMonth } from "../lib/firebase";
+import { ref, onValue, runTransaction, type Database } from "firebase/database";
+import { getLikesDatabase, getCurrentMonth } from "../lib/firebase";
+
+/** The likes database, once it has loaded (it is loaded on first use). */
+function useLikesDatabase(): Database | null {
+  const [database, setDatabase] = useState<Database | null>(null);
+  useEffect(() => {
+    let alive = true;
+    void getLikesDatabase().then((d) => alive && setDatabase(d));
+    return () => {
+      alive = false;
+    };
+  }, []);
+  return database;
+}
 
 export function useLikes(imageId: string) {
+  const database = useLikesDatabase();
   const [likeCount, setLikeCount] = useState<number>(0);
   // Read initial local storage state
   const [hasLiked, setHasLiked] = useState<boolean>(() => {
@@ -28,7 +42,7 @@ export function useLikes(imageId: string) {
     });
 
     return () => unsubscribe();
-  }, [imageId]);
+  }, [database, imageId]);
 
   const toggleLike = async () => {
     if (!database) {
@@ -99,6 +113,7 @@ export function useLikes(imageId: string) {
 }
 
 export function useAllLikes() {
+  const database = useLikesDatabase();
   const [likesMap, setLikesMap] = useState<Record<string, number>>({});
 
   useEffect(() => {
@@ -120,7 +135,7 @@ export function useAllLikes() {
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [database]);
 
   return likesMap;
 }
