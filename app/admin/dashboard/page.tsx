@@ -1,11 +1,11 @@
 'use client';
 export const dynamic = 'force-dynamic';
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { EventItem, Registration, MainEvent } from '@/types/portal';
-import { isMockMode, db } from '@/lib/firebase';
+import { isMockMode } from '@/lib/firebase';
 import { mockStore } from '@/lib/portal/firebase/mockStore';
 import { getDocs } from 'firebase/firestore';
 import {

@@ -1,6 +1,6 @@
 "use client";
 
-import { initializeApp, getApp, getApps, type FirebaseApp } from "firebase/app";
+import { initializeApp, getApps, type FirebaseApp } from "firebase/app";
 import type { Database } from "firebase/database";
 import { getFirestore, type Firestore } from "firebase/firestore";
 import { getAuth, signInWithEmailAndPassword, signOut as firebaseSignOut, onAuthStateChanged, GoogleAuthProvider, type User } from "firebase/auth";
@@ -104,13 +104,6 @@ export function getLikesDatabase(): Promise<Database | null> {
 
 export { signInWithEmailAndPassword, firebaseSignOut, onAuthStateChanged, GoogleAuthProvider, type User };
 
-// ─── Shared Database Helpers ─────────────────────────────────────────────────
-
-export interface LikeData {
-  count: number;
-  month: string; // YYYY-MM
-}
-
 /**
  * Deterministically generates a safe Firebase key from an image row
  */
@@ -126,50 +119,4 @@ export function generateImageId(student: string, timestamp: string): string {
 export function getCurrentMonth(): string {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
-}
-
-/**
- * Fetch the top X most liked images for the current month.
- */
-export async function getTopPicksForMonth(month: string, limit = 15): Promise<{ id: string; count: number }[]> {
-  const database = await getLikesDatabase();
-  if (!database) return [];
-  const { ref, get } = await import("firebase/database");
-
-  try {
-    // Note: To make orderByChild('count') highly performant, you should add
-    // an index in Firebase Realtime Database rules:
-    // "likes": { ".indexOn": "count" }
-    
-    // However, Firebase doesn't support complex composite queries easily 
-    // (like "where month == X AND order by count"). 
-    // Since this is a small scale app, we'll fetch all likes, filter in memory, 
-    // and sort. For thousands of photos, a different schema would be needed.
-
-    const likesRef = ref(database, 'likes');
-    const snapshot = await get(likesRef);
-    
-    if (!snapshot.exists()) return [];
-
-    const allLikes: { id: string; count: number; month: string }[] = [];
-    snapshot.forEach((child) => {
-      const data = child.val();
-      allLikes.push({
-        id: child.key as string,
-        count: data.count || 0,
-        month: data.month || "",
-      });
-    });
-
-    // Filter by current month, sort descending by count, take top 'limit'
-    return allLikes
-      .filter(l => l.month === month)
-      .sort((a, b) => b.count - a.count)
-      .slice(0, limit)
-      .map(l => ({ id: l.id, count: l.count }));
-
-  } catch (error) {
-    console.error("Error fetching top picks:", error);
-    return [];
-  }
 }

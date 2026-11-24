@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState, type ComponentProps } from "react";
+import { useFeed } from "@/lib/feeds";
+import { type ComponentProps } from "react";
 import { ArrowUpRight, Clock, FileText, Info } from "lucide-react";
 import {
   GRADE_SCALE,
@@ -170,23 +171,10 @@ export function GradeScaleTable() {
 }
 
 type StudyLinkRow = { Degree: string; "Student Handbook": string; "Grading Doc": string };
-let studyLinks: Promise<StudyLinkRow[]> | null = null;
-
 /** The live handbook and grading links, fetched once per visit. */
 export function useStudyLinks(): StudyLinkRow[] {
-  const [rows, setRows] = useState<StudyLinkRow[]>([]);
-  useEffect(() => {
-    studyLinks ??= fetch("/api/study-links")
-      .then((r) => (r.ok ? r.json() : []))
-      .then((r) => (Array.isArray(r) ? r : []))
-      .catch(() => []);
-    let alive = true;
-    void studyLinks.then((r) => alive && setRows(r));
-    return () => {
-      alive = false;
-    };
-  }, []);
-  return rows;
+  const rows = useFeed<StudyLinkRow[]>("/api/study-links");
+  return Array.isArray(rows) ? rows : [];
 }
 
 /** Handbooks or grading documents, with the links kept in the database. */

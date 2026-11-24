@@ -39,6 +39,7 @@ const SEARCH_COLUMNS: Record<ContentResource, string[]> = {
   episodes: ['title', 'host'],
   study_links: ['degree'],
   revision_sessions: ['degree', 'level', 'exam_type'],
+  academic_dates: ['title', 'kind', 'term', 'audience'],
   study_resources: ['title', 'subject', 'author'],
   iitm_links: ['title', 'group_name'],
   course_channels: ['subject', 'title'],

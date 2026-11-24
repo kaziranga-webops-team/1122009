@@ -6,10 +6,10 @@ import { useAuth } from '@/context/AuthContext';
 import { Badge } from '@/components/portal/ui/Badge';
 import { Button } from '@/components/portal/ui/Button';
 import { Card } from '@/components/portal/ui/Card';
-import { isMockMode, db } from '@/lib/firebase';
+import { isMockMode } from '@/lib/firebase';
 import { sendNotice } from '@/lib/portal/portalApi';
 import { mockStore } from '@/lib/portal/firebase/mockStore';
-import { updateDoc, doc, collection, setDoc } from 'firebase/firestore';
+import { updateDoc } from 'firebase/firestore';
 import { getTeamInvitationRef } from '@/lib/portal/firebase/paths';
 import { Users, CheckCircle2, XCircle, Calendar, User, Mail, AlertCircle } from 'lucide-react';
 

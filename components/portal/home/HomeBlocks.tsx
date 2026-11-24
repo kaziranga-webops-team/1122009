@@ -6,26 +6,9 @@
 
 import React from 'react';
 import Link from 'next/link';
-import {
-  ArrowRight,
-  BookOpen,
-  CalendarCheck,
-  CalendarClock,
-  CalendarPlus,
-  ClipboardList,
-  Crown,
-  FileText,
-  Globe,
-  LayoutDashboard,
-  MapPin,
-  Megaphone,
-  Ticket,
-  UserRound,
-  Users,
-  type LucideIcon,
-} from 'lucide-react';
+import { ArrowRight, BookOpen, CalendarCheck, CalendarClock, CalendarPlus, ClipboardList, Crown, FileText, LayoutDashboard, MapPin, Megaphone, Ticket, UserRound, Users, type LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { canManageRoles, canOrganiseEvents, canUsePortalAdmin, writableResources } from '@/lib/portal/permissions';
+import { canManageRoles, canOrganiseEvents, canUsePortalAdmin } from '@/lib/portal/permissions';
 import { DEFAULT_MAIN_EVENT_ID } from '@/lib/portal/firebase/paths';
 import type { EventItem, UserRole } from '@/types/portal';
 import type { Announcement } from '@/lib/portal/announcements';

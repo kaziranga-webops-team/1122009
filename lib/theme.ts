@@ -21,7 +21,3 @@ export function resolveDarkTheme(): boolean {
     !!window.matchMedia?.('(prefers-color-scheme: dark)').matches;
   return stored === 'dark' || (!stored && prefersDark);
 }
-
-export function applyStoredTheme(): void {
-  document.documentElement.classList.toggle('dark', resolveDarkTheme());
-}

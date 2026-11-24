@@ -7,10 +7,9 @@ import { updateDoc, doc, collection, setDoc } from 'firebase/firestore';
 import { getRegistrationRef, DEFAULT_TENURE_ID, DEFAULT_MAIN_EVENT_ID } from '@/lib/portal/firebase/paths';
 import { isMockMode, db } from '@/lib/firebase';
 import { mockStore } from '@/lib/portal/firebase/mockStore';
-import { AlertTriangle, AlertCircle } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
 import { formatDate } from '@/lib/portal/utils/formatDate';
 import { useAuth } from '@/context/AuthContext';
-import { cn } from '@/lib/utils';
 import { isValidUrl, normalizeUrl } from '@/lib/portal/utils/urlValidation';
 
 interface SubmissionModalProps {

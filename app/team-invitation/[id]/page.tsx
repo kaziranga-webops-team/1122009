@@ -1,18 +1,17 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { TeamInvitation, EventItem } from '@/types/portal';
-import { isMockMode, db } from '@/lib/firebase';
+import { isMockMode } from '@/lib/firebase';
 import { mockStore } from '@/lib/portal/firebase/mockStore';
-import { getDoc, getDocs, query, where } from 'firebase/firestore';
+import { getDoc, getDocs } from 'firebase/firestore';
 import { getTeamInvitationRef, getAllEventsGroupRef } from '@/lib/portal/firebase/paths';
 import { EmptyState } from '@/components/portal/ui/EmptyState';
 import { Skeleton } from '@/components/portal/ui/Skeleton';
 import { MailQuestion, LogIn } from 'lucide-react';
 import { TeamInvitationCard } from '@/components/portal/events/TeamInvitationCard';
-import { Button } from '@/components/portal/ui/Button';
 import { ArrowLeft } from 'lucide-react';
 
 export default function TeamInvitationPage() {

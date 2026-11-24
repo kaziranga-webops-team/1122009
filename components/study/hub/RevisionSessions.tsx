@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { loadFeed, peekFeed } from "@/lib/feeds";
 import { CalendarDays, Play, Video } from "lucide-react";
 
 interface Session {
@@ -27,19 +28,19 @@ const when = (iso: string) =>
  */
 /** `bare` leaves out the heading, for the page that has its own. */
 export default function RevisionSessions({ bare = false }: { bare?: boolean }) {
-  const [rows, setRows] = useState<Session[]>([]);
-  const [loaded, setLoaded] = useState(false);
+  const [rows, setRows] = useState<Session[]>(() => peekFeed<Session[]>("/api/revision-sessions") ?? []);
+  const [loaded, setLoaded] = useState(() => peekFeed("/api/revision-sessions") !== undefined);
   const [degree, setDegree] = useState("All");
   const [exam, setExam] = useState("All");
   const [shown, setShown] = useState(bare ? 12 : 8);
 
   useEffect(() => {
     let alive = true;
-    fetch("/api/revision-sessions")
-      .then((r) => (r.ok ? r.json() : []))
-      .then((r) => alive && Array.isArray(r) && setRows(r))
-      .catch(() => {})
-      .finally(() => alive && setLoaded(true));
+    void loadFeed<Session[]>("/api/revision-sessions").then((r) => {
+      if (!alive) return;
+      if (Array.isArray(r)) setRows(r);
+      setLoaded(true);
+    });
     return () => {
       alive = false;
     };

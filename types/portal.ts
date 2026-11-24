@@ -12,6 +12,8 @@ export interface UserProfile {
   phone: string;
   region: string;
   level: string;
+  /** When the member last confirmed their level. Asked again each term (about four months). */
+  levelConfirmedAt?: string;
   programme: string;
   role: UserRole;
   createdAt: string;
@@ -232,16 +234,6 @@ export interface AllowedUser {
   importedAt: string;
 }
 
-export interface AllowedUserImportBatch {
-  id: string;
-  importedBy: string;
-  importedByEmail: string;
-  importedAt: string;
-  totalValidEmails: number;
-  replacedPreviousCount: number;
-  filename: string;
-}
-
 export interface NotificationItem {
   id: string;
   userId: string; // Target user or 'GLOBAL'
@@ -266,12 +258,6 @@ export interface AuditLog {
   metadata?: Record<string, any>;
 }
 
-export interface SpreadsheetRow {
-  email: string;
-  isValid: boolean;
-  errorReason?: string;
-}
-
 export interface SpreadsheetParseResult {
   validRows: string[];
   invalidRows: { row: number; email: string; reason: string }[];
@@ -280,15 +266,4 @@ export interface SpreadsheetParseResult {
   addedCount?: number;
   retainedCount?: number;
   deactivatedCount?: number;
-}
-
-export type HistoricalUserCategory = 'FORMER' | 'PAST';
-
-export interface HistoricalUser {
-  user: UserProfile;
-  category: HistoricalUserCategory;
-  eventRegistrationsCount: number;
-  registrations: Registration[];
-  lastActiveDate: string;
-  revokedAt?: string;
 }

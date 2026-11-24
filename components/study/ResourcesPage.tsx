@@ -1,10 +1,10 @@
 "use client";
 
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
-import Link from "next/link";
+import { loadFeed } from "@/lib/feeds";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { ArrowLeft, ArrowUpRight, Check, ChevronDown, FolderOpen, LayoutGrid, Library, List, Search, X } from "lucide-react";
+import { ArrowUpRight, Check, ChevronDown, FolderOpen, LayoutGrid, Library, List, Search, X } from "lucide-react";
 import { Segmented } from "@/components/kz/PageHero";
 import { RESOURCES, getResourceKind, type Resource, type ResourceKindId } from "@/lib/study/resources";
 
@@ -15,9 +15,8 @@ function useResources(): Resource[] {
   const [rows, setRows] = useState<Resource[]>(RESOURCES);
   useEffect(() => {
     let alive = true;
-    fetch("/api/study-resources")
-      .then((r) => (r.ok ? r.json() : []))
-      .then((data: { title: string; url: string; level: string; subject: string; kind: string; author: string; tags: string }[]) => {
+    void loadFeed<{ title: string; url: string; level: string; subject: string; kind: string; author: string; tags: string }[]>("/api/study-resources")
+      .then((data) => {
         if (!alive || !Array.isArray(data)) return;
         const live: Resource[] = data
           .filter((r) => r.title && r.url && r.subject)
@@ -354,23 +353,25 @@ function ResourcesContent() {
   return (
     <>
       <section className="space-y-6 pb-24 pt-6 lg:pt-8 md:pb-32">
-        <header>
-          <h1 className="kz-serif text-[clamp(2rem,4vw,3rem)] leading-none">Notes</h1>
-          <p className="kz-body mt-2 max-w-2xl text-[#5e4a35]">Notes, past papers and cheat sheets for every subject. Pick your level, then your subject.</p>
-        </header>
-
-        {/* One slim row: level, subject, search, then the count and the view. */}
-        <div className="flex flex-col gap-3 border-b border-[#1c130c]/10 pb-4 lg:flex-row lg:flex-wrap lg:items-center">
+        {/* The title on the left, the level beside it on the right. */}
+        <header className="flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
+          <div className="min-w-0">
+            <h1 className="kz-serif text-[clamp(2rem,4vw,3rem)] leading-none">Notes</h1>
+            <p className="kz-body mt-2 max-w-2xl text-[#5e4a35]">Notes, past papers and cheat sheets for every subject. Pick your level, then your subject.</p>
+          </div>
           <Segmented
             id="resources-level"
             value={level}
             onChange={pickLevel}
             options={LEVELS.map((l) => ({ label: l, value: l, count: resources.filter((r) => r.level === l).length }))}
           />
-          <div className="flex min-w-0 flex-1 flex-col gap-3 sm:flex-row sm:items-center">
+        </header>
+
+        {/* One slim row: subject, search, then the count and the view. Wraps rather than overflowing. */}
+        <div className="flex flex-wrap items-center gap-3">
           <SubjectDropdown subjects={subjects} counts={counts} total={levelResources.length} value={subject} onChange={pickSubject} />
 
-          <label className="flex h-10 min-w-0 flex-1 items-center gap-2.5 rounded-full border border-[#1c130c]/15 bg-[#fffaf0] px-4 transition-colors focus-within:border-[#0f5e48] sm:max-w-[18rem]">
+          <label className="flex h-10 min-w-[12rem] flex-1 items-center gap-2.5 rounded-full border border-[#1c130c]/15 bg-[#fffaf0] px-4 transition-colors focus-within:border-[#0f5e48] sm:max-w-[22rem]">
             <Search size={16} className="shrink-0 text-[#5e4a35]" />
             <span className="sr-only">Search resources</span>
             <input
@@ -395,7 +396,7 @@ function ResourcesContent() {
             )}
           </label>
 
-          <div className="flex shrink-0 items-center justify-between gap-3 sm:ml-auto sm:justify-end">
+          <div className="ml-auto flex shrink-0 items-center gap-3">
             <span aria-live="polite" className="whitespace-nowrap text-[0.85rem] font-semibold tabular-nums text-[#5e4a35]">
               {filtered.length} {filtered.length === 1 ? "resource" : "resources"}
             </span>
@@ -403,7 +404,6 @@ function ResourcesContent() {
               {viewButton("grid", "Grid view", LayoutGrid)}
               {viewButton("list", "List view", List)}
             </div>
-          </div>
           </div>
         </div>
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useFeed } from "@/lib/feeds";
 import data from "@/lib/iitm-data.json";
 
 /** An official IIT Madras BS link, as listed in the IITM corner. */
@@ -34,18 +34,8 @@ export const COURSE_CHANNELS: CourseChannel[] = [];
  * built-in copy standing in while the table is empty or unreachable.
  */
 function useLive<T>(path: string, fallback: T[]): T[] {
-  const [rows, setRows] = useState<T[]>(fallback);
-  useEffect(() => {
-    let alive = true;
-    fetch(path)
-      .then((r) => (r.ok ? r.json() : []))
-      .then((r) => alive && Array.isArray(r) && r.length > 0 && setRows(r))
-      .catch(() => {});
-    return () => {
-      alive = false;
-    };
-  }, [path]);
-  return rows;
+  const rows = useFeed<T[]>(path);
+  return Array.isArray(rows) && rows.length > 0 ? rows : fallback;
 }
 
 export const useIitmLinks = () => useLive<IitmLink>("/api/iitm-links", IITM_LINKS);

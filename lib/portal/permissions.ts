@@ -17,6 +17,7 @@ export const CONTENT_RESOURCES = [
   'episodes',
   'study_links',
   'revision_sessions',
+  'academic_dates',
   'study_resources',
   'iitm_links',
   'course_channels',
@@ -27,6 +28,17 @@ export const CONTENT_RESOURCES = [
 export type ContentResource = (typeof CONTENT_RESOURCES)[number];
 
 export type Action = 'read' | 'create' | 'update' | 'delete';
+
+/** What a house admin may add, change and remove, besides events. */
+const ADMIN_EDITS = new Set<ContentResource>([
+  'meetups',
+  'academic_dates',
+  'study_links',
+  'revision_sessions',
+  'study_resources',
+  'iitm_links',
+  'course_channels',
+]);
 
 export interface PermissionContext {
   /**
@@ -41,8 +53,10 @@ export interface PermissionContext {
 /**
  * May `role` perform `action` on `resource`?
  *
- * The public website (meetups, events, council, gallery, episodes and study
- * material) is changed by the super admin alone; everyone can read it.
+ * The super admin changes everything on the public website. House admins run
+ * the parts that change week to week: events, meetups and everything in the
+ * Study zone (links, revision sessions, notes, the IITM corner, YouTube
+ * channels and the academic calendar). Everyone can read it all.
  * `ctx` is kept for callers that pass a row, in case row-level editing
  * comes back.
  */
@@ -60,6 +74,7 @@ export function can(
   if (resource === 'events' && (role === 'ADMIN' || role === 'RC' || role === 'COMMUNITY_HEAD')) {
     return action !== 'delete' || role === 'ADMIN';
   }
+  if (role === 'ADMIN' && ADMIN_EDITS.has(resource)) return true;
   return false;
 }
 

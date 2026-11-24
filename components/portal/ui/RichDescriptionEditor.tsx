@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Bold, Italic, Heading, List, Link as LinkIcon, Eye, Edit3 } from 'lucide-react';
 
 interface RichDescriptionEditorProps {

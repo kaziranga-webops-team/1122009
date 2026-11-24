@@ -15,6 +15,7 @@ import Navbar from "@/components/Navbar";
 import { PortalProviders } from "@/components/portal/layout/PortalProviders";
 import { portalFontVars } from "@/lib/portal/fonts";
 import PageOff from "@/components/kz/PageOff";
+import NavProgress from "@/components/NavProgress";
 import { isPageHidden, useHiddenSections } from "@/lib/siteSections";
 
 /** The portal's sections. They share one shell, mounted once while you move between them. */
@@ -59,13 +60,15 @@ export default function Providers({ children }: { children: React.ReactNode }) {
             <ReactLenis
               root
               options={{
-                duration: 1.5,
-                lerp: 0.06,
+                // Smooth but responsive: the page follows the wheel closely
+                // instead of gliding on long after it stops (which read as lag).
+                lerp: 0.1,
                 smoothWheel: true,
                 allowNestedScroll: true,
                 prevent: (node) => node.classList?.contains("ed-app") ?? false,
               }}
             >
+              <NavProgress />
               <AnimatePresence>
                 {showNavbar && (
                   <motion.div

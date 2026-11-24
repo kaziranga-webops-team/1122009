@@ -5,7 +5,7 @@ import { Registration, EventItem, TeamInvitation } from '@/types/portal';
 import { useAuth } from '@/context/AuthContext';
 import { isMockMode, db } from '@/lib/firebase';
 import { mockStore } from '@/lib/portal/firebase/mockStore';
-import { query, where, getDocs, onSnapshot, doc, getDoc } from 'firebase/firestore';
+import { query, where, getDocs, doc, getDoc } from 'firebase/firestore';
 import { getTeamInvitationsCollectionRef, getAllRegistrationsGroupRef, DEFAULT_MAIN_EVENT_ID, DEFAULT_TENURE_ID } from '@/lib/portal/firebase/paths';
 import { Badge } from '@/components/portal/ui/Badge';
 import { Button } from '@/components/portal/ui/Button';

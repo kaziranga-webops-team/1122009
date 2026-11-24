@@ -12,32 +12,9 @@ import { Card } from '@/components/portal/ui/Card';
 import { UrlInput } from '@/components/portal/ui/UrlInput';
 import { EventStatusBadge } from '@/components/portal/events/EventStatusBadge';
 import { getOptimizedImageUrl } from '@/lib/portal/utils/imageFormatter';
-import {
-  AlertCircle,
-  Calendar,
-  Image,
-  Link as LinkIcon,
-  MapPin,
-  Users,
-  Layers,
-  Hash,
-  SortAsc,
-  Plus,
-  Trash2,
-  CheckCircle2,
-  AlertTriangle,
-  Eye,
-  X,
-  FileText,
-  ExternalLink,
-  Clock,
-  ArrowLeft,
-  UploadCloud,
-  GripVertical,
-  UserCheck,
-} from 'lucide-react';
+import { AlertCircle, Calendar, Link as LinkIcon, MapPin, Users, Layers, Hash, SortAsc, Plus, Trash2, CheckCircle2, AlertTriangle, Eye, X, FileText, ExternalLink, Clock, UploadCloud, GripVertical, UserCheck } from 'lucide-react';
 import { getDocs, setDoc, doc, query, where } from 'firebase/firestore';
-import { db, isMockMode } from '@/lib/firebase';
+import { isMockMode } from '@/lib/firebase';
 import { mockStore } from '@/lib/portal/firebase/mockStore';
 import {
   getMainEventsCollectionRef,

@@ -12,7 +12,7 @@ import { DateStamp, TicketCard, type TicketStock } from "@/components/kz/TicketC
 import PageHero, { Segmented } from "@/components/kz/PageHero";
 import CommunityPatch from "@/components/communities/CommunityPatch";
 import { fetchEvents, getCachedEvents } from "@/lib/api";
-import { communityBySlug, type Community } from "@/lib/communities";
+import { communityBySlug } from "@/lib/communities";
 import { formatDate, hasResults, isSoon, parseDate, primaryAction, seriesLabel, toEvents, toTime, type EventItem } from "@/lib/events";
 
 type Tab = "guest-sessions" | "curiosity-hour" | "aarohan" | "communities";
@@ -303,10 +303,6 @@ function EventModal({ event, onClose }: { event: EventItem; onClose: () => void 
     </motion.div>
   );
 }
-
-/* ═══ Page ═════════════════════════════════════════════════════════ */
-
-type Section = { key: string; label: string; items: EventItem[] };
 
 /** Newest first; events without a date go to the end. */
 const newestFirst = (a: EventItem, b: EventItem) => (toTime(b.date) || -Infinity) - (toTime(a.date) || -Infinity);

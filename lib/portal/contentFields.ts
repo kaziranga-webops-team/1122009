@@ -26,6 +26,12 @@ export const EVENT_CATEGORIES = [
   ...COMMUNITIES.map((c) => c.name),
 ] as const;
 
+/** Kinds of date on the academic calendar. Quiz, OPPE, End term and Exam are the highlighted ones. */
+export const ACADEMIC_KINDS = ['Quiz', 'OPPE', 'End term', 'Exam', 'Results', 'Registration', 'Term', 'Meeting', 'Holiday', 'Other'] as const;
+export const ACADEMIC_AUDIENCES = ['Term students', 'Qualifier students', 'DAD qualifier students', 'Everyone'] as const;
+/** Terms from January 2026 to September 2030; a term already used elsewhere is kept as typed. */
+export const ACADEMIC_TERMS = Array.from({ length: 5 }, (_, i) => 2026 + i).flatMap((y) => [`Jan ${y}`, `May ${y}`, `Sep ${y}`]);
+
 /** Upper and Lower are the leadership and the RCs; the rest are teams. */
 export const COUNCIL_TYPES = [
   'Upper',
@@ -231,6 +237,27 @@ export const CONTENT_FIELDS: Record<ContentResource, ResourceConfig> = {
       { name: 'url', label: 'Meeting or recording link', type: 'url', wide: true,
         hint: 'The Meet link before the session; swap in the YouTube recording after.' },
       ORDER_FIELD,
+    ],
+  },
+
+  academic_dates: {
+    columns: [
+      { name: 'title', label: 'What' },
+      { name: 'starts_on', label: 'Date' },
+      { name: 'kind', label: 'Kind', type: 'badge' },
+      { name: 'term', label: 'Term' },
+      { name: 'audience', label: 'For' },
+    ],
+    fields: [
+      { name: 'title', label: 'What', type: 'text', placeholder: 'Quiz 2', wide: true },
+      { name: 'kind', label: 'Kind', type: 'select', options: ACADEMIC_KINDS,
+        hint: 'Quizzes, OPPEs and end terms are highlighted, with a countdown in the Study zone.' },
+      { name: 'starts_on', label: 'Date', type: 'date' },
+      { name: 'ends_on', label: 'Last day', type: 'date', hint: 'Only for a window, like a registration period. Leave empty for a single day.' },
+      { name: 'term', label: 'Term', type: 'select', options: ACADEMIC_TERMS, hint: 'The term it belongs to, like Sep 2026.' },
+      { name: 'audience', label: 'For', type: 'select', options: ACADEMIC_AUDIENCES },
+      { name: 'note', label: 'Note', type: 'text', wide: true, placeholder: 'Optional, e.g. "Programming quiz 2"' },
+      { name: 'url', label: 'Official link', type: 'url', wide: true, placeholder: 'https://study.iitm.ac.in/ds/academic_calendar.html' },
     ],
   },
 

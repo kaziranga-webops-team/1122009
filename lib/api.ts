@@ -75,12 +75,6 @@ export interface CouncilRow {
   [key: string]: any;
 }
 
-export interface HeroPhoto {
-  url: string;
-  /** Deterministic fallback used if the primary image fails to load. */
-  fallback: string;
-}
-
 // ─── Image delivery ───────────────────────────────────────────────────
 
 const CLOUDINARY = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
@@ -225,8 +219,3 @@ export const fetchCouncil = makeFetcher<CouncilRow>(
   (p) => (cachedCouncilPromise = p),
   (v) => (cachedCouncil = v)
 );
-
-// ─── Hero showcase photos (served fresh/shuffled each load) ──────────
-export async function fetchHeroPhotos(): Promise<HeroPhoto[]> {
-  return fetchJSON<HeroPhoto[]>("/api/hero-photos");
-}

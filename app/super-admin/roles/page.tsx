@@ -1,7 +1,7 @@
 'use client';
 export const dynamic = 'force-dynamic';
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { UserProfile } from '@/types/portal';
@@ -11,7 +11,6 @@ import { collection, onSnapshot, getDocs } from 'firebase/firestore';
 import { RoleManager } from '@/components/portal/super-admin/RoleManager';
 import { SuperAdminNavTabs } from '@/components/portal/super-admin/SuperAdminNavTabs';
 import { SectionHeading } from '@/components/portal/ui/Section';
-import { Users } from 'lucide-react';
 
 export default function ClassicSuperAdminRolesPage() {
   const { user } = useAuth();

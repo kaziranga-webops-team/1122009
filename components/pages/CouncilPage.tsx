@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState, type CSSProperties, type MouseEvent } from "react";
-import { Mail, MessageCircle, Phone, X } from "lucide-react";
+import { Mail, MessageCircle, Phone } from "lucide-react";
 import KzHeader from "@/components/kz/KzHeader";
 import KzFooter from "@/components/kz/KzFooter";
 import PageHero from "@/components/kz/PageHero";

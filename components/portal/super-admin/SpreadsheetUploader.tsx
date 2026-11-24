@@ -5,15 +5,7 @@ import Papa from 'papaparse';
 import * as XLSX from 'xlsx';
 import { SpreadsheetParseResult } from '@/types/portal';
 import { allowedUserEmailSchema } from '@/lib/portal/validation/schemas';
-import {
-  Upload,
-  FileSpreadsheet,
-  AlertCircle,
-  X,
-  CheckCircle2,
-  FileText,
-  RefreshCw,
-} from 'lucide-react';
+import { Upload, FileSpreadsheet, AlertCircle, X, FileText, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/portal/ui/Button';
 
 interface SpreadsheetUploaderProps {

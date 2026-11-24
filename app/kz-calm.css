@@ -54,72 +54,6 @@
       0 30px 60px -30px rgba(0, 0, 0, 0.6);
   }
 
-
-
-  /* ─── Brass corner marks, like a printed invitation ─── */
-  .kz-corners {
-    position: relative;
-    --c: var(--kz-brass-light);
-  }
-
-  .kz-corners::after {
-    content: "";
-    position: absolute;
-    inset: 12px;
-    pointer-events: none;
-    background:
-      linear-gradient(var(--c), var(--c)) top left / 16px 1px no-repeat,
-      linear-gradient(var(--c), var(--c)) top left / 1px 16px no-repeat,
-      linear-gradient(var(--c), var(--c)) top right / 16px 1px no-repeat,
-      linear-gradient(var(--c), var(--c)) top right / 1px 16px no-repeat,
-      linear-gradient(var(--c), var(--c)) bottom left / 16px 1px no-repeat,
-      linear-gradient(var(--c), var(--c)) bottom left / 1px 16px no-repeat,
-      linear-gradient(var(--c), var(--c)) bottom right / 16px 1px no-repeat,
-      linear-gradient(var(--c), var(--c)) bottom right / 1px 16px no-repeat;
-    opacity: 0.85;
-    transition: inset 0.5s cubic-bezier(0.22, 1, 0.36, 1);
-  }
-
-  .kz-corners:hover::after {
-    inset: 8px;
-  }
-
-  /* A brass hairline with a small diamond in the middle — a section divider. */
-  .kz-rule {
-    display: flex;
-    align-items: center;
-    gap: 0.9rem;
-    color: var(--kz-brass-light);
-  }
-
-  .kz-rule::before,
-  .kz-rule::after {
-    content: "";
-    height: 1px;
-    flex: 1;
-    background: currentColor;
-    opacity: 0.6;
-  }
-
-  /* ─── Quiet card: paper-2, hairline, a gentle lift on hover ─── */
-  .kz-card {
-    background: var(--kz-paper-2);
-    border: 1px solid rgba(28, 19, 12, 0.09);
-    border-radius: 1.25rem;
-    transition:
-      transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
-      background-color 0.4s,
-      border-color 0.4s,
-      box-shadow 0.5s;
-  }
-
-  .kz-card:hover {
-    transform: translateY(-3px);
-    background: #f4f6e3;
-    border-color: rgba(0, 98, 85, 0.35);
-    box-shadow: 0 22px 40px -30px rgba(28, 19, 12, 0.5);
-  }
-
   /* ─── Paper grain over the whole page, very faint ─── */
   .kz-paper::before {
     content: "";
@@ -185,15 +119,6 @@
   }
 
   /* ─── Swing: a card hanging from a peg, swaying gently ─── */
-  .kz-swing {
-    transform-origin: 50% -22px;
-    animation: kz-swing var(--d, 5.2s) ease-in-out infinite alternate;
-    animation-delay: var(--delay, 0s);
-  }
-
-  .kz-swing:hover {
-    animation-play-state: paused;
-  }
 
   @keyframes kz-swing {
     from {
@@ -205,28 +130,6 @@
   }
 
   /* ─── Fog bank: a soft cream cloud that drifts back and forth ─── */
-  .kz-fog {
-    position: absolute;
-    inset: 0;
-    opacity: var(--o, 0.8);
-    background:
-      radial-gradient(38% 60% at 18% 55%, rgba(249, 251, 229, 0.95), rgba(249, 251, 229, 0) 70%),
-      radial-gradient(34% 55% at 46% 45%, rgba(249, 251, 229, 0.9), rgba(249, 251, 229, 0) 70%),
-      radial-gradient(40% 62% at 74% 58%, rgba(249, 251, 229, 0.95), rgba(249, 251, 229, 0) 70%),
-      radial-gradient(30% 50% at 96% 46%, rgba(249, 251, 229, 0.85), rgba(249, 251, 229, 0) 70%);
-    filter: blur(6px);
-    animation: kz-fog-drift var(--d, 40s) ease-in-out infinite alternate;
-    animation-delay: var(--delay, 0s);
-  }
-
-  @keyframes kz-fog-drift {
-    from {
-      transform: translateX(-6%);
-    }
-    to {
-      transform: translateX(6%);
-    }
-  }
 
   @media (prefers-reduced-motion: reduce) {
     .kz-fog,
@@ -234,13 +137,6 @@
     .kz-social,
     .kz-social::before {
       animation: none;
-    }
-    .kz-card,
-    .kz-corners::after {
-      transition: none;
-    }
-    .kz-card:hover {
-      transform: none;
     }
   }
 
@@ -275,11 +171,6 @@
   /* Misregistered print: the letters sit on a second colour slightly off. */
   .kz-offset {
     text-shadow: 0.06em 0.06em 0 var(--offset, var(--kz-rani));
-  }
-
-  /* Starburst: the sale-sticker sun of the poster shop. */
-  .kz-burst {
-    clip-path: polygon(50% 0%, 55.9% 31.5%, 75% 6.7%, 66.4% 37.6%, 93.3% 25%, 72.9% 47.5%, 100% 50%, 72.9% 52.5%, 93.3% 75%, 66.4% 62.4%, 75% 93.3%, 55.9% 68.5%, 50% 100%, 44.1% 68.5%, 25% 93.3%, 33.6% 62.4%, 6.7% 75%, 27.1% 52.5%, 0% 50%, 27.1% 47.5%, 6.7% 25%, 33.6% 37.6%, 25% 6.7%, 44.1% 31.5%);
   }
 
   /* Postage stamp: perforated edge cut with a radial mask. */

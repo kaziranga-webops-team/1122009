@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { loadFeed } from "@/lib/feeds";
 import Link from "next/link";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
@@ -77,10 +78,7 @@ export default function CommunitiesPage() {
     fetchEvents()
       .then((r) => alive && setRows(r))
       .catch(() => {});
-    fetch("/api/communities")
-      .then((r) => (r.ok ? r.json() : {}))
-      .then((p) => alive && setPages(p || {}))
-      .catch(() => {});
+    void loadFeed<Record<string, never>>("/api/communities").then((p) => alive && setPages(p || {}));
     return () => {
       alive = false;
     };

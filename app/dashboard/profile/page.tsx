@@ -147,7 +147,8 @@ export default function ProfilePage() {
     e.preventDefault();
     setSaving(true);
     try {
-      await updateProfile(userProfileSchema.parse({ phone, region, level, programme }));
+      // Saving the level here counts as this term's confirmation.
+      await updateProfile({ ...userProfileSchema.parse({ phone, region, level, programme }), levelConfirmedAt: new Date().toISOString() });
       toast.success('Details saved', 'Event sign-ups will use them.');
     } catch (err: any) {
       toast.error('Not saved', err?.errors?.[0]?.message || err?.message || 'Check the details and try again.');

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { loadFeed, peekFeed } from "@/lib/feeds";
 import Link from "next/link";
 import { ArrowRight, MapPin, Mic, Trophy, X } from "lucide-react";
 import {
@@ -313,16 +314,13 @@ function Details({ item, onClose }: { item: Item; onClose: () => void }) {
 }
 
 export default function KzEvents() {
-  const [portal, setPortal] = useState<PortalEvent[]>([]);
+  const [portal, setPortal] = useState<PortalEvent[]>(() => peekFeed<PortalEvent[]>("/api/house-events") ?? []);
   const [sessions, setSessions] = useState<EventRow[]>(() => getCachedEvents() || []);
   const [open, setOpen] = useState<Item | null>(null);
 
   useEffect(() => {
     let alive = true;
-    fetch("/api/house-events")
-      .then((r) => (r.ok ? r.json() : []))
-      .then((rows) => alive && Array.isArray(rows) && setPortal(rows))
-      .catch(() => {});
+    void loadFeed<PortalEvent[]>("/api/house-events").then((rows) => alive && Array.isArray(rows) && setPortal(rows));
     fetchEvents().then((r) => alive && setSessions(r)).catch(() => {});
     return () => {
       alive = false;

@@ -2,9 +2,8 @@
 
 import { useState, useEffect, useMemo, useRef } from "react";
 import { motion, AnimatePresence, useInView } from "framer-motion";
-import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Image as ImageIcon, ArrowLeft, ArrowRight, Loader2, AlertTriangle, RefreshCw, Heart, Search, X, ChevronDown, Folder, Zap, Calendar } from "lucide-react";
+import { Image as ImageIcon, ArrowLeft, ArrowRight, Loader2, AlertTriangle, RefreshCw, Heart, Search, X, Folder } from "lucide-react";
 import { FaInstagram } from "react-icons/fa";
 import { fetchCouncil, getCachedCouncil, fetchGallery, fetchMeetups, getCachedGallery, getCachedMeetups, toDirectImageUrl, type GalleryRow, type MeetupRow } from "@/lib/api";
 import { useLikes, useAllLikes } from "@/hooks/useLikes";
@@ -18,20 +17,6 @@ import { REGION_THEMES, regionImage } from "@/components/portal/home/RegionArt";
 import { toRegion } from "@/lib/portal/regions";
 import { joinNames, rcsByRegion } from "@/lib/rcs";
 
-
-const CATEGORIES = ["All", "Meetups", "Meme", "Sticker", "Photograph", "Screenshot", "Creativity"];
-
-// ─── Accent colours cycling on cards ─────────────────────────────────────────
-const CARD_COLORS = [
-  "bg-[#e3a936]",
-  "bg-[#e2387a]",
-  "bg-[#f6b51e]",
-  "bg-[#f08a24]",
-  "bg-white",
-  "bg-[#c8102e]",
-  "bg-[#2343b8] text-white",
-];
-
 const getCategoryBadgeColor = (category: string) => {
   const cat = category?.trim().toLowerCase();
   if (cat === "meetups" || cat === "meetup") return "bg-[#f6b51e]";
@@ -41,23 +26,6 @@ const getCategoryBadgeColor = (category: string) => {
   if (cat === "screenshot") return "bg-white";
   return "bg-[#c8102e]"; // Creativity
 };
-
-const REGION_HEX_COLORS: Record<string, string> = {
-  bengaluru: "#e3a936",
-  chandigarh: "#e2387a",
-  chennai: "#f6b51e",
-  delhi: "#f08a24",
-  hyderabad: "#c8102e",
-  kolkata: "#2343b8",
-  mumbai: "#ebd9b2",
-  patna: "#e3a936",
-  lucknow: "#e2387a"
-};
-
-function getRegionHexColor(region: string): string {
-  const norm = region.toLowerCase().trim();
-  return REGION_HEX_COLORS[norm] || "#f6b51e";
-}
 
 // ─── Parse Meetup Date ───────────────────────────────────────────────────────
 function parseMeetupDate(dateStr: string) {
@@ -178,8 +146,6 @@ function sheetTime(d?: string): number {
   const m = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec((d || "").trim());
   return m ? Date.UTC(+m[3], +m[2] - 1, +m[1]) : 0;
 }
-
-const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 /**
  * A region as an old railway-station travel poster: the region's poster art

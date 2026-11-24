@@ -1,4 +1,3 @@
-import { UserRole } from '@/types/portal';
 
 /**
  * Centralized Role Display Name Formatter.

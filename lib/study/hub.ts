@@ -1,5 +1,5 @@
 import type { LucideIcon } from "lucide-react";
-import { BookMarked, Calculator, Library, Link2, MonitorPlay, NotebookText, ScrollText, TrendingUp, Youtube } from "lucide-react";
+import { BookMarked, Calculator, Library, MonitorPlay, NotebookText, ScrollText, TrendingUp, Youtube } from "lucide-react";
 
 /* ------------------------------------------------------------------ */
 /*  Hub items                                                          */
@@ -215,14 +215,6 @@ export const IMPORTANT_LINK_GROUPS: { title: string; links: ToolLink[] }[] = [
     title: "Help",
     links: [{ id: "grievance", title: "Student grievance form", description: "Raise a grievance with the programme", url: "https://forms.gle/jX8zK8XhDoZcA3YB9", quick: true }],
   },
-];
-
-export const QUICK_LINKS = IMPORTANT_LINK_GROUPS.flatMap((g) => g.links).filter((l) => l.quick);
-
-export const INTERNAL_QUICK_LINKS: { title: string; description: string; href: string }[] = [
-  { title: "Grade calculator", description: "Term GPA and CGPA", href: "/study/grade-calculator" },
-  { title: "Grading documents", description: "Grading by programme", href: "/study?open=grading-documents" },
-  { title: "Student handbook", description: "Rules and policies", href: "/study?open=student-handbook" },
 ];
 
 /* ------------------------------------------------------------------ */

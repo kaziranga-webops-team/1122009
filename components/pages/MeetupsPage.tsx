@@ -7,7 +7,6 @@ import { ArrowLeft, ArrowRight, MapPin } from "lucide-react";
 import KzHeader, { JOIN_URL } from "@/components/kz/KzHeader";
 import KzFooter from "@/components/kz/KzFooter";
 import Ambient from "@/components/kz/Ambient";
-import { SectionHead } from "@/components/home/sections";
 import IndiaMeetupMap, { landFill, type Spotlight } from "@/components/meetups/IndiaMeetupMap";
 import { fetchMeetups, getCachedMeetups, toDirectImageUrl, type MeetupRow } from "@/lib/api";
 import {

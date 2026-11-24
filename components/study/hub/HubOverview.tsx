@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, ArrowUpRight, Landmark, Users } from "lucide-react";
+import { ArrowRight, ArrowUpRight, CalendarDays, Landmark, Users } from "lucide-react";
 import PageHero from "@/components/kz/PageHero";
 import { useStudyLinks } from "@/components/study/hub/parts";
 import { HERITAGE, type Heritage } from "@/lib/heritage";
@@ -9,6 +9,8 @@ import { GRADING_DOCUMENTS, PROGRAMMES, STUDENT_HANDBOOKS, STUDY_CIRCLE, getHubH
 import { useIitmLinks } from "@/lib/iitm";
 import { useSiteImages } from "@/lib/siteImages";
 import { cdnImage } from "@/lib/api";
+import { countdown, showDay, upcomingExams, useAcademicDates } from "@/lib/study/calendar";
+import AcademicCalendar from "@/components/study/hub/AcademicCalendar";
 
 /** The four things students come to the Study zone for. */
 const DOORS: { slot: string; slug: string; title: string; line: string; art: Heritage; ground: string; ink: string; offset: string }[] = [
@@ -23,21 +25,24 @@ function Door({ d }: { d: (typeof DOORS)[number] }) {
   return (
     <Link
       href={getHubHref(getHubItem(d.slug))}
-      className="kz-focus group relative flex min-h-[13rem] flex-col justify-end overflow-hidden rounded-[1.5rem] p-5 shadow-[0_26px_40px_-30px_rgba(28,19,12,0.8)] transition-transform duration-500 [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-1.5 md:min-h-[15rem]"
+      className="kz-focus group relative flex h-full min-h-[11rem] flex-col overflow-hidden rounded-[1.5rem] p-4 shadow-[0_22px_34px_-28px_rgba(28,19,12,0.8)] transition-transform duration-500 [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-1.5 sm:p-5 md:min-h-[12.5rem]"
+      style={{ background: d.ground, color: d.ink }}
     >
-      <span aria-hidden="true" className="absolute inset-0" style={{ background: d.ground }} />
-      <figure className="kz-cutout absolute right-4 top-4 w-[34%] rotate-[4deg] transition-transform duration-500 group-hover:rotate-[-2deg] group-hover:scale-105">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={pic ? cdnImage(pic.url, 500) : d.art.src} alt="" loading="lazy" className="aspect-square w-full object-cover" />
-      </figure>
-      <span className="relative" style={{ color: d.ink }}>
-        <span className="kz-display kz-offset block text-[clamp(1.7rem,2.4vw,2.2rem)] leading-[0.95]" style={{ ["--offset" as string]: d.offset }}>
+      <span className="flex items-start justify-between gap-3">
+        <figure className="kz-cutout w-[4.25rem] shrink-0 rotate-[-4deg] transition-transform duration-500 group-hover:rotate-[3deg] group-hover:scale-105 sm:w-[5rem]">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={pic ? cdnImage(pic.url, 300) : d.art.src} alt="" loading="lazy" className="aspect-square w-full object-cover" />
+        </figure>
+        <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full transition-transform duration-500 group-hover:rotate-45" style={{ background: "rgba(255,255,255,0.18)" }}>
+          <ArrowUpRight size={18} aria-hidden="true" />
+        </span>
+      </span>
+      <span className="mt-auto pt-4">
+        <span className="kz-display kz-offset block text-[clamp(1.3rem,1.9vw,1.75rem)] leading-[0.95]" style={{ ["--offset" as string]: d.offset }}>
           {d.title}
         </span>
-        <span className="mt-2 flex items-end justify-between gap-3">
-          <span className="text-[0.92rem] leading-snug opacity-90">{d.line}</span>
-          <ArrowUpRight size={20} className="shrink-0 transition-transform duration-500 group-hover:rotate-45" aria-hidden="true" />
-        </span>
+        {/* Two lines kept for every card, so the titles line up across the row. */}
+        <span className="mt-1.5 line-clamp-2 block min-h-[2.6em] text-[0.85rem] leading-snug opacity-90">{d.line}</span>
       </span>
     </Link>
   );
@@ -121,6 +126,29 @@ function IitmCard() {
   );
 }
 
+/** A small button to the calendar, naming the next exam when one is a month away or less. */
+function ComingUp() {
+  const dates = useAcademicDates();
+  const next = upcomingExams(dates ?? [], 30)[0];
+  return (
+    <a
+      href="#calendar"
+      className="kz-focus group inline-flex max-w-full items-center gap-2 rounded-full bg-[#1c130c] py-2 pl-3.5 pr-4 text-[0.9rem] text-[#f5e9cf] transition-transform duration-300 hover:-translate-y-0.5"
+    >
+      <CalendarDays size={17} className="shrink-0 text-[#f6b51e]" aria-hidden="true" />
+      {next ? (
+        <span className="truncate">
+          <span className="font-semibold">{next.title}</span>
+          <span className="opacity-75"> · {showDay(next.starts_on)} · {countdown(next.days)}</span>
+        </span>
+      ) : (
+        <span className="font-semibold">Academic calendar</span>
+      )}
+      <ArrowRight size={15} className="shrink-0 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
+    </a>
+  );
+}
+
 /**
  * The Study zone: four doors for what students come for, the programme's
  * handbooks, and, beside them, the study circle and the way to the IITM
@@ -132,16 +160,22 @@ export default function HubOverview() {
       <PageHero ground="forest" title={["Study zone"]} intro="Notes, revision sessions, course channels and grade tools for the IIT Madras BS degree." />
 
       <div className="mx-auto max-w-[90rem] space-y-14 px-5 pb-24 pt-4 sm:px-8 md:px-12 md:pb-32">
-        <ul className="grid grid-cols-1 gap-4 min-[520px]:grid-cols-2 xl:grid-cols-4" aria-label="Study zone">
+        <div className="space-y-4">
+          <ComingUp />
+        <ul className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-4" aria-label="Study zone">
           {DOORS.map((d) => (
             <li key={d.slug}>
               <Door d={d} />
             </li>
           ))}
         </ul>
+        </div>
 
         <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,22rem)]">
-          <Handbooks />
+          <div className="min-w-0 space-y-6">
+            <Handbooks />
+            <AcademicCalendar />
+          </div>
 
           <aside className="space-y-5">
             <a
@@ -164,6 +198,7 @@ export default function HubOverview() {
             <IitmCard />
           </aside>
         </div>
+
       </div>
     </>
   );

@@ -1,7 +1,7 @@
 'use client';
 export const dynamic = 'force-dynamic';
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { CalendarX2 } from 'lucide-react';
 
@@ -41,7 +41,7 @@ import { canOrganiseEvents, canUsePortalAdmin } from '@/lib/portal/permissions';
 import { toRegion } from '@/lib/portal/regions';
 import { communityBySlug } from '@/lib/communities';
 import { toEvents, hasResults } from '@/lib/events';
-import { toDirectImageUrl, type EventRow, type MeetupRow } from '@/lib/api';
+import { fetchEvents, fetchMeetups, toDirectImageUrl, type EventRow, type MeetupRow } from '@/lib/api';
 
 /** Public results from the house sheet, shaped like portal events. */
 function sheetResultsToEvents(rows: EventRow[]): EventItem[] {
@@ -93,12 +93,11 @@ export default function HomePage() {
   // blocks the page; each section simply stays hidden until it has rows.
   useEffect(() => {
     let live = true;
-    fetch('/api/events')
-      .then((r) => (r.ok ? r.json() : []))
+    // Shared with the public site's own copies, so each is fetched once per visit.
+    fetchEvents()
       .then((rows: EventRow[]) => live && setSheetResults(sheetResultsToEvents(rows)))
       .catch(() => {});
-    fetch('/api/meetups')
-      .then((r) => (r.ok ? r.json() : []))
+    fetchMeetups()
       .then((rows: MeetupRow[]) => live && setMeetupRows(Array.isArray(rows) ? rows : []))
       .catch(() => {});
     return () => {

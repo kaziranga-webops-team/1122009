@@ -1,5 +1,5 @@
 import { AllowedUser, AuditLog, EventItem, NotificationItem, Registration, UserProfile, UserRole, Tenure, TeamInvitation } from '@/types/portal';
-import { INITIAL_ALLOWED_USERS, INITIAL_AUDIT_LOGS, INITIAL_EVENTS, INITIAL_NOTIFICATIONS, INITIAL_REGISTRATIONS, INITIAL_SUPER_ADMIN_EMAILS, INITIAL_USERS, INITIAL_TENURES } from './mockData';
+import { INITIAL_ALLOWED_USERS, INITIAL_AUDIT_LOGS, INITIAL_EVENTS, INITIAL_NOTIFICATIONS, INITIAL_REGISTRATIONS, INITIAL_USERS, INITIAL_TENURES } from './mockData';
 import { formatRoleName } from '../utils/roleFormatter';
 
 class MockStore {

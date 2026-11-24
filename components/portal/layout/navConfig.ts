@@ -94,8 +94,14 @@ function workSection(role?: UserRole): NavSection | null {
     items.push({ label: 'House', href: '/super-admin/dashboard', icon: Crown, match: ['/super-admin'] });
     items.push({ label: 'Website', href: '/admin/content/council_members', icon: Globe, match: ['/admin/content'] });
   } else if (writableResources(role).length) {
-    // Organisers edit the website's events and sessions.
-    items.push({ label: 'Website events', href: '/admin/content/events', icon: Globe, match: ['/admin/content'] });
+    // Admins run events, meetups and the Study zone; other organisers edit
+    // the website's events and sessions.
+    items.push({
+      label: role === 'ADMIN' ? 'Website' : 'Website events',
+      href: '/admin/content/events',
+      icon: Globe,
+      match: ['/admin/content'],
+    });
   }
   if (!items.length) return null;
   return {

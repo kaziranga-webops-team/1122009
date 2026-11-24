@@ -1,7 +1,7 @@
 'use client';
 export const dynamic = 'force-dynamic';
 
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { getDocs, query, where } from 'firebase/firestore';
 import { useAuth } from '@/context/AuthContext';
 import type { EventItem, Registration } from '@/types/portal';

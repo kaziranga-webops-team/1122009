@@ -5,9 +5,8 @@ import { NotificationItem } from '@/types/portal';
 import { useAuth } from './AuthContext';
 import { isMockMode, db } from '@/lib/firebase';
 import { sendNotice } from '@/lib/portal/portalApi';
-import { collection, query, where, onSnapshot, updateDoc, doc, getDocs, getDoc, setDoc } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, updateDoc, doc } from 'firebase/firestore';
 import { mockStore } from '@/lib/portal/firebase/mockStore';
-import { getAllEventsGroupRef } from '@/lib/portal/firebase/paths';
 import { useToast } from '@/components/portal/ui/Toast';
 
 interface NotificationContextType {

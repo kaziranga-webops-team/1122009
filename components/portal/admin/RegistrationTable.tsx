@@ -17,7 +17,6 @@ import {
 import { Modal } from '@/components/portal/ui/Modal';
 import { Badge } from '@/components/portal/ui/Badge';
 import { Button } from '@/components/portal/ui/Button';
-import { Card } from '@/components/portal/ui/Card';
 import { EmptyState } from '@/components/portal/ui/EmptyState';
 import { DataTable, type Column } from '@/components/portal/ui/DataTable';
 import { SearchInput } from '@/components/portal/ui/SearchInput';

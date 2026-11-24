@@ -110,7 +110,6 @@
 .bg-surface-raised { background-color: rgb(var(--surface-raised)); }
 .bg-surface-sunken { background-color: rgb(var(--surface-sunken)); }
 .bg-surface-overlay { background-color: rgb(var(--surface-overlay)); }
-.bg-surface-tint { background-color: rgb(var(--surface-tint)); }
 
 .bg-brand { background-color: rgb(var(--brand)); }
 .bg-brand-soft { background-color: rgb(var(--brand-soft)); }
@@ -156,13 +155,6 @@
 .shadow-e-4 { box-shadow: var(--elev-4); }
 
 /* ─── Typography Scales ─── */
-.text-eyebrow {
-  font-size: 0.6875rem;
-  line-height: 1;
-  letter-spacing: 0.2em;
-  font-weight: 700;
-  text-transform: uppercase;
-}
 
 .text-micro {
   font-size: 0.75rem;
@@ -212,29 +204,11 @@
   font-weight: 800;
 }
 
-.text-display-md {
-  font-size: clamp(1.7rem, 1.2rem + 2vw, 2.5rem);
-  line-height: 1.1;
-  letter-spacing: -0.03em;
-  font-weight: 800;
-}
-
 .text-display-lg {
   font-size: clamp(2rem, 1.3rem + 2.6vw, 3rem);
   line-height: 1.05;
   letter-spacing: -0.035em;
   font-weight: 900;
-}
-
-.text-display-xl {
-  font-size: clamp(2.3rem, 1.3rem + 4vw, 3.8rem);
-  line-height: 0.98;
-  letter-spacing: -0.04em;
-  font-weight: 900;
-}
-
-.tracking-eyebrow {
-  letter-spacing: 0.2em;
 }
 
 .font-display {
@@ -256,20 +230,6 @@
   background-color: #0a0c10;
   color: #f8fafc;
   isolation: isolate;
-}
-
-.ed-chrome {
-  background-color: rgb(var(--surface-raised));
-  color: rgb(var(--ink));
-  isolation: isolate;
-}
-
-.dark .ed-chrome {
-  background-color: #12151b;
-  background-image:
-    radial-gradient(120% 60% at 50% -10%, rgba(255, 255, 255, 0.04) 0%, transparent 60%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.02) 0%, transparent 25%);
-  color: rgb(var(--ink));
 }
 
 .bg-stage { background-color: rgb(var(--surface-sunken)); }
@@ -350,93 +310,6 @@
   display: none;
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   LANDSCAPE HERO — day/night, driven by the existing .dark class
-   ═══════════════════════════════════════════════════════════════ */
-.dn-hero { background-color: #a9dcf0; }           /* sky, while images load */
-.dark .dn-hero { background-color: #0c1a3a; }
-
-.dn-scene { position: absolute; inset: 0; overflow: hidden; pointer-events: none; container-type: size; }
-/* A box the exact size and position of a `cover` / 50% 0% image, so images
-   and overlays share one coordinate space by construction. */
-.dn-art {
-  position: absolute; top: 0; left: 50%;
-  width: 100%;
-  width: max(100cqw, 100cqh * 1.7768);
-  aspect-ratio: 1672 / 941;
-  transform: translateX(-50%);
-}
-.dn-img { position: absolute; inset: 0; width: 100%; height: 100%; display: block; user-select: none; }
-
-.dn-night { opacity: 0; will-change: opacity; }
-.dark .dn-night { opacity: 1; }
-
-.dn-day-fx { position: absolute; inset: 0; opacity: 1;
-  background: radial-gradient(circle at 88% 0%, rgba(255, 214, 140, 0.38), rgba(255, 214, 140, 0) 42%); }
-.dark .dn-day-fx { opacity: 0; }
-
-.dn-night-fx { position: absolute; inset: 0; opacity: 0; }
-.dark .dn-night-fx { opacity: 1; }
-
-.dn-moon-glow { position: absolute; width: 16%; aspect-ratio: 1; transform: translate(-50%, -50%); border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 236, 180, 0.4), rgba(255, 236, 180, 0) 65%);
-  animation: dn-glow 6s ease-in-out infinite; }
-.dn-star { position: absolute; width: 2px; height: 2px; border-radius: 50%; background: #fff; opacity: 0.8;
-  box-shadow: 0 0 6px rgba(255, 255, 255, 0.85); animation: dn-twinkle 3.2s ease-in-out infinite; }
-.dn-fly { position: absolute; width: 5px; height: 5px; border-radius: 50%; background: #f7e58a; opacity: 0.8;
-  box-shadow: 0 0 10px 3px rgba(247, 229, 138, 0.55); animation: dn-drift 7s ease-in-out infinite; }
-
-/* Nobody sees the night effects by day, so they do not run by day. */
-.dn-night-fx > * { animation-play-state: paused; }
-.dark .dn-night-fx > * { animation-play-state: running; }
-
-/* Transitions only once the first paint is done (see LandscapeHero). The
-   night effects take a 0.5s delay going in, none coming out. */
-.dn-hero[data-dn-ready] .dn-night { transition: opacity 1.6s ease; }
-.dn-hero[data-dn-ready] .dn-day-fx { transition: opacity 1.2s ease; }
-.dn-hero[data-dn-ready] .dn-night-fx { transition: opacity 1.2s ease; }
-.dark .dn-hero[data-dn-ready] .dn-night-fx { transition: opacity 1.4s ease 0.5s; }
-
-/* The hero has its own small palette, because it sits on a picture rather
-   than on the page: a deep-green ink by day, and by night pale text on a navy
-   glass that matches the night sky instead of the page's teal. Colours change
-   with the theme rather than over 1.6s — a slow fade would pass through pale
-   text on pale glass midway. */
-.dn-hero {
-  --hero-ink: #0F172A; --hero-muted: #475569; --hero-accent: #EF4444;
-  --hero-btn: #0F172A; --hero-btn-ink: #FFFFFF; --hero-line: rgba(15, 23, 42, 0.18);
-  --hero-panel: rgba(255, 255, 255, 0.88); --hero-panel-line: rgba(255, 255, 255, 0.8);
-  color: var(--hero-ink);
-}
-.dark .dn-hero {
-  --hero-ink: #F8FAFC; --hero-muted: #CBD5E1; --hero-accent: #F43F5E;
-  --hero-btn: #10B981; --hero-btn-ink: #FFFFFF; --hero-line: rgba(255, 255, 255, 0.18);
-  --hero-panel: rgba(10, 12, 16, 0.75); --hero-panel-line: rgba(255, 255, 255, 0.12);
-}
-.dn-panel { background-color: var(--hero-panel); border-color: var(--hero-panel-line);
-  box-shadow: 0 24px 50px -28px rgba(0, 0, 0, 0.45);
-  -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
-.dn-title { color: var(--hero-ink); }
-.dn-accent { color: var(--hero-accent); }
-.dn-sub { color: var(--hero-muted); }
-.dn-btn { font-weight: 800; text-decoration: none; transition: filter 0.2s ease, background-color 0.2s ease; }
-.dn-btn-primary { background-color: var(--hero-btn); color: var(--hero-btn-ink); }
-.dn-btn-primary:hover { filter: brightness(1.12); }
-.dn-btn-ghost { border: 1px solid var(--hero-line); color: var(--hero-ink); font-weight: 700; }
-.dn-btn-ghost:hover { background-color: rgba(127, 127, 127, 0.14); }
-.dn-btn:focus-visible { outline: 2px solid var(--hero-accent); outline-offset: 2px; }
-
-@keyframes dn-twinkle { 0%, 100% { opacity: 0.25; } 50% { opacity: 1; } }
-@keyframes dn-drift {
-  0% { transform: translate(0, 0); opacity: 0.15; } 25% { opacity: 1; }
-  50% { transform: translate(14px, -12px); opacity: 0.55; } 75% { opacity: 1; }
-  100% { transform: translate(0, 0); opacity: 0.15; } }
-@keyframes dn-glow { 0%, 100% { opacity: 0.7; } 50% { opacity: 1; } }
-
-@media (prefers-reduced-motion: reduce) {
-  .dn-hero, .dn-hero * { transition: none !important; animation: none !important; }
-}
-
 /* ─── Native form controls in dark mode ───
    Without a colour scheme the browser draws <select> lists, date pickers and
    scrollbars for a light page: the open list came up white with the pale
@@ -449,7 +322,7 @@
   color: rgb(var(--ink));
 }
 
-
+
 /* Portal density. The portal is a working tool, so it runs one step smaller
    than the public site: text, controls, cards and spacing are all in rem and
    scale together from here. Applies only while a portal page is on screen. */
@@ -469,6 +342,115 @@ html:has(.ed-app) {
 .ed-app :focus-visible {
   outline: 2px solid rgb(var(--brand));
   outline-offset: 2px;
+}
+
+/* A field inside one cell of the website editor's sheet: the same look as
+   .ed-field, sized to sit in a table row. */
+.ed-cell {
+  width: 100%;
+  height: 2.25rem;
+  padding: 0.375rem 0.625rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  background-color: rgb(var(--surface-raised));
+  color: rgb(var(--ink));
+  border: 1px solid rgb(var(--hairline));
+}
+textarea.ed-cell {
+  height: auto;
+  min-height: 2.25rem;
+  line-height: 1.4;
+  resize: vertical;
+}
+.dark .ed-cell {
+  background-color: rgb(var(--surface-sunken));
+}
+.ed-cell:focus {
+  outline: none;
+  border-color: rgb(var(--brand));
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+}
+.ed-cell[aria-invalid='true'] {
+  border-color: rgb(var(--signal-danger));
+}
+.ed-cell:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.ed-cell::placeholder {
+  color: rgb(var(--ink-faint));
+}
+
+/* The website editor's sheet: a row lights up under the pointer, and the
+   row being edited is tinted. Cells are opaque so the frozen first and last
+   columns cover what scrolls under them. */
+.ed-sheet td {
+  background-color: rgb(var(--surface-raised));
+}
+.ed-sheet tbody tr:not([data-editing]):hover > td {
+  background-color: rgb(var(--surface-sunken));
+}
+.ed-sheet tr[data-editing] > td {
+  background-color: rgb(var(--brand-soft));
+}
+.border-brand {
+  border-color: rgb(var(--brand));
+}
+
+/* Its scrollbars: thick enough to grab, and always visible. */
+.ed-sheet-scroll {
+  scrollbar-width: auto;
+  scrollbar-color: rgb(var(--ink-faint)) rgb(var(--surface-sunken));
+  cursor: grab;
+}
+.ed-sheet-scroll :is(input, select, textarea, button, a, label, thead),
+.ed-sheet-scroll tr[data-editing] {
+  cursor: auto;
+}
+.ed-sheet-scroll :is(button, a, select, label) {
+  cursor: pointer;
+}
+.ed-sheet-scroll.is-dragging,
+.ed-sheet-scroll.is-dragging * {
+  cursor: grabbing !important;
+  user-select: none;
+}
+.ed-sheet-scroll::-webkit-scrollbar {
+  width: 14px;
+  height: 14px;
+}
+.ed-sheet-scroll::-webkit-scrollbar-track {
+  background: rgb(var(--surface-sunken));
+}
+.ed-sheet-scroll::-webkit-scrollbar-thumb {
+  background: rgb(var(--ink-faint));
+  border: 3px solid rgb(var(--surface-sunken));
+  border-radius: 999px;
+}
+.ed-sheet-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgb(var(--ink-muted));
+}
+.ed-sheet-scroll::-webkit-scrollbar-corner {
+  background: rgb(var(--surface-sunken));
+}
+
+/* The round arrows on its edges that slide it a screen at a time. */
+.ed-sheet-arrow {
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 999px;
+  color: rgb(var(--ink));
+  background-color: rgb(var(--surface-raised));
+  border: 1px solid rgb(var(--hairline-strong));
+  box-shadow: var(--elev-2);
+  opacity: 0.92;
+  transition: scale 0.15s ease, opacity 0.15s ease;
+}
+.ed-sheet-arrow:hover {
+  opacity: 1;
+  scale: 1.08;
 }
 
 /* Fields: a finger-sized target on phones, and 16px text there so iOS does
@@ -506,4 +488,19 @@ html:has(.ed-app) {
   .ed-page-in {
     animation: none;
   }
+}
+
+/* Phones: the portal should feel like an app. No grey flash on tap, taps
+   answer at once (no wait for a double-tap zoom), and the bottom bar is not
+   selectable text that a long press would highlight. */
+.ed-app {
+  -webkit-tap-highlight-color: transparent;
+}
+.ed-app :is(a, button, select, label, [role='button']) {
+  touch-action: manipulation;
+}
+.ed-app nav[aria-label='Primary'] {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
 }

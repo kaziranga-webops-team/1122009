@@ -19,6 +19,7 @@ import type {
   CouncilRow,
 } from "@/lib/api";
 import * as sheets from "@/lib/sheets";
+import { youtubeId, youtubeThumb } from "@/lib/youtube";
 
 const SUPABASE_URL = (process.env.NEXT_PUBLIC_SUPABASE_URL || "").replace(/\/+$/, "");
 const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
@@ -157,11 +158,37 @@ export async function getCouncil(): Promise<CouncilRow[]> {
  * sheet layer used to synthesise one from the placings. That is kept here
  * verbatim — the events page renders exactly what it rendered before.
  */
+/** Video id → the best thumbnail YouTube has for it, found once per server instance. */
+const thumbCache = new Map<string, Promise<string>>();
+
+/**
+ * The picture for a session with a YouTube link but no cover image: the
+ * video's own thumbnail. The large one (1280×720) when YouTube has it, which
+ * is most videos; otherwise the standard one, which every video has.
+ */
+function youtubeCover(url: string): Promise<string> {
+  const id = youtubeId(url);
+  if (!id) return Promise.resolve("");
+  let found = thumbCache.get(id);
+  if (!found) {
+    found = fetch(youtubeThumb(id, "maxres"), { method: "HEAD", next: { revalidate: 86400 } })
+      .then((res) => (res.ok ? youtubeThumb(id, "maxres") : youtubeThumb(id, "hq")))
+      .catch(() => youtubeThumb(id, "hq"));
+    thumbCache.set(id, found);
+  }
+  return found;
+}
+
 export async function getEvents(): Promise<EventRow[]> {
   if (!usingSupabase) return sheets.getEvents();
   const rows = await pg<DbEvent>("events", "select=*&order=source.asc,sort_order.asc");
 
-  return rows.map((r): EventRow => {
+  // No cover image but a YouTube link: the session shows the video's thumbnail.
+  const covers = await Promise.all(
+    rows.map((r) => (str(r.image_url) ? Promise.resolve(str(r.image_url)) : youtubeCover(str(r.youtube_url))))
+  );
+
+  return rows.map((r, i): EventRow => {
     let description = str(r.description);
 
     if (r.source === "aarohan" && !description) {
@@ -183,7 +210,7 @@ export async function getEvents(): Promise<EventRow[]> {
       Starts_at: str(r.starts_at),
       description,
       Speaker: str(r.speaker),
-      Image_url: str(r.image_url),
+      Image_url: covers[i],
       youtube_url: str(r.youtube_url),
       meet_link: str(r.meet_link),
       winner: r.winner?.trim() || undefined,
@@ -271,6 +298,33 @@ export async function getCourseChannels(): Promise<CourseChannelRow[]> {
   if (!usingSupabase) return [];
   const rows = await pg<Record<string, unknown>>("course_channels", "select=*&order=sort_order.asc");
   return rows.map((r) => ({ level: str(r.level), subject: str(r.subject), title: str(r.title), url: str(r.url), note: str(r.note) }));
+}
+
+export interface AcademicDate {
+  title: string;
+  kind: string;
+  starts_on: string;
+  ends_on: string;
+  audience: string;
+  term: string;
+  note: string;
+  url: string;
+}
+
+/** The academic calendar, earliest first. */
+export async function getAcademicDates(): Promise<AcademicDate[]> {
+  if (!usingSupabase) return [];
+  const rows = await pg<Record<string, unknown>>("academic_dates", "select=title,kind,starts_on,ends_on,audience,term,note,url&order=starts_on.asc,sort_order.asc");
+  return rows.map((r) => ({
+    title: str(r.title),
+    kind: str(r.kind),
+    starts_on: str(r.starts_on),
+    ends_on: str(r.ends_on),
+    audience: str(r.audience),
+    term: str(r.term),
+    note: str(r.note),
+    url: str(r.url),
+  }));
 }
 
 export async function getSiteSections(): Promise<{ section: string; visible: boolean }[]> {

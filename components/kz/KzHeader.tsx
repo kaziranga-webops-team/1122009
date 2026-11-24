@@ -11,6 +11,7 @@ import { ChevronDown, LogIn, LayoutDashboard } from "lucide-react";
 import { FaInstagram, FaLinkedinIn, FaWhatsapp, FaYoutube } from "react-icons/fa";
 import { useAuth } from "@/context/AuthContext";
 import { isPageHidden, useHiddenSections } from "@/lib/siteSections";
+import { warmPublicData } from "@/lib/feeds";
 
 /** The house's WhatsApp sign-up form — the one CTA that repeats across the site. */
 export const JOIN_URL = "https://forms.gle/Ac5Zxwn21cRMeEcy8";
@@ -75,6 +76,10 @@ export default function KzHeader({ ground = "paper" }: { ground?: "paper" | "col
   const navRef = useRef<HTMLElement>(null);
 
   useEffect(() => setMounted(true), []);
+
+  // Once this page has settled, the other pages' data loads quietly, so the
+  // next page opens with its content in place.
+  useEffect(() => warmPublicData(), []);
 
   // The bar's ground follows the real scroll position: on load (a reload can
   // restore and then reset it) and on every native scroll.

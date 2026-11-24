@@ -5,7 +5,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { EventItem, Registration } from '@/types/portal';
-import { isMockMode, db } from '@/lib/firebase';
+import { isMockMode } from '@/lib/firebase';
 import { getDoc, getDocs, query, where, updateDoc, increment } from 'firebase/firestore';
 import { getAllEventsGroupRef, getEventRef, getEventsCollectionRef, getRegistrationsCollectionRef, getRegistrationRef, DEFAULT_TENURE_ID, DEFAULT_MAIN_EVENT_ID } from '@/lib/portal/firebase/paths';
 import { mockStore } from '@/lib/portal/firebase/mockStore';

@@ -1,7 +1,7 @@
 'use client';
 export const dynamic = 'force-dynamic';
 
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { useNotifications } from '@/context/NotificationContext';
 import { Card } from '@/components/portal/ui/Card';
 import { Button } from '@/components/portal/ui/Button';
@@ -9,22 +9,7 @@ import { EmptyState } from '@/components/portal/ui/EmptyState';
 import { SectionHeading } from '@/components/portal/ui/Section';
 import { Reveal } from '@/components/portal/ui/Motion';
 import { cn } from '@/lib/utils';
-import {
-  BellOff,
-  CheckCheck,
-  Info,
-  CheckCircle2,
-  AlertTriangle,
-  Calendar,
-  Crown,
-  ArrowUpRight,
-  Users,
-  Sparkles,
-  SlidersHorizontal,
-  RotateCcw,
-  Bell,
-  Layers,
-} from 'lucide-react';
+import { BellOff, CheckCheck, Info, CheckCircle2, AlertTriangle, Calendar, Crown, ArrowUpRight, Users, SlidersHorizontal, RotateCcw, Bell, Layers } from 'lucide-react';
 import { SearchInput } from '@/components/portal/ui/SearchInput';
 import { FilterSelect } from '@/components/portal/ui/FilterSelect';
 import { FilterToolbar } from '@/components/portal/ui/FilterToolbar';

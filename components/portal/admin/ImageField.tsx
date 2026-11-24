@@ -1,34 +1,16 @@
 'use client';
 
-import React, { useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { ImageUp, Loader2 } from 'lucide-react';
 import { Field } from '@/components/portal/ui/Field';
 import { useToast } from '@/components/portal/ui/Toast';
 import { auth } from '@/lib/firebase';
 
 /**
- * A picture for the website: upload one (it goes to the house's Cloudinary
- * account) or paste a link, with a preview of what will show.
+ * Uploading a picture to the house's Cloudinary account: a hidden file input,
+ * a function that opens it, and whether an upload is under way.
  */
-export function ImageField({
-  id,
-  label,
-  hint,
-  error,
-  value,
-  disabled,
-  onChange,
-  className,
-}: {
-  id: string;
-  label: string;
-  hint?: string;
-  error?: string | null;
-  value: string;
-  disabled?: boolean;
-  onChange: (url: string) => void;
-  className?: string;
-}) {
+export function useImageUpload(onChange: (url: string) => void) {
   const toast = useToast();
   const input = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
@@ -53,6 +35,48 @@ export function ImageField({
     }
   }
 
+  const fileInput = (
+    <input
+      ref={input}
+      type="file"
+      accept="image/jpeg,image/png,image/webp,image/gif"
+      className="sr-only"
+      tabIndex={-1}
+      onChange={(e) => {
+        const f = e.target.files?.[0];
+        if (f) void upload(f);
+      }}
+    />
+  );
+
+  return { busy, pick: () => input.current?.click(), fileInput };
+}
+
+/**
+ * A picture for the website: upload one (it goes to the house's Cloudinary
+ * account) or paste a link, with a preview of what will show.
+ */
+export function ImageField({
+  id,
+  label,
+  hint,
+  error,
+  value,
+  disabled,
+  onChange,
+  className,
+}: {
+  id: string;
+  label: string;
+  hint?: string;
+  error?: string | null;
+  value: string;
+  disabled?: boolean;
+  onChange: (url: string) => void;
+  className?: string;
+}) {
+  const { busy, pick, fileInput } = useImageUpload(onChange);
+
   return (
     <Field label={label} hint={hint} error={error} htmlFor={id} className={className}>
       <div className="flex gap-3">
@@ -74,21 +98,11 @@ export function ImageField({
             placeholder="https://…"
             className="ed-field"
           />
-          <input
-            ref={input}
-            type="file"
-            accept="image/jpeg,image/png,image/webp,image/gif"
-            className="sr-only"
-            tabIndex={-1}
-            onChange={(e) => {
-              const f = e.target.files?.[0];
-              if (f) void upload(f);
-            }}
-          />
+          {fileInput}
           <button
             type="button"
             disabled={disabled || busy}
-            onClick={() => input.current?.click()}
+            onClick={pick}
             className="inline-flex h-10 items-center gap-2 rounded-xl border border-hairline bg-surface-raised px-3.5 text-[0.875rem] font-semibold text-ink hover:bg-surface-sunken disabled:opacity-60"
           >
             {busy ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> : <ImageUp className="h-4 w-4" aria-hidden />}
@@ -97,5 +111,55 @@ export function ImageField({
         </div>
       </div>
     </Field>
+  );
+}
+
+/** The same, small enough for one cell of the sheet: preview, link and an upload button. */
+export function CompactImageInput({
+  id,
+  value,
+  disabled,
+  invalid,
+  onChange,
+}: {
+  id: string;
+  value: string;
+  disabled?: boolean;
+  invalid?: boolean;
+  onChange: (url: string) => void;
+}) {
+  const { busy, pick, fileInput } = useImageUpload(onChange);
+  return (
+    <div className="flex items-center gap-2">
+      <span className="grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-lg border border-hairline bg-surface-sunken">
+        {value ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={value} alt="" className="h-full w-full object-cover" />
+        ) : (
+          <ImageUp className="h-4 w-4 text-ink-faint" aria-hidden />
+        )}
+      </span>
+      <input
+        id={id}
+        type="url"
+        value={value}
+        disabled={disabled || busy}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder="https://…"
+        aria-invalid={invalid || undefined}
+        className="ed-cell min-w-0 flex-1"
+      />
+      {fileInput}
+      <button
+        type="button"
+        disabled={disabled || busy}
+        onClick={pick}
+        title={value ? 'Replace picture' : 'Upload picture'}
+        aria-label={value ? 'Replace picture' : 'Upload picture'}
+        className="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-hairline bg-surface-raised text-ink hover:bg-surface-sunken disabled:opacity-60"
+      >
+        {busy ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> : <ImageUp className="h-4 w-4" aria-hidden />}
+      </button>
+    </div>
   );
 }

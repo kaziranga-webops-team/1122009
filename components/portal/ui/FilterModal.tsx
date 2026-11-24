@@ -1,10 +1,9 @@
 'use client';
 
 import React, { useEffect, useRef } from 'react';
-import { X, RotateCcw, SlidersHorizontal, Check } from 'lucide-react';
+import { X, SlidersHorizontal, Check } from 'lucide-react';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { Button } from './Button';
-import { Badge } from './Badge';
 import { cn } from '@/lib/utils';
 import { EASE_EDITORIAL } from './Motion';
 

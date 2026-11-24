@@ -76,11 +76,6 @@ export const CardHeader: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
   ...props
 }) => <div className={cn('px-5 pt-5 pb-3', className)} {...props} />;
 
-export const CardBody: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
-  className,
-  ...props
-}) => <div className={cn('px-5 py-4', className)} {...props} />;
-
 export const CardFooter: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
   className,
   ...props

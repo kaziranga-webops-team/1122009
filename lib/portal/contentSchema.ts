@@ -17,6 +17,11 @@ const url = text.refine(
   'Must start with http:// or https://'
 );
 const order = z.coerce.number().int().min(0).max(100000).optional();
+/** A calendar day as YYYY-MM-DD, or null when left empty. */
+const day = z.preprocess(
+  (v) => (v === '' || v == null ? null : String(v).slice(0, 10)),
+  z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Pick a date').nullable()
+);
 /** An ISO instant or null — the forms send '' when a date is cleared. */
 const instant = z.preprocess(
   (v) => (v === '' || v == null ? null : v),
@@ -127,6 +132,17 @@ const schemas = {
     url: url.pipe(z.string().min(1, 'Add the meeting or recording link')),
     sort_order: order,
   }),
+  academic_dates: z.object({
+    title: text.pipe(z.string().min(1, 'Title is required').max(200)),
+    kind: text.pipe(z.string().min(1, 'Pick what kind of date this is')),
+    starts_on: day.refine((v) => v !== null, 'Pick the date'),
+    ends_on: day.optional(),
+    audience: text,
+    term: text,
+    note: text,
+    url: url,
+    sort_order: order,
+  }),
   study_resources: z.object({
     title: text.pipe(z.string().min(1, 'Title is required').max(300)),
     url: url.pipe(z.string().min(1, 'Add the link')),
@@ -165,8 +181,6 @@ const schemas = {
     sort_order: order,
   }),
 } satisfies Record<ContentResource, z.ZodObject<z.ZodRawShape>>;
-
-export type ContentSchemas = typeof schemas;
 
 export function schemaFor(resource: ContentResource) {
   return schemas[resource];
@@ -212,6 +226,7 @@ export const RESOURCE_LABELS: Record<ContentResource, { title: string; singular:
   episodes: { title: 'Kaziranga Tak', singular: 'episode' },
   study_links: { title: 'Study links', singular: 'study link' },
   revision_sessions: { title: 'Revision sessions', singular: 'session' },
+  academic_dates: { title: 'Academic calendar', singular: 'date' },
   study_resources: { title: 'Study resources', singular: 'resource' },
   iitm_links: { title: 'IITM corner', singular: 'link' },
   course_channels: { title: 'YouTube channels', singular: 'channel' },

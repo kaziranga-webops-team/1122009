@@ -1,7 +1,7 @@
 'use client';
 export const dynamic = 'force-dynamic';
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { AuditLog } from '@/types/portal';
@@ -11,7 +11,6 @@ import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 import { AuditLogTable } from '@/components/portal/super-admin/AuditLogTable';
 import { SuperAdminNavTabs } from '@/components/portal/super-admin/SuperAdminNavTabs';
 import { SectionHeading } from '@/components/portal/ui/Section';
-import { History } from 'lucide-react';
 
 export default function ClassicSuperAdminAuditLogsPage() {
   const { user } = useAuth();

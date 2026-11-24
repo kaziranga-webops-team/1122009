@@ -183,11 +183,3 @@ export const byState = (pins: MeetupPin[]) => group(pins, (p) => p.state, stateK
 
 /** Pins per city, busiest city first. Several meetups share a city often. */
 export const byCity = (pins: MeetupPin[]) => group(pins, (p) => p.city, placeKey);
-
-/** Mean position of a set of pins — where a state's cluster marker sits. */
-export function centroid(pins: MeetupPin[]): { lat: number; lon: number } | null {
-  if (!pins.length) return null;
-  const lat = pins.reduce((s, p) => s + p.lat, 0) / pins.length;
-  const lon = pins.reduce((s, p) => s + p.lon, 0) / pins.length;
-  return { lat, lon };
-}

@@ -1,13 +1,13 @@
 'use client';
 export const dynamic = 'force-dynamic';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { EventGroup, EventItem, Registration } from '@/types/portal';
 import { isMockMode, db } from '@/lib/firebase';
 import { getDoc, getDocs, query, where } from 'firebase/firestore';
-import { getMainEventRef, getEventsCollectionRef, getRegistrationsCollectionRef, DEFAULT_TENURE_ID } from '@/lib/portal/firebase/paths';
+import { getMainEventRef, getEventsCollectionRef, DEFAULT_TENURE_ID } from '@/lib/portal/firebase/paths';
 import { mockStore } from '@/lib/portal/firebase/mockStore';
 import { INITIAL_EVENT_GROUPS } from '@/lib/portal/firebase/mockData';
 import { EventCard } from '@/components/portal/events/EventCard';
@@ -21,7 +21,6 @@ import { Stagger, StaggerItem, Reveal } from '@/components/portal/ui/Motion';
 import { SearchInput } from '@/components/portal/ui/SearchInput';
 import { FilterSelect } from '@/components/portal/ui/FilterSelect';
 import { FilterToolbar } from '@/components/portal/ui/FilterToolbar';
-import { cn } from '@/lib/utils';
 import { ArrowLeft, CalendarX2, AlertTriangle, Layers, Clock } from 'lucide-react';
 import { getOptimizedImageUrl } from '@/lib/portal/utils/imageFormatter';
 

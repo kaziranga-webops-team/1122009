@@ -1,15 +1,15 @@
 'use client';
 export const dynamic = 'force-dynamic';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { Registration, MainEvent, EventItem } from '@/types/portal';
 import { isMockMode, db } from '@/lib/firebase';
 import { sendNotice } from '@/lib/portal/portalApi';
 import { mockStore } from '@/lib/portal/firebase/mockStore';
-import { query, where, getDocs, updateDoc, doc, collection, setDoc, collectionGroup, increment } from 'firebase/firestore';
-import { getAllRegistrationsGroupRef, getAllEventsGroupRef, getRegistrationRef, getMainEventsCollectionRef, getEventRef, DEFAULT_TENURE_ID, DEFAULT_MAIN_EVENT_ID } from '@/lib/portal/firebase/paths';
+import { query, where, getDocs, updateDoc, doc, collection, setDoc, increment } from 'firebase/firestore';
+import { getAllRegistrationsGroupRef, getAllEventsGroupRef, getRegistrationRef, getMainEventsCollectionRef, getEventRef, DEFAULT_TENURE_ID } from '@/lib/portal/firebase/paths';
 import { Button } from '@/components/portal/ui/Button';
 import { ConfirmModal } from '@/components/portal/ui/ConfirmModal';
 import { EmptyState } from '@/components/portal/ui/EmptyState';
@@ -26,19 +26,7 @@ import { FilterSelect } from '@/components/portal/ui/FilterSelect';
 import { FilterToolbar } from '@/components/portal/ui/FilterToolbar';
 import { cn } from '@/lib/utils';
 import { formatDate } from '@/lib/portal/utils/formatDate';
-import {
-  CalendarX2,
-  ArrowRight,
-  ChevronDown,
-  LayoutGrid,
-  CalendarDays,
-  Calendar,
-  MapPin,
-  Clock,
-  UploadCloud,
-  CheckCircle2,
-  ExternalLink,
-} from 'lucide-react';
+import { CalendarX2, ArrowRight, ChevronDown, LayoutGrid, CalendarDays, Calendar, MapPin, Clock, UploadCloud, CheckCircle2 } from 'lucide-react';
 
 export default function MyRegistrationsPage() {
   const { user } = useAuth();

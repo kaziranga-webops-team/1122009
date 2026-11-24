@@ -4,16 +4,7 @@ import React, { useState } from 'react';
 import { SpreadsheetParseResult } from '@/types/portal';
 import { Modal } from '@/components/portal/ui/Modal';
 import { Button } from '@/components/portal/ui/Button';
-import {
-  CheckCircle2,
-  AlertTriangle,
-  FileSpreadsheet,
-  RefreshCw,
-  Layers,
-  UserPlus,
-  UserCheck,
-  UserX,
-} from 'lucide-react';
+import { AlertTriangle, RefreshCw } from 'lucide-react';
 
 interface SyncPreviewModalProps {
   isOpen: boolean;

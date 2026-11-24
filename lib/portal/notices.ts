@@ -33,21 +33,3 @@ export type Notice =
   | { kind: 'TEAM_READY'; event: EventPath; teamId: string }
   /** "Registration closes soon" notices for events closing within a day. */
   | { kind: 'DEADLINES' };
-
-export type NoticeKind = Notice['kind'];
-
-/** The event path stored on an event or registration document. */
-export function eventPathOf(e: {
-  id?: string;
-  eventId?: string;
-  tenureId?: string;
-  mainEventId?: string;
-  subEventId?: string | null;
-}, defaults: { tenureId: string; mainEventId: string }): EventPath {
-  return {
-    tenureId: e.tenureId || defaults.tenureId,
-    mainEventId: e.mainEventId || defaults.mainEventId,
-    eventId: (e.eventId || e.id) as string,
-    subEventId: e.subEventId ?? null,
-  };
-}

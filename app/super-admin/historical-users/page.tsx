@@ -1,7 +1,7 @@
 'use client';
 export const dynamic = 'force-dynamic';
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { UserProfile, Registration } from '@/types/portal';
@@ -11,11 +11,10 @@ import { collection, getDocs } from 'firebase/firestore';
 import { getAllRegistrationsGroupRef } from '@/lib/portal/firebase/paths';
 import { SuperAdminNavTabs } from '@/components/portal/super-admin/SuperAdminNavTabs';
 import { SectionHeading } from '@/components/portal/ui/Section';
-import { Card } from '@/components/portal/ui/Card';
 import { Badge } from '@/components/portal/ui/Badge';
 import { Button } from '@/components/portal/ui/Button';
 import { Modal } from '@/components/portal/ui/Modal';
-import { CalendarCheck, Clock, FolderArchive, Info, UserX, FileSpreadsheet } from 'lucide-react';
+import { CalendarCheck, FolderArchive } from 'lucide-react';
 import { DataTable } from '@/components/portal/ui/DataTable';
 import { EmptyState } from '@/components/portal/ui/EmptyState';
 import { RowSkeleton } from '@/components/portal/ui/Skeleton';
