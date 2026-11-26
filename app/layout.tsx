@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { Kalam, Mukta, Yatra_One } from "next/font/google";
 import Providers from "./providers";
+import { SITE_DESCRIPTION, SITE_NAME, SITE_TITLE, SITE_URL } from "@/lib/site";
 
 /**
  * The site's own faces, self-hosted by Next.js and preloaded with the page, so
@@ -21,18 +22,16 @@ const kalam = Kalam({ weight: ["300", "400", "700"], subsets: ["latin"], variabl
 const GOOGLE_FONTS_URL =
   "https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,800;1,400;1,500&family=Inter:wght@400;500;600;700&family=Caveat:wght@400;500;600;700&family=Montserrat:wght@400;500;600;700;800&display=swap";
 
-const SITE_URL = "https://kaziranga-house.vercel.app";
-const DESCRIPTION =
-  "Kaziranga House is a student community at IIT Madras BS Degree. Explore meetups, events, study resources, house council, gallery, and Kaziranga Tak.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "Kaziranga House — IIT Madras BS Degree",
+    default: SITE_TITLE,
     template: "%s | Kaziranga House",
   },
-  description: DESCRIPTION,
-  authors: [{ name: "Kaziranga House" }],
+  description: SITE_DESCRIPTION,
+  applicationName: SITE_NAME,
+  authors: [{ name: SITE_NAME }],
   alternates: { canonical: "/" },
   robots: {
     index: true,
@@ -42,20 +41,20 @@ export const metadata: Metadata = {
     "max-video-preview": -1,
   },
   icons: { icon: "/logo.png", apple: "/logo.png" },
+  // The share picture comes from app/opengraph-image.tsx (and twitter-image),
+  // which Next.js adds to every page with its size and alt text.
   openGraph: {
     type: "website",
-    siteName: "Kaziranga House",
-    title: "Kaziranga House — IIT Madras BS Degree",
-    description: DESCRIPTION,
+    siteName: SITE_NAME,
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
     url: SITE_URL,
     locale: "en_IN",
-    images: [{ url: "/logo.png" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Kaziranga House — IIT Madras BS Degree",
-    description: DESCRIPTION,
-    images: ["/logo.png"],
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
   },
 };
 
